@@ -8,6 +8,7 @@ import { config } from "../config.js"
 import { UserResource } from "./user.js"
 import { ProjectResource } from "./projects.js"
 import { SpaceResource } from "./spaces.js"
+import { BoardResource } from "./boards.js"
 
 /**
  * Main SuperThread API client.
@@ -17,7 +18,7 @@ import { SpaceResource } from "./spaces.js"
  * - `client.user.*` - User and workspace member operations
  * - `client.projects.*` - Roadmap project (epic) operations
  * - `client.spaces.*` - Space (organizational container) operations
- * - `client.boards.*` - Board operations (when added)
+ * - `client.boards.*` - Board and kanban operations
  * - etc.
  *
  * This pattern provides:
@@ -42,6 +43,9 @@ export class SuperThreadClient {
   /** Space (organizational container) operations */
   public spaces: SpaceResource
 
+  /** Board and kanban operations */
+  public boards: BoardResource
+
   constructor(apiKey: string, baseUrl: string) {
     this.apiKey = apiKey
     this.baseUrl = baseUrl
@@ -49,6 +53,7 @@ export class SuperThreadClient {
     this.user = new UserResource(this)
     this.projects = new ProjectResource(this)
     this.spaces = new SpaceResource(this)
+    this.boards = new BoardResource(this)
   }
 
   /**
