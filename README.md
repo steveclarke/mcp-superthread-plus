@@ -63,96 +63,18 @@ All configuration is done via environment variables:
 
 ## Available Tools
 
-### User & Team Management (5 tools)
-- `get_my_account` - Get current user info and team memberships
-- `update_my_account` - Update user profile
-- `get_team_members` - List workspace members
-- `update_team_member` - Modify member roles
-- `delete_team_member` - Remove team member
+> **Development Note**: This MCP server is under active development. We're implementing tools incrementally to establish solid patterns before scaling. Currently **3 tools** are available, with more being added based on usage needs.
 
-### Cards/Tasks (12 tools)
-- `create_card` - Create new task/card
-- `update_card` - Modify card properties
-- `get_card` - Get card details
-- `duplicate_card` - Clone a card
-- `get_cards_assigned_to_user` - List user's tasks
-- `add_related_card` - Link cards (blocks/blocked_by/relates_to)
-- `remove_related_card` - Unlink cards
-- `archive_card` - Archive card
-- `delete_card` - Permanently delete card
-- `get_tags` - List available tags
-- `add_tags_to_card` - Tag a card
-- `remove_tag_from_card` - Remove tag
+### User & Workspace Management (2 tools implemented)
+- ✅ `user_get_my_account` - Get current user info and workspace memberships
+- ✅ `user_get_members` - Get all members of a workspace
 
-### Roadmap Projects (8 tools)
-- `create_project` - Create roadmap project (epic)
-- `update_project` - Modify project
-- `get_project` - Get project details
-- `get_projects` - List all projects
-- `add_related_card` - Link card to project
-- `remove_related_card` - Unlink card
-- `archive_project` - Archive project
-- `delete_project` - Delete project
+### Card Management (1 tool implemented)
+- ✅ `card_create` - Create new card/task
 
-### Boards & Lists (8 tools)
-- `create_board` - Create new board
-- `update_board` - Modify board
-- `create_list` - Add status column to board
-- `update_list` - Modify list/status
-- `duplicate_board` - Clone board
-- `get_board` - Get board details
-- `get_boards` - List boards
-- `delete_board` - Delete board
+### Planned Tools (57 remaining)
 
-### Spaces (7 tools)
-- `create_space` - Create organizational space
-- `update_space` - Modify space
-- `get_space` - Get space details
-- `get_spaces` - List spaces
-- `add_member_to_space` - Add team member
-- `remove_member_from_space` - Remove member
-- `delete_space` - Delete space
-
-### Pages/Docs (7 tools)
-- `create_page` - Create documentation page
-- `update_page` - Modify page content
-- `get_page` - Get page content
-- `duplicate_page` - Clone page
-- `get_pages` - List pages
-- `archive_page` - Archive page
-- `delete_page` - Delete page
-
-### Notes (4 tools)
-- `create_note` - Create meeting note
-- `get_note` - Get note details
-- `get_notes` - List notes
-- `delete_note` - Delete note
-
-### Comments (8 tools)
-- `create_comment` - Add comment to card/page
-- `edit_comment` - Edit comment
-- `get_comment` - Get comment details
-- `get_all_replies_to_comment` - Get thread replies
-- `reply_to_comment` - Reply to comment
-- `edit_reply` - Edit reply
-- `delete_reply` - Delete reply
-- `delete_comment` - Delete comment
-
-### Search (1 tool)
-- `get_search_results` - Global search across all entities
-
-## Available Prompts
-
-### `/screenshot-to-tasks`
-Convert screenshot content into actionable SuperThread tasks with proper structure and priorities.
-
-**Parameters:**
-- `screenshot_description` - Description of screenshot content
-- `board_id` - Target board (optional)
-- `list_id` - Target status column (optional)
-- `project_context` - Project context (optional)
-
-**Use case:** AI analyzes screenshot descriptions and creates well-structured task breakdowns with titles, descriptions, priorities, and estimates ready for import.
+See **`docs/tool-names.md`** for the complete list of 60 planned tools with their implementation status. Tools will be added incrementally as patterns are refined and tested.
 
 ## Usage Examples
 
@@ -264,12 +186,18 @@ See `docs/terminology-mapping.md` for the complete UI → API terminology mappin
 
 ## Contributing
 
-Contributions welcome! Areas for improvement:
-- Implement remaining tool API calls (currently placeholders)
-- Add comprehensive test coverage
-- Enhance error handling
-- Add response filtering/formatting
+Contributions welcome! We're building this incrementally with a focus on quality:
+
+**Current Focus:**
+- Refining patterns for the 3 implemented tools
+- Adding new tools one-by-one using proven patterns
+- Comprehensive test coverage for implemented tools
+
+**Future Areas:**
+- Implement remaining 57 planned tools (see `docs/tool-names.md`)
+- Enhanced response filtering/formatting
 - Performance optimizations
+- Additional prompts (like screenshot-to-tasks)
 
 ## License
 

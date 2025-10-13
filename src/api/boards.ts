@@ -42,10 +42,34 @@ export class BoardResource {
    * @param filters - Optional filters
    * @returns List of boards
    */
-  async list(workspaceId: string, filters?: any): Promise<any[]> {
-    // TODO: Implement API call
-    // GET /{team_id}/boards
-    throw new Error("BoardResource.list() not implemented yet")
+  async list(
+    workspaceId: string,
+    spaceId?: string,
+    bookmarked?: boolean,
+    archived?: boolean
+  ): Promise<any[]> {
+    // Build query parameters - API requires at least one
+    const params = new URLSearchParams()
+
+    if (spaceId) params.append("project_id", spaceId)
+    if (bookmarked !== undefined) params.append("bookmarked", String(bookmarked))
+    if (archived !== undefined) params.append("archived", String(archived))
+
+    const queryString = params.toString()
+    console.log("Board list params:", { spaceId, bookmarked, archived, queryString })
+
+    if (queryString === "") {
+      throw new Error(
+        "At least one of space_id, bookmarked, or archived must be provided."
+      )
+    }
+
+    const url = `/${workspaceId}/boards?${queryString}`
+    console.log("Board list URL:", url)
+
+    return await this.client.request(url, {
+      method: "GET",
+    })
   }
 
   /**
@@ -85,39 +109,39 @@ export class BoardResource {
   }
 
   /**
-   * Creates a list (status column) in a board.
+   * Creates a status column in a board.
    * @param workspaceId - Workspace ID
    * @param boardId - Board ID
-   * @param data - List creation data
-   * @returns Created list
+   * @param data - Status creation data
+   * @returns Created status
    */
-  async createList(
+  async createStatus(
     workspaceId: string,
     boardId: string,
     data: any
   ): Promise<any> {
     // TODO: Implement API call
     // POST /{team_id}/boards/{board_id}/lists
-    throw new Error("BoardResource.createList() not implemented yet")
+    throw new Error("BoardResource.createStatus() not implemented yet")
   }
 
   /**
-   * Updates a list (status column) in a board.
+   * Updates a status column.
    * @param workspaceId - Workspace ID
    * @param boardId - Board ID
-   * @param listId - List ID (status_id in UI)
+   * @param statusId - Status ID (list_id in API)
    * @param data - Update data
-   * @returns Updated list
+   * @returns Updated status
    */
-  async updateList(
+  async updateStatus(
     workspaceId: string,
     boardId: string,
-    listId: string,
+    statusId: string,
     data: any
   ): Promise<any> {
     // TODO: Implement API call
     // PATCH /{team_id}/boards/{board_id}/lists/{list_id}
-    throw new Error("BoardResource.updateList() not implemented yet")
+    throw new Error("BoardResource.updateStatus() not implemented yet")
   }
 }
 

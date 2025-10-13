@@ -21,16 +21,20 @@ export class CommentResource {
   }
 
   /**
-   * Edits a comment.
+   * Updates a comment.
    * @param workspaceId - Workspace ID
    * @param commentId - Comment ID
    * @param data - Update data
    * @returns Updated comment
    */
-  async edit(workspaceId: string, commentId: string, data: any): Promise<any> {
+  async update(
+    workspaceId: string,
+    commentId: string,
+    data: any
+  ): Promise<any> {
     // TODO: Implement API call
     // PATCH /{team_id}/comments/{comment_id}
-    throw new Error("CommentResource.edit() not implemented yet")
+    throw new Error("CommentResource.update() not implemented yet")
   }
 
   /**
@@ -51,34 +55,38 @@ export class CommentResource {
    * @param commentId - Comment ID
    * @returns List of replies
    */
-  async getAllReplies(workspaceId: string, commentId: string): Promise<any[]> {
+  async getReplies(workspaceId: string, commentId: string): Promise<any[]> {
     // TODO: Implement API call
     // GET /{team_id}/comments/{comment_id}/replies
-    throw new Error("CommentResource.getAllReplies() not implemented yet")
+    throw new Error("CommentResource.getReplies() not implemented yet")
   }
 
   /**
-   * Replies to a comment.
+   * Creates a reply to a comment.
    * @param workspaceId - Workspace ID
    * @param commentId - Comment ID
    * @param data - Reply data
    * @returns Created reply
    */
-  async reply(workspaceId: string, commentId: string, data: any): Promise<any> {
+  async createReply(
+    workspaceId: string,
+    commentId: string,
+    data: any
+  ): Promise<any> {
     // TODO: Implement API call
     // POST /{team_id}/comments/{comment_id}/replies
-    throw new Error("CommentResource.reply() not implemented yet")
+    throw new Error("CommentResource.createReply() not implemented yet")
   }
 
   /**
-   * Edits a reply.
+   * Updates a reply.
    * @param workspaceId - Workspace ID
    * @param commentId - Comment ID
    * @param replyId - Reply ID
    * @param data - Update data
    * @returns Updated reply
    */
-  async editReply(
+  async updateReply(
     workspaceId: string,
     commentId: string,
     replyId: string,
@@ -86,7 +94,7 @@ export class CommentResource {
   ): Promise<any> {
     // TODO: Implement API call
     // PATCH /{team_id}/comments/{comment_id}/replies/{reply_id}
-    throw new Error("CommentResource.editReply() not implemented yet")
+    throw new Error("CommentResource.updateReply() not implemented yet")
   }
 
   /**

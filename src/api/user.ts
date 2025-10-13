@@ -30,45 +30,42 @@ export class UserResource {
   }
 
   /**
-   * Gets team members.
+   * Gets workspace members.
    * @param workspaceId - Workspace ID (maps to team_id in API)
-   * @returns List of team members
+   * @returns List of workspace members
    */
-  async getTeamMembers(workspaceId: string): Promise<any[]> {
-    // TODO: Implement API call
-    // GET /teams/{team_id}/members
-    throw new Error("UserResource.getTeamMembers() not implemented yet")
+  async getMembers(workspaceId: string): Promise<any[]> {
+    return await this.client.request(`/teams/${workspaceId}/members`, {
+      method: "GET",
+    })
   }
 
   /**
-   * Updates a team member.
+   * Updates a workspace member.
    * @param workspaceId - Workspace ID
    * @param memberId - Member ID
    * @param data - Update data
-   * @returns Updated team member
+   * @returns Updated member
    */
-  async updateTeamMember(
+  async updateMember(
     workspaceId: string,
     memberId: string,
     data: any
   ): Promise<any> {
     // TODO: Implement API call
     // PATCH /teams/{team_id}/members/{member_id}
-    throw new Error("UserResource.updateTeamMember() not implemented yet")
+    throw new Error("UserResource.updateMember() not implemented yet")
   }
 
   /**
-   * Deletes a team member.
+   * Deletes a workspace member.
    * @param workspaceId - Workspace ID
    * @param memberId - Member ID
    */
-  async deleteTeamMember(
-    workspaceId: string,
-    memberId: string
-  ): Promise<void> {
+  async deleteMember(workspaceId: string, memberId: string): Promise<void> {
     // TODO: Implement API call
     // DELETE /teams/{team_id}/members/{member_id}
-    throw new Error("UserResource.deleteTeamMember() not implemented yet")
+    throw new Error("UserResource.deleteMember() not implemented yet")
   }
 }
 

@@ -88,35 +88,35 @@ export class ProjectResource {
   }
 
   /**
-   * Adds a related card to a project.
+   * Adds a card to a roadmap project.
    * @param workspaceId - Workspace ID
    * @param projectId - Project ID
    * @param cardId - Card ID
    */
-  async addRelatedCard(
+  async addCard(
     workspaceId: string,
     projectId: string,
     cardId: string
   ): Promise<any> {
     // TODO: Implement API call
     // POST /{team_id}/epics/{epic_id}/related
-    throw new Error("ProjectResource.addRelatedCard() not implemented yet")
+    throw new Error("ProjectResource.addCard() not implemented yet")
   }
 
   /**
-   * Removes a related card from a project.
+   * Removes a card from a roadmap project.
    * @param workspaceId - Workspace ID
    * @param projectId - Project ID
    * @param cardId - Card ID
    */
-  async removeRelatedCard(
+  async removeCard(
     workspaceId: string,
     projectId: string,
     cardId: string
   ): Promise<void> {
     // TODO: Implement API call
     // DELETE /{team_id}/epics/{epic_id}/related/{card_id}
-    throw new Error("ProjectResource.removeRelatedCard() not implemented yet")
+    throw new Error("ProjectResource.removeCard() not implemented yet")
   }
 }
 

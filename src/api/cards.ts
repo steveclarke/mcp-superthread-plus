@@ -18,9 +18,10 @@ export class CardResource {
    * @returns Created card
    */
   async create(workspaceId: string, data: any): Promise<any> {
-    // TODO: Implement API call
-    // POST /{team_id}/cards
-    throw new Error("CardResource.create() not implemented yet")
+    return await this.client.request(`/${workspaceId}/cards`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    })
   }
 
   /**
@@ -101,13 +102,13 @@ export class CardResource {
   }
 
   /**
-   * Adds a related card relationship.
+   * Adds a card relationship (blocks, blocked_by, relates_to).
    * @param workspaceId - Workspace ID
    * @param cardId - Card ID
    * @param relatedCardId - Related card ID
    * @param relationType - Relationship type (blocks, blocked_by, relates_to)
    */
-  async addRelated(
+  async addRelation(
     workspaceId: string,
     cardId: string,
     relatedCardId: string,
@@ -115,23 +116,23 @@ export class CardResource {
   ): Promise<any> {
     // TODO: Implement API call
     // POST /{team_id}/cards/{card_id}/related
-    throw new Error("CardResource.addRelated() not implemented yet")
+    throw new Error("CardResource.addRelation() not implemented yet")
   }
 
   /**
-   * Removes a related card relationship.
+   * Removes a card relationship.
    * @param workspaceId - Workspace ID
    * @param cardId - Card ID
    * @param relatedCardId - Related card ID
    */
-  async removeRelated(
+  async removeRelation(
     workspaceId: string,
     cardId: string,
     relatedCardId: string
   ): Promise<void> {
     // TODO: Implement API call
     // DELETE /{team_id}/cards/{card_id}/related
-    throw new Error("CardResource.removeRelated() not implemented yet")
+    throw new Error("CardResource.removeRelation() not implemented yet")
   }
 
   /**
