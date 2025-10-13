@@ -5,6 +5,7 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { z } from "zod"
+import { createClient } from "../api/client.js"
 
 /**
  * Registers user and workspace member management tools with the MCP server.
@@ -23,9 +24,7 @@ export function registerUserTools(server: McpServer) {
     },
     async () => {
       try {
-        const { createClient } = await import("../api/client.js")
         const client = createClient()
-
         const account = await client.user.getMyAccount()
 
         return {
@@ -63,7 +62,6 @@ export function registerUserTools(server: McpServer) {
     },
     async (args) => {
       try {
-        const { createClient } = await import("../api/client.js")
         const client = createClient()
         const members = await client.user.getMembers(args.workspace_id)
 
