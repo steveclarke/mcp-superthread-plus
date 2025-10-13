@@ -57,8 +57,50 @@ export interface Card {
   estimate?: number
 }
 
+/**
+ * Parameters for creating a new card
+ */
+export interface CreateCardParams {
+  title: string
+  list_id: string
+  board_id?: string
+  sprint_id?: string
+  content?: string
+  project_id?: string
+  start_date?: number
+  due_date?: number
+  priority?: number
+  estimate?: number
+  parent_card_id?: string
+  epic_id?: string
+  owner_id?: string
+  members?: Array<{
+    user_id: string
+    role?: string
+  }>
+}
+
 export class CardResource {
   constructor(private client: SuperThreadClient) {}
+
+  /**
+   * Creates a new card.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param params - Card creation parameters
+   * @returns Created card details
+   */
+  async create(workspaceId: string, params: CreateCardParams): Promise<Card> {
+    // Validate required fields
+    if (!params.board_id && !params.sprint_id) {
+      throw new Error("Either board_id or sprint_id must be provided")
+    }
+
+    const response = await this.client.request<{ card: Card }>(`/${workspaceId}/cards`, {
+      method: "POST",
+      body: JSON.stringify(params),
+    })
+    return response.card
+  }
 
   /**
    * Gets a specific card with full details.
