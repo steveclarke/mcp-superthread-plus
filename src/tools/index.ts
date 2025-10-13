@@ -5,6 +5,7 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { registerUserTools } from "./user.js"
+import { registerProjectTools } from "./projects.js"
 
 /**
  * Registers all tools with the MCP server.
@@ -13,4 +14,5 @@ import { registerUserTools } from "./user.js"
  */
 export function registerAllTools(server: McpServer): void {
   registerUserTools(server)
+  registerProjectTools(server)
 }

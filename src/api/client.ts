@@ -6,22 +6,43 @@
 
 import { config } from "../config.js"
 import { UserResource } from "./user.js"
+import { ProjectResource } from "./projects.js"
 
 /**
  * Main SuperThread API client.
  * Provides access to all resource endpoints through a clean interface.
+ *
+ * Uses the Resource-Based API Client Pattern to organize operations by domain:
+ * - `client.user.*` - User and workspace member operations
+ * - `client.projects.*` - Roadmap project (epic) operations
+ * - `client.boards.*` - Board operations (when added)
+ * - etc.
+ *
+ * This pattern provides:
+ * - **Namespacing**: Groups related operations logically
+ * - **Discoverability**: IDE autocomplete shows organized methods
+ * - **Scalability**: Clean organization as we grow to 60+ tools
+ * - **Separation of concerns**: Each resource handles its domain
+ *
+ * Note: Resources are organizational wrappers, not caches. Each method call
+ * makes a fresh API request.
  */
 export class SuperThreadClient {
   private apiKey: string
   private baseUrl: string
 
+  /** User and workspace member operations */
   public user: UserResource
+
+  /** Roadmap project (epic) operations */
+  public projects: ProjectResource
 
   constructor(apiKey: string, baseUrl: string) {
     this.apiKey = apiKey
     this.baseUrl = baseUrl
 
     this.user = new UserResource(this)
+    this.projects = new ProjectResource(this)
   }
 
   /**
