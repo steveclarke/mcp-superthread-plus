@@ -80,6 +80,39 @@ export interface CreateCardParams {
   }>
 }
 
+/**
+ * Parameters for updating an existing card
+ * All fields are optional - only specified fields will be updated
+ *
+ * Note: Content cannot be updated via PATCH endpoint. The official API docs
+ * do not list 'content' as an updatable field, and testing confirms it doesn't work.
+ * Content editing likely requires the WebSocket-based collaboration API.
+ * (Some community implementations include 'content' but it has no effect)
+ */
+export interface UpdateCardParams {
+  title?: string
+  board_id?: string
+  list_id?: string
+  project_id?: string
+  sprint_id?: string
+  owner_id?: string
+  start_date?: number
+  due_date?: number
+  position?: number
+  priority?: number
+  estimate?: number
+  archived?: boolean
+  cover_image?: {
+    type: string
+    src?: string
+    blurhash?: string
+    color?: string
+    emoji?: string
+    positionY?: number
+    object_fit?: string
+  }
+}
+
 export class CardResource {
   constructor(private client: SuperThreadClient) {}
 
@@ -97,6 +130,22 @@ export class CardResource {
 
     const response = await this.client.request<{ card: Card }>(`/${workspaceId}/cards`, {
       method: "POST",
+      body: JSON.stringify(params),
+    })
+    return response.card
+  }
+
+  /**
+   * Updates an existing card.
+   * Note: If archived=true/false, only archiving is processed and other changes are ignored.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param cardId - Card ID to update
+   * @param params - Card update parameters (only specified fields will be updated)
+   * @returns Updated card details
+   */
+  async update(workspaceId: string, cardId: string, params: UpdateCardParams): Promise<Card> {
+    const response = await this.client.request<{ card: Card }>(`/${workspaceId}/cards/${cardId}`, {
+      method: "PATCH",
       body: JSON.stringify(params),
     })
     return response.card
