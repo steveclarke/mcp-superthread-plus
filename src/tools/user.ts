@@ -25,6 +25,7 @@ export function registerUserTools(server: McpServer) {
       try {
         const { createClient } = await import("../api/client.js")
         const client = createClient()
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const account = await client.user.getMyAccount()
 
         return {

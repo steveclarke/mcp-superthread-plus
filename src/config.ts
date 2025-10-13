@@ -44,4 +44,3 @@ export const config: Config = {
   apiKey: process.env.SUPERTHREAD_API_KEY || DEFAULT_API_KEY,
   baseUrl: process.env.SUPERTHREAD_API_BASE_URL || DEFAULT_BASE_URL,
 }
-

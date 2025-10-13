@@ -23,4 +23,3 @@ describe("Configuration", () => {
   // - Test config validation
   // - Test default values
 })
-

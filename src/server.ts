@@ -34,4 +34,3 @@ export async function startServer() {
   await mcpServer.connect(transport)
   console.error("MCP SuperThread Plus Server running on stdio")
 }
-

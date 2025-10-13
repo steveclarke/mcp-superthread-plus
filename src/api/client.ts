@@ -5,15 +5,15 @@
  */
 
 import { config } from "../config.js"
-import { CardResource } from "./cards.js"
-import { BoardResource } from "./boards.js"
-import { SpaceResource } from "./spaces.js"
-import { ProjectResource } from "./projects.js"
-import { PageResource } from "./pages.js"
-import { NoteResource } from "./notes.js"
-import { CommentResource } from "./comments.js"
+// import { CardResource } from "./cards.js"
+// import { BoardResource } from "./boards.js"
+// import { SpaceResource } from "./spaces.js"
+// import { ProjectResource } from "./projects.js"
+// import { PageResource } from "./pages.js"
+// import { NoteResource } from "./notes.js"
+// import { CommentResource } from "./comments.js"
 import { UserResource } from "./user.js"
-import { SearchResource } from "./search.js"
+// import { SearchResource } from "./search.js"
 
 /**
  * Main SuperThread API client.
@@ -24,30 +24,30 @@ export class SuperThreadClient {
   private baseUrl: string
 
   // Resource instances
-  public cards: CardResource
-  public boards: BoardResource
-  public spaces: SpaceResource
-  public projects: ProjectResource
-  public pages: PageResource
-  public notes: NoteResource
-  public comments: CommentResource
+  // public cards: CardResource
+  // public boards: BoardResource
+  // public spaces: SpaceResource
+  // public projects: ProjectResource
+  // public pages: PageResource
+  // public notes: NoteResource
+  // public comments: CommentResource
   public user: UserResource
-  public search: SearchResource
+  // public search: SearchResource
 
   constructor(apiKey: string, baseUrl: string) {
     this.apiKey = apiKey
     this.baseUrl = baseUrl
 
     // Initialize all resource instances
-    this.cards = new CardResource(this)
-    this.boards = new BoardResource(this)
-    this.spaces = new SpaceResource(this)
-    this.projects = new ProjectResource(this)
-    this.pages = new PageResource(this)
-    this.notes = new NoteResource(this)
-    this.comments = new CommentResource(this)
+    // this.cards = new CardResource(this)
+    // this.boards = new BoardResource(this)
+    // this.spaces = new SpaceResource(this)
+    // this.projects = new ProjectResource(this)
+    // this.pages = new PageResource(this)
+    // this.notes = new NoteResource(this)
+    // this.comments = new CommentResource(this)
     this.user = new UserResource(this)
-    this.search = new SearchResource(this)
+    // this.search = new SearchResource(this)
   }
 
   /**
@@ -58,6 +58,7 @@ export class SuperThreadClient {
    * @param options - Fetch options
    * @returns Parsed JSON response
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async request<T = any>(path: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseUrl}${path}`
 
@@ -72,9 +73,7 @@ export class SuperThreadClient {
 
     if (!response.ok) {
       const errorText = await response.text()
-      throw new Error(
-        `SuperThread API error (${response.status}): ${errorText}`
-      )
+      throw new Error(`SuperThread API error (${response.status}): ${errorText}`)
     }
 
     return (await response.json()) as T
@@ -90,10 +89,9 @@ export function createClient(): SuperThreadClient {
   if (!config.apiKey) {
     throw new Error(
       "SUPERTHREAD_API_KEY environment variable is required but not set. " +
-      "Please add it to your MCP server configuration."
+        "Please add it to your MCP server configuration."
     )
   }
 
   return new SuperThreadClient(config.apiKey, config.baseUrl)
 }
-

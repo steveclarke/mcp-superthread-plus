@@ -44,4 +44,3 @@ export function getErrorMessage(error: unknown): string {
   }
   return "Unknown error occurred"
 }
-

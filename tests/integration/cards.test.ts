@@ -9,11 +9,11 @@
  * - SUPERTHREAD_TEST_LIST_ID environment variable
  */
 
-import { describe, it, expect } from "vitest"
+import { describe, it } from "vitest"
 
 describe("Card API Integration", () => {
   // TODO: Implement integration tests once API client is implemented
-  
+
   it.skip("creates a card", async () => {
     // const client = createClient()
     // const card = await client.cards.create(workspaceId, {
@@ -42,9 +42,8 @@ describe("Card API Integration", () => {
 
 describe("Card Tools Integration", () => {
   // TODO: Implement MCP tool integration tests
-  
+
   it.skip("create_card tool works end-to-end", async () => {
     // Test tool through MCP server
   })
 })
-
