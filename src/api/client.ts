@@ -7,6 +7,7 @@
 import { config } from "../config.js"
 import { UserResource } from "./user.js"
 import { ProjectResource } from "./projects.js"
+import { SpaceResource } from "./spaces.js"
 
 /**
  * Main SuperThread API client.
@@ -15,6 +16,7 @@ import { ProjectResource } from "./projects.js"
  * Uses the Resource-Based API Client Pattern to organize operations by domain:
  * - `client.user.*` - User and workspace member operations
  * - `client.projects.*` - Roadmap project (epic) operations
+ * - `client.spaces.*` - Space (organizational container) operations
  * - `client.boards.*` - Board operations (when added)
  * - etc.
  *
@@ -37,12 +39,16 @@ export class SuperThreadClient {
   /** Roadmap project (epic) operations */
   public projects: ProjectResource
 
+  /** Space (organizational container) operations */
+  public spaces: SpaceResource
+
   constructor(apiKey: string, baseUrl: string) {
     this.apiKey = apiKey
     this.baseUrl = baseUrl
 
     this.user = new UserResource(this)
     this.projects = new ProjectResource(this)
+    this.spaces = new SpaceResource(this)
   }
 
   /**
