@@ -17,6 +17,24 @@ export interface CreateCommentParams {
 }
 
 /**
+ * Comment update parameters
+ */
+export interface UpdateCommentParams {
+  content?: string // Updated comment text (max 102400 chars)
+  schema?: number // Schema version
+  context?: string // Updated highlighted text context
+  status?: "resolved" | "open" | "orphaned" // Comment status
+}
+
+/**
+ * Reply to comment parameters
+ */
+export interface ReplyToCommentParams {
+  content: string // Reply text (required, max 102400 chars)
+  schema?: number // Schema version (optional)
+}
+
+/**
  * Comment information from SuperThread API
  */
 export interface Comment {
@@ -47,6 +65,13 @@ export interface CreateCommentResponse {
   comment: Comment
 }
 
+/**
+ * Reply to comment response
+ */
+export interface ReplyToCommentResponse {
+  child_comment: Comment
+}
+
 export class CommentResource {
   constructor(private client: SuperThreadClient) {}
 
@@ -60,6 +85,78 @@ export class CommentResource {
     return await this.client.request<CreateCommentResponse>(`/${workspaceId}/comments`, {
       method: "POST",
       body: JSON.stringify(params),
+    })
+  }
+
+  /**
+   * Updates an existing comment.
+   * Only the original author can modify comments.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param commentId - Comment ID to update
+   * @param params - Comment update parameters
+   * @returns Updated comment details
+   */
+  async update(
+    workspaceId: string,
+    commentId: string,
+    params: UpdateCommentParams
+  ): Promise<CreateCommentResponse> {
+    return await this.client.request<CreateCommentResponse>(
+      `/${workspaceId}/comments/${commentId}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(params),
+      }
+    )
+  }
+
+  /**
+   * Creates a reply (child comment) to an existing comment.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param commentId - Parent comment ID to reply to
+   * @param params - Reply parameters
+   * @returns Created reply details
+   */
+  async reply(
+    workspaceId: string,
+    commentId: string,
+    params: ReplyToCommentParams
+  ): Promise<ReplyToCommentResponse> {
+    return await this.client.request<ReplyToCommentResponse>(
+      `/${workspaceId}/comments/${commentId}/children`,
+      {
+        method: "POST",
+        body: JSON.stringify(params),
+      }
+    )
+  }
+
+  /**
+   * Retrieves a specific comment by ID.
+   * Includes metadata like author, reactions, timestamps, and child comments.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param commentId - Comment ID to retrieve
+   * @returns Comment details
+   */
+  async get(workspaceId: string, commentId: string): Promise<CreateCommentResponse> {
+    return await this.client.request<CreateCommentResponse>(
+      `/${workspaceId}/comments/${commentId}`,
+      {
+        method: "GET",
+      }
+    )
+  }
+
+  /**
+   * Permanently deletes a comment.
+   * Only the original author can delete their own comment.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param commentId - Comment ID to delete
+   * @returns void (204 No Content)
+   */
+  async delete(workspaceId: string, commentId: string): Promise<void> {
+    await this.client.request<void>(`/${workspaceId}/comments/${commentId}`, {
+      method: "DELETE",
     })
   }
 }
