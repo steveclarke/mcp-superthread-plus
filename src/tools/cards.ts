@@ -842,4 +842,146 @@ export function registerCardTools(server: McpServer) {
       }
     }
   )
+
+  // card_delete_checklist_item - Delete checklist item
+  server.registerTool(
+    "card_delete_checklist_item",
+    {
+      title: "Delete Checklist Item",
+      description:
+        "Permanently delete a checklist item. ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API and may change without notice.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        card_id: z.string().describe("Card ID containing the checklist"),
+        checklist_id: z.string().describe("Checklist ID containing the item"),
+        item_id: z.string().describe("Item ID to delete"),
+      },
+    },
+    async (args: {
+      workspace_id: string
+      card_id: string
+      checklist_id: string
+      item_id: string
+    }) => {
+      try {
+        const client = createClient()
+        const result: Awaited<ReturnType<typeof client.cards.deleteChecklistItem>> =
+          await client.cards.deleteChecklistItem(
+            args.workspace_id,
+            args.card_id,
+            args.checklist_id,
+            args.item_id
+          )
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
+
+  // card_update_checklist - Update checklist title
+  server.registerTool(
+    "card_update_checklist",
+    {
+      title: "Update Checklist",
+      description:
+        "Update a checklist's title. ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API and may change without notice.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        card_id: z.string().describe("Card ID containing the checklist"),
+        checklist_id: z.string().describe("Checklist ID to update"),
+        title: z.string().describe("New checklist title"),
+      },
+    },
+    async (args: {
+      workspace_id: string
+      card_id: string
+      checklist_id: string
+      title: string
+    }) => {
+      try {
+        const client = createClient()
+        const result: Awaited<ReturnType<typeof client.cards.updateChecklist>> =
+          await client.cards.updateChecklist(
+            args.workspace_id,
+            args.card_id,
+            args.checklist_id,
+            args.title
+          )
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
+
+  // card_delete_checklist - Delete checklist
+  server.registerTool(
+    "card_delete_checklist",
+    {
+      title: "Delete Checklist",
+      description:
+        "Permanently delete an entire checklist from a card. ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API and may change without notice.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        card_id: z.string().describe("Card ID containing the checklist"),
+        checklist_id: z.string().describe("Checklist ID to delete"),
+      },
+    },
+    async (args: { workspace_id: string; card_id: string; checklist_id: string }) => {
+      try {
+        const client = createClient()
+        const result: Awaited<ReturnType<typeof client.cards.deleteChecklist>> =
+          await client.cards.deleteChecklist(args.workspace_id, args.card_id, args.checklist_id)
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
 }

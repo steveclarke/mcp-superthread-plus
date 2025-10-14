@@ -1,6 +1,6 @@
 # API Coverage
 
-Complete list of all 63 planned tools, their SuperThread API endpoints, and implementation status.
+Complete list of all 66 planned tools, their SuperThread API endpoints, and implementation status.
 
 ## Development Approach
 
@@ -19,7 +19,7 @@ Tools are organized into 9 categories matching SuperThread's domain model.
 | Category           | Total Tools | Implemented | Read-Only | Write  | Status              |
 | ------------------ | ----------- | ----------- | --------- | ------ | ------------------- |
 | Users              | 5           | 2           | 2         | 0      | 40% ✅               |
-| Cards              | 16          | 16          | 3         | 13     | 100% ✅              |
+| Cards              | 19          | 19          | 3         | 16     | 100% ✅              |
 | Projects (Roadmap) | 7           | 7           | 2         | 5      | 100% ✅              |
 | Boards             | 8           | 8           | 2         | 6      | 100% ✅              |
 | Spaces             | 7           | 2           | 2         | 0      | 29% ✅               |
@@ -27,7 +27,7 @@ Tools are organized into 9 categories matching SuperThread's domain model.
 | Notes              | 4           | 0           | 0         | 0      | 0% ⏸️                |
 | Comments           | 8           | 8           | 2         | 6      | 100% ✅              |
 | Search             | 1           | 1           | 1         | 0      | 100% ✅              |
-| **Total**          | **63**      | **43**      | **15**    | **28** | **68% implemented** |
+| **Total**          | **66**      | **46**      | **15**    | **31** | **70% implemented** |
 
 **Legend:** ✅ Partial | 🚧 In Progress | ⏸️ Planned
 
@@ -48,7 +48,7 @@ Tools are organized into 9 categories matching SuperThread's domain model.
 | `user_update_member`     | PATCH  | `/{team_id}/members/{member_id}` | Update member role  |
 | `user_delete_member`     | DELETE | `/{team_id}/members/{member_id}` | Remove member       |
 
-## Cards (16 tools)
+## Cards (19 tools)
 
 ### Implemented ✅
 
@@ -70,11 +70,14 @@ Tools are organized into 9 categories matching SuperThread's domain model.
 | `card_create_checklist`      | POST   | `/{team_id}/cards/{card_id}/checklists`                                | Create checklist on card ⚠️ UNDOCUMENTED            |
 | `card_add_checklist_item`    | POST   | `/{team_id}/cards/{card_id}/checklists/{checklist_id}/items`           | Add item to checklist ⚠️ UNDOCUMENTED               |
 | `card_update_checklist_item` | PATCH  | `/{team_id}/cards/{card_id}/checklists/{checklist_id}/items/{item_id}` | Update checklist item (check/title) ⚠️ UNDOCUMENTED |
+| `card_delete_checklist_item` | DELETE | `/{team_id}/cards/{card_id}/checklists/{checklist_id}/items/{item_id}` | Delete checklist item ⚠️ UNDOCUMENTED               |
+| `card_update_checklist`      | PATCH  | `/{team_id}/cards/{card_id}/checklists/{checklist_id}`                 | Update checklist title ⚠️ UNDOCUMENTED              |
+| `card_delete_checklist`      | DELETE | `/{team_id}/cards/{card_id}/checklists/{checklist_id}`                 | Delete entire checklist ⚠️ UNDOCUMENTED             |
 
 ### Notes
 
 - **Archive functionality** is handled by `card_update` with `archived: true/false` parameter (no separate tool needed)
-- ⚠️ **UNDOCUMENTED ENDPOINTS**: `card_add_member`, `card_remove_member`, `card_create_checklist`, `card_add_checklist_item`, and `card_update_checklist_item` were discovered via browser network inspection and are NOT in SuperThread's official API documentation. These may change without notice.
+- ⚠️ **UNDOCUMENTED ENDPOINTS**: All checklist management tools (`card_create_checklist`, `card_add_checklist_item`, `card_update_checklist_item`, `card_delete_checklist_item`, `card_update_checklist`, `card_delete_checklist`) and card member assignment tools (`card_add_member`, `card_remove_member`) were discovered via browser network inspection and are NOT in SuperThread's official API documentation. These may change without notice.
 - See "Known API Limitations" section below for constraint on updating `content`
 
 ## Projects/Roadmap (7 tools)

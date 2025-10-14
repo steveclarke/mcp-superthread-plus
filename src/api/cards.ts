@@ -670,4 +670,87 @@ export class CardResource {
     )
     return response
   }
+
+  /**
+   * Deletes a checklist item.
+   *
+   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API.
+   * It was discovered via browser network inspection and may change without notice.
+   *
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param cardId - Card ID containing the checklist
+   * @param checklistId - Checklist ID containing the item
+   * @param itemId - Item ID to delete
+   * @returns Success response
+   */
+  async deleteChecklistItem(
+    workspaceId: string,
+    cardId: string,
+    checklistId: string,
+    itemId: string
+  ): Promise<{ success: boolean }> {
+    const response = await this.client.request<{ success: boolean }>(
+      `/${workspaceId}/cards/${cardId}/checklists/${checklistId}/items/${itemId}`,
+      {
+        method: "DELETE",
+      }
+    )
+    return response
+  }
+
+  /**
+   * Updates a checklist (e.g., to change its title).
+   *
+   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API.
+   * It was discovered via browser network inspection and may change without notice.
+   *
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param cardId - Card ID containing the checklist
+   * @param checklistId - Checklist ID to update
+   * @param title - New checklist title
+   * @returns Checklist update response
+   */
+  async updateChecklist(
+    workspaceId: string,
+    cardId: string,
+    checklistId: string,
+    title: string
+  ): Promise<{ checklist: Checklist }> {
+    const response = await this.client.request<{ checklist: Checklist }>(
+      `/${workspaceId}/cards/${cardId}/checklists/${checklistId}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify({
+          card_id: cardId,
+          title,
+        }),
+      }
+    )
+    return response
+  }
+
+  /**
+   * Deletes an entire checklist from a card.
+   *
+   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API.
+   * It was discovered via browser network inspection and may change without notice.
+   *
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param cardId - Card ID containing the checklist
+   * @param checklistId - Checklist ID to delete
+   * @returns Success response
+   */
+  async deleteChecklist(
+    workspaceId: string,
+    cardId: string,
+    checklistId: string
+  ): Promise<{ success: boolean }> {
+    const response = await this.client.request<{ success: boolean }>(
+      `/${workspaceId}/cards/${cardId}/checklists/${checklistId}`,
+      {
+        method: "DELETE",
+      }
+    )
+    return response
+  }
 }
