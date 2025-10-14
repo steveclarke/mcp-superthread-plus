@@ -11,6 +11,46 @@ import type { SuperThreadClient } from "./client.js"
 /**
  * Space (organizational container) information from SuperThread API
  */
+/**
+ * Parameters for creating a space
+ */
+export interface CreateSpaceParams {
+  title: string
+  description?: string
+  icon?: {
+    type: string
+    src?: string
+    emoji?: string
+    color?: string
+  }
+}
+
+/**
+ * Parameters for updating a space
+ */
+export interface UpdateSpaceParams {
+  title?: string
+  description?: string
+  icon?: {
+    type?: string
+    src?: string
+    emoji?: string
+    color?: string
+  }
+  archived?: boolean
+}
+
+/**
+ * Parameters for adding a member to a space
+ */
+export interface AddSpaceMemberParams {
+  user_id: string
+  role?: string
+}
+
+/**
+ * Space (organizational container) information from SuperThread API
+ */
 export interface Space {
   id: string
   team_id: string
@@ -67,5 +107,90 @@ export class SpaceResource {
       }
     )
     return response.project
+  }
+
+  /**
+   * Creates a new space (organizational container).
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param params - Space creation parameters
+   * @returns Created space
+   */
+  async create(workspaceId: string, params: CreateSpaceParams): Promise<Space> {
+    const response = await this.client.request<{ project: Space }>(`/${workspaceId}/projects`, {
+      method: "POST",
+      body: JSON.stringify(params),
+    })
+    return response.project
+  }
+
+  /**
+   * Updates an existing space.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param spaceId - Space ID (maps to project_id in API)
+   * @param params - Space update parameters
+   * @returns Updated space
+   */
+  async update(workspaceId: string, spaceId: string, params: UpdateSpaceParams): Promise<Space> {
+    const response = await this.client.request<{ project: Space }>(
+      `/${workspaceId}/projects/${spaceId}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(params),
+      }
+    )
+    return response.project
+  }
+
+  /**
+   * Adds a member to a space.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param spaceId - Space ID (maps to project_id in API)
+   * @param params - Member to add
+   * @returns Success response
+   */
+  async addMember(
+    workspaceId: string,
+    spaceId: string,
+    params: AddSpaceMemberParams
+  ): Promise<{ success: boolean }> {
+    return await this.client.request<{ success: boolean }>(
+      `/${workspaceId}/projects/${spaceId}/members`,
+      {
+        method: "POST",
+        body: JSON.stringify(params),
+      }
+    )
+  }
+
+  /**
+   * Removes a member from a space.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param spaceId - Space ID (maps to project_id in API)
+   * @param memberId - Member ID to remove
+   * @returns Success response
+   */
+  async removeMember(
+    workspaceId: string,
+    spaceId: string,
+    memberId: string
+  ): Promise<{ success: boolean }> {
+    return await this.client.request<{ success: boolean }>(
+      `/${workspaceId}/projects/${spaceId}/members/${memberId}`,
+      {
+        method: "DELETE",
+      }
+    )
+  }
+
+  /**
+   * Deletes a space permanently.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param spaceId - Space ID (maps to project_id in API)
+   * @returns Success response
+   */
+  async delete(workspaceId: string, spaceId: string): Promise<{ success: boolean }> {
+    return await this.client.request<{ success: boolean }>(`/${workspaceId}/projects/${spaceId}`, {
+      method: "DELETE",
+    })
   }
 }
