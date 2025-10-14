@@ -6,7 +6,12 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { z } from "zod"
 import { createClient } from "../api/client.js"
-import type { CreateCardParams, UpdateCardParams } from "../api/cards.js"
+import type {
+  CreateCardParams,
+  UpdateCardParams,
+  GetAssignedCardsParams,
+  AddRelatedCardParams,
+} from "../api/cards.js"
 
 /**
  * Registers card management tools with the MCP server.
@@ -176,6 +181,223 @@ export function registerCardTools(server: McpServer) {
             {
               type: "text",
               text: JSON.stringify(card, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${errorMessage}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
+
+  // card_get_assigned - Get cards assigned to a user
+  server.registerTool(
+    "card_get_assigned",
+    {
+      title: "Get Cards Assigned to User",
+      description:
+        "Retrieve cards assigned to a specific user. Supports extensive filtering by project, board, list, sprint, dates, priority, statuses, and tags.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        user_id: z.string().describe("User ID to get assigned cards for"),
+        project_id: z.string().optional().describe("Filter by project/space ID"),
+        board_id: z.string().optional().describe("Filter by board ID"),
+        list_id: z.string().optional().describe("Filter by list ID"),
+        sprint_id: z.string().optional().describe("Filter by sprint ID"),
+        parent_card_id: z.string().optional().describe("Filter by parent card ID"),
+        archived: z.boolean().optional().describe("Filter by archived status"),
+        bookmarked: z.boolean().optional().describe("Filter by bookmarked status"),
+        start_date_min: z.number().optional().describe("Minimum start date (Unix timestamp)"),
+        start_date_max: z.number().optional().describe("Maximum start date (Unix timestamp)"),
+        due_date_min: z.number().optional().describe("Minimum due date (Unix timestamp)"),
+        due_date_max: z.number().optional().describe("Maximum due date (Unix timestamp)"),
+        completed_date_min: z
+          .number()
+          .optional()
+          .describe("Minimum completed date (Unix timestamp)"),
+        completed_date_max: z
+          .number()
+          .optional()
+          .describe("Maximum completed date (Unix timestamp)"),
+        priority: z.number().optional().describe("Filter by priority level"),
+        statuses: z
+          .array(z.string())
+          .optional()
+          .describe('Filter by statuses (e.g., ["started", "completed"])'),
+        tags: z.array(z.string()).optional().describe("Filter by tag names"),
+      },
+    },
+    async (args) => {
+      try {
+        const client = createClient()
+
+        const params: GetAssignedCardsParams = {
+          user_id: args.user_id,
+        }
+
+        if (args.project_id) params.project_id = args.project_id
+        if (args.board_id) params.board_id = args.board_id
+        if (args.list_id) params.list_id = args.list_id
+        if (args.sprint_id) params.sprint_id = args.sprint_id
+        if (args.parent_card_id) params.parent_card_id = args.parent_card_id
+        if (args.archived !== undefined) params.archived = args.archived
+        if (args.bookmarked !== undefined) params.bookmarked = args.bookmarked
+        if (args.start_date_min) params.start_date_min = args.start_date_min
+        if (args.start_date_max) params.start_date_max = args.start_date_max
+        if (args.due_date_min) params.due_date_min = args.due_date_min
+        if (args.due_date_max) params.due_date_max = args.due_date_max
+        if (args.completed_date_min) params.completed_date_min = args.completed_date_min
+        if (args.completed_date_max) params.completed_date_max = args.completed_date_max
+        if (args.priority !== undefined) params.priority = args.priority
+        if (args.statuses) params.statuses = args.statuses
+        if (args.tags) params.tags = args.tags
+
+        const cards = await client.cards.getAssigned(args.workspace_id, params)
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(cards, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${errorMessage}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
+
+  // card_add_related - Link two cards with a relationship
+  server.registerTool(
+    "card_add_related",
+    {
+      title: "Add Related Card",
+      description:
+        'Link two cards with a relationship. Types: "blocks", "blocked_by", "relates_to", "duplicates", "duplicated_by".',
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        card_id: z.string().describe("Source card ID"),
+        related_card_id: z.string().describe("Related card ID to link"),
+        relation_type: z
+          .enum(["blocks", "blocked_by", "relates_to", "duplicates", "duplicated_by"])
+          .describe("Type of relationship between cards"),
+      },
+    },
+    async (args) => {
+      try {
+        const client = createClient()
+
+        const params: AddRelatedCardParams = {
+          related_card_id: args.related_card_id,
+          relation_type: args.relation_type,
+        }
+
+        const card = await client.cards.addRelated(args.workspace_id, args.card_id, params)
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(card, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${errorMessage}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
+
+  // card_duplicate - Duplicate an existing card
+  server.registerTool(
+    "card_duplicate",
+    {
+      title: "Duplicate Card",
+      description:
+        "Clone an existing card with all its properties, checklists, and metadata. The new card will be created in the same list as the original.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        card_id: z.string().describe("Card ID to duplicate"),
+      },
+    },
+    async (args) => {
+      try {
+        const client = createClient()
+        const duplicatedCard = await client.cards.duplicate(args.workspace_id, args.card_id)
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(duplicatedCard, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${errorMessage}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
+
+  // card_delete - Permanently delete a card
+  server.registerTool(
+    "card_delete",
+    {
+      title: "Delete Card",
+      description:
+        "Permanently delete a card. This action cannot be undone. Consider archiving instead for soft deletion.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        card_id: z.string().describe("Card ID to delete"),
+      },
+    },
+    async (args) => {
+      try {
+        const client = createClient()
+        const result = await client.cards.delete(args.workspace_id, args.card_id)
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
             },
           ],
         }

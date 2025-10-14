@@ -113,6 +113,38 @@ export interface UpdateCardParams {
   }
 }
 
+/**
+ * Parameters for getting cards assigned to a user
+ * Supports extensive filtering options
+ */
+export interface GetAssignedCardsParams {
+  user_id: string
+  project_id?: string
+  board_id?: string
+  list_id?: string
+  sprint_id?: string
+  parent_card_id?: string
+  archived?: boolean
+  bookmarked?: boolean
+  start_date_min?: number
+  start_date_max?: number
+  due_date_min?: number
+  due_date_max?: number
+  completed_date_min?: number
+  completed_date_max?: number
+  priority?: number
+  statuses?: string[]
+  tags?: string[]
+}
+
+/**
+ * Parameters for adding a related card
+ */
+export interface AddRelatedCardParams {
+  related_card_id: string
+  relation_type: "blocks" | "blocked_by" | "relates_to" | "duplicates" | "duplicated_by"
+}
+
 export class CardResource {
   constructor(private client: SuperThreadClient) {}
 
@@ -162,5 +194,76 @@ export class CardResource {
       method: "GET",
     })
     return response.card
+  }
+
+  /**
+   * Gets cards assigned to a user with optional filtering.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param params - Filter parameters (user_id required, others optional)
+   * @returns List of cards assigned to the user
+   */
+  async getAssigned(workspaceId: string, params: GetAssignedCardsParams): Promise<Card[]> {
+    const response = await this.client.request<{ cards: Card[] }>(
+      `/${workspaceId}/cards/assigned`,
+      {
+        method: "POST",
+        body: JSON.stringify(params),
+      }
+    )
+    return response.cards || []
+  }
+
+  /**
+   * Links two cards with a relationship.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param cardId - Source card ID
+   * @param params - Related card parameters (related_card_id and relation_type)
+   * @returns Updated card details
+   */
+  async addRelated(
+    workspaceId: string,
+    cardId: string,
+    params: AddRelatedCardParams
+  ): Promise<Card> {
+    const response = await this.client.request<{ card: Card }>(
+      `/${workspaceId}/cards/${cardId}/related`,
+      {
+        method: "POST",
+        body: JSON.stringify(params),
+      }
+    )
+    return response.card
+  }
+
+  /**
+   * Duplicates an existing card.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param cardId - Card ID to duplicate
+   * @returns The newly created duplicate card
+   */
+  async duplicate(workspaceId: string, cardId: string): Promise<Card> {
+    const response = await this.client.request<{ card: Card }>(
+      `/${workspaceId}/cards/${cardId}/duplicate`,
+      {
+        method: "POST",
+      }
+    )
+    return response.card
+  }
+
+  /**
+   * Permanently deletes a card.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param cardId - Card ID to delete
+   * @returns Success response
+   */
+  async delete(workspaceId: string, cardId: string): Promise<{ success: boolean }> {
+    const response = await this.client.request<{ success: boolean }>(
+      `/${workspaceId}/cards/${cardId}`,
+      {
+        method: "DELETE",
+      }
+    )
+    return response
   }
 }
