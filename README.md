@@ -28,50 +28,38 @@ Perfect for teams using AI to streamline project setup, task creation from requi
 
 ## Installation
 
-### Public Installation (Coming Soon)
+### For Team Members
 
-Once published to NPM, you'll be able to install via `npx`:
+Install from the shared tarball:
+
+```bash
+npm install -g ~/path/to/mcp-superthread-plus-0.1.0.tgz
+```
+
+Then configure Claude Desktop (`~/Library/Application Support/Claude/claude_desktop_config.json`):
 
 ```json
 {
   "mcpServers": {
-    "Superthread": {
-      "command": "npx",
-      "args": ["-y", "mcp-superthread-plus"],
+    "superthread": {
+      "command": "mcp-superthread-plus",
       "env": {
-        "SUPERTHREAD_API_KEY": "your-personal-access-token"
+        "SUPERTHREAD_API_KEY": "your-api-key-here"
       }
     }
   }
 }
 ```
 
-### Team Distribution (Before NPM Publication)
-
-For distributing to team members who don't have development tools:
-
-1. **Create distribution package:**
-   ```bash
-   pnpm run pack:dist
-   ```
-   This creates `mcp-superthread-plus-X.X.X.tgz`
-
-2. **Share the tarball** with team members (via shared drive, email, etc.)
-
-3. **Team members install:**
-   ```bash
-   npm install -g ~/path/to/mcp-superthread-plus-0.1.0.tgz
-   ```
-
-4. **Configure MCP client** (see `DISTRIBUTION.md` for detailed instructions)
-
-For complete team distribution instructions, see **`DISTRIBUTION.md`**.
+**Requirements:** Node.js 22+
 
 ### Getting Your API Key
 
-**API Key**: Go to Superthread → Account Settings → API → Create Personal Access Token
+1. Log into Superthread → Settings → API
+2. Create Personal Access Token
+3. Add to your Claude config above
 
-**Workspace IDs**: After setup, use the `get_my_account` tool to see all your workspaces and their IDs. You'll provide the workspace ID when calling specific tools.
+**Workspace IDs**: After setup, use the `get_my_account` tool to see all your workspaces and their IDs.
 
 ## Configuration
 

@@ -1,0 +1,64 @@
+# Source files (compiled to dist/)
+src/
+tests/
+
+# Config files for development
+tsconfig.json
+vitest.config.ts
+eslint.config.js
+.prettierrc
+.prettierignore
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+
+# IDE
+.vscode/
+.idea/
+.cursor/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Test coverage
+coverage/
+
+# Temporary files
+tmp/
+tests/tmp/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.tsbuildinfo
+
+# Environment
+.env
+.env.*
+
+# Documentation (keep README, LICENSE, CHANGELOG)
+docs/
+
+# Package manager lock files
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+pnpm-workspace.yaml
+
+# Distribution artifacts
+*.tgz
+
