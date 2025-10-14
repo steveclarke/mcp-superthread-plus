@@ -180,13 +180,19 @@ These will be added incrementally as we refine implementation patterns.
 ## Known API Limitations
 
 ### Card Content Updates
-**Issue:** The `content` field cannot be updated via the PATCH `/{team_id}/cards/{card_id}` endpoint.
+**Issue:** The `content` field cannot be updated via REST API endpoints.
 
-**Reason:** Card content editing likely requires the WebSocket-based real-time collaboration API for concurrent editing support.
+**Reason:** SuperThread uses [TipTap collaborative editor](https://newsletter.superthread.com/p/how-we-implemented-tiptap-editor) (built on ProseMirror) for all rich text content. Content changes are synced through a real-time collaboration protocol using operational transforms, not traditional REST API endpoints. Each card has a collaboration token (JWT) for connecting to the TipTap collaboration server.
 
-**Workaround:** Content can only be set during card creation via `card_create`. To update content, you must use the SuperThread UI or implement WebSocket collaboration protocol.
+**Technical Details:**
+- Content is edited via TipTap's collaborative editing protocol (WebSocket-based)
+- Changes are sent as operational transforms (small incremental operations)
+- The collaboration token in card responses is used for real-time sync
+- Activity polling (`GET /{team_id}/activity?card_id={card_id}`) tracks changes after they're synced
 
-**Reference:** Official API documentation does not list `content` as an updatable field for the PATCH endpoint.
+**Workaround:** Content can only be set during card creation via `card_create`. To update existing content, you must use the SuperThread UI. Programmatic content updates would require implementing the TipTap collaboration protocol, which is beyond the scope of a REST API client.
+
+**Status:** This is an architectural limitation, not a missing API endpoint. Network inspection confirmed no REST endpoint exists for content updates.
 
 ### Card Member Assignment ✅ SOLVED VIA NETWORK INSPECTION
 **Solution Found:** Members can be added/removed from existing cards using undocumented endpoints discovered via browser network inspection:
