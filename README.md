@@ -85,7 +85,7 @@ All configuration is done via environment variables:
 
 ### Planned Tools (57 remaining)
 
-See **`docs/tool-names.md`** for the complete list of 60 planned tools with their implementation status. Tools will be added incrementally as patterns are refined and tested.
+See **`docs/contributing/API-REFERENCE.md`** for the complete list of 60 planned tools with their implementation status. Tools will be added incrementally as patterns are refined and tested.
 
 ## Usage Examples
 
@@ -181,13 +181,15 @@ Configure your MCP client to run from your local development directory:
 
 ## Architecture
 
-See `docs/architecture.md` for detailed information about:
+See `docs/contributing/ARCHITECTURE.md` for detailed information about:
 - API abstraction layer design
 - Resource-based client organization
 - Error handling strategy
 - Authentication flow
 
-See `docs/terminology-mapping.md` for the complete UI → API terminology mapping reference.
+See `docs/contributing/API-REFERENCE.md#terminology-mapping` for the complete UI → API terminology mapping reference.
+
+See `docs/NOTES.md` for important notes about Superthread API quirks, limitations, and undocumented features.
 
 ## Requirements
 
@@ -205,7 +207,7 @@ Contributions welcome! We're building this incrementally with a focus on quality
 - Comprehensive test coverage for implemented tools
 
 **Future Areas:**
-- Implement remaining 57 planned tools (see `docs/tool-names.md`)
+- Implement remaining 57 planned tools (see `docs/contributing/API-REFERENCE.md`)
 - Enhanced response filtering/formatting
 - Performance optimizations
 - Additional prompts (like screenshot-to-tasks)

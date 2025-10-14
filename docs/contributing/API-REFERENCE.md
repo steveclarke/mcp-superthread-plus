@@ -1,20 +1,10 @@
-# API Coverage
+# API Reference
 
-Complete list of all 66 planned tools, their Superthread API endpoints, and implementation status.
+Complete reference for all MCP tools, implementation status, API endpoints, and terminology mapping.
 
-## Development Approach
+## Implementation Status
 
-We're implementing tools **incrementally** to establish solid patterns before scaling:
-
-1. **Phase 1 (Complete)**: Core patterns established ✅
-2. **Phase 2 (Current)**: 32 tools implemented - covering primary workflows ✅
-3. **Phase 3**: Add remaining tools based on usage needs
-
-## Tool Organization
-
-Tools are organized into 9 categories matching Superthread's domain model.
-
-## Coverage Summary
+Complete list of all 68 planned tools and their implementation status.
 
 | Category           | Total Tools | Implemented | Read-Only | Write  | Status              |
 | ------------------ | ----------- | ----------- | --------- | ------ | ------------------- |
@@ -24,24 +14,36 @@ Tools are organized into 9 categories matching Superthread's domain model.
 | Boards             | 8           | 8           | 2         | 6      | 100% ✅              |
 | Sprints            | 2           | 2           | 2         | 0      | 100% ✅              |
 | Spaces             | 7           | 2           | 2         | 0      | 29% ✅               |
-| Pages              | 7           | 0           | 0         | 0      | 0% ⏸️                |
-| Notes              | 4           | 0           | 0         | 0      | 0% ⏸️                |
+| Pages              | 7           | 7           | 2         | 5      | 100% ✅              |
+| Notes              | 4           | 4           | 2         | 2      | 100% ✅              |
 | Comments           | 8           | 8           | 2         | 6      | 100% ✅              |
 | Search             | 1           | 1           | 1         | 0      | 100% ✅              |
-| **Total**          | **68**      | **48**      | **17**    | **31** | **71% implemented** |
+| **Total**          | **68**      | **58**      | **20**    | **38** | **85% implemented** |
 
 **Legend:** ✅ Partial | 🚧 In Progress | ⏸️ Planned
 
-## Users (5 tools)
+## Tool Naming Convention
 
-### Implemented ✅
+Format: `{entity}_{action}`
+
+All tool names use Superthread's UI terminology (not legacy API terms):
+- Workspace (not "team")
+- Space (not API "project")
+- Project (not API "epic")
+- Status (not API "list")
+
+## API Coverage by Category
+
+### Users (5 tools)
+
+#### Implemented ✅
 
 | Tool                  | Method | Endpoint             | Description                   |
 | --------------------- | ------ | -------------------- | ----------------------------- |
 | `user_get_my_account` | GET    | `/users/me`          | Get current user account info |
 | `user_get_members`    | GET    | `/{team_id}/members` | List workspace members        |
 
-### Planned ⏸️
+#### Planned ⏸️
 
 | Tool                     | Method | Endpoint                         | Description         |
 | ------------------------ | ------ | -------------------------------- | ------------------- |
@@ -49,9 +51,9 @@ Tools are organized into 9 categories matching Superthread's domain model.
 | `user_update_member`     | PATCH  | `/{team_id}/members/{member_id}` | Update member role  |
 | `user_delete_member`     | DELETE | `/{team_id}/members/{member_id}` | Remove member       |
 
-## Cards (19 tools)
+### Cards (19 tools)
 
-### Implemented ✅
+#### Implemented ✅
 
 | Tool                         | Method | Endpoint                                                               | Description                                        |
 | ---------------------------- | ------ | ---------------------------------------------------------------------- | -------------------------------------------------- |
@@ -75,15 +77,15 @@ Tools are organized into 9 categories matching Superthread's domain model.
 | `card_update_checklist`      | PATCH  | `/{team_id}/cards/{card_id}/checklists/{checklist_id}`                 | Update checklist title ⚠️ UNDOCUMENTED              |
 | `card_delete_checklist`      | DELETE | `/{team_id}/cards/{card_id}/checklists/{checklist_id}`                 | Delete entire checklist ⚠️ UNDOCUMENTED             |
 
-### Notes
+#### Notes
 
 - **Archive functionality** is handled by `card_update` with `archived: true/false` parameter (no separate tool needed)
-- ⚠️ **UNDOCUMENTED ENDPOINTS**: All checklist management tools (`card_create_checklist`, `card_add_checklist_item`, `card_update_checklist_item`, `card_delete_checklist_item`, `card_update_checklist`, `card_delete_checklist`) and card member assignment tools (`card_add_member`, `card_remove_member`) were discovered via browser network inspection and are NOT in Superthread's official API documentation. These may change without notice.
-- See "Known API Limitations" section below for constraint on updating `content`
+- ⚠️ **UNDOCUMENTED ENDPOINTS**: All checklist management tools and card member assignment tools were discovered via browser network inspection and are NOT in Superthread's official API documentation. These may change without notice.
+- See [`NOTES.md`](../NOTES.md) for details on API limitations (e.g., content updates)
 
-## Projects/Roadmap (7 tools)
+### Projects/Roadmap (7 tools)
 
-### Implemented ✅
+#### Implemented ✅
 
 | Tool                     | Method | Endpoint                                     | Description                         |
 | ------------------------ | ------ | -------------------------------------------- | ----------------------------------- |
@@ -95,20 +97,16 @@ Tools are organized into 9 categories matching Superthread's domain model.
 | `project_add_related`    | POST   | `/{team_id}/epics/{epic_id}/cards/{card_id}` | Link card to project ⚠️ UNDOCUMENTED |
 | `project_remove_related` | DELETE | `/{team_id}/epics/{epic_id}/cards/{card_id}` | Remove card link ⚠️ UNDOCUMENTED     |
 
-### Planned ⏸️
-
-None - all endpoints implemented!
-
-### Notes
+#### Notes
 
 - **Archive functionality** is handled by `project_update` with `archived: true/false` parameter (no separate tool needed)
 - **Project-card relationships** use dedicated epic endpoints (not the card relationship endpoints)
 - ⚠️ **UNDOCUMENTED ENDPOINTS**: `project_add_related` and `project_remove_related` were discovered via browser network inspection and are NOT in Superthread's official API documentation. These may change without notice.
-- See `docs/project-card-relationship.md` for details on why projects have separate relationship endpoints
+- See [`NOTES.md`](../NOTES.md) for details on why projects have separate relationship endpoints
 
-## Boards (8 tools)
+### Boards (8 tools)
 
-### Implemented ✅
+#### Implemented ✅
 
 | Tool                | Method | Endpoint                                 | Description                 |
 | ------------------- | ------ | ---------------------------------------- | --------------------------- |
@@ -121,16 +119,16 @@ None - all endpoints implemented!
 | `board_duplicate`   | POST   | `/{team_id}/boards/{board_id}/duplicate` | Clone board                 |
 | `board_delete`      | DELETE | `/{team_id}/boards/{board_id}`           | Delete board                |
 
-## Sprints (2 tools)
+### Sprints (2 tools)
 
-### Implemented ✅
+#### Implemented ✅
 
 | Tool             | Method | Endpoint                                                 | Description                           |
 | ---------------- | ------ | -------------------------------------------------------- | ------------------------------------- |
 | `sprint_get_all` | GET    | `/{team_id}/projects/{project_id}` (returns sprints)     | List all sprints for a space          |
 | `sprint_get`     | GET    | `/{team_id}/sprints/{sprint_id}?project_id={project_id}` | Get sprint details including list IDs |
 
-### Notes
+#### Notes
 
 - **Sprint list IDs** are UUID-based and unique to each sprint (e.g., `dc8a470f-a871-47d8-980b-40bd987f2bdf`)
 - Each sprint has standard lists: "Not started" (committed), "In progress" (started), "Done" (completed), "Cancelled" (cancelled)
@@ -138,16 +136,16 @@ None - all endpoints implemented!
 - Sprint endpoints were discovered via browser network inspection and are **not documented** in SuperThread's official API documentation
 - The `project_id` query parameter is required for the `sprint_get` endpoint
 
-## Spaces (7 tools)
+### Spaces (7 tools)
 
-### Implemented ✅
+#### Implemented ✅
 
 | Tool            | Method | Endpoint                           | Description       |
 | --------------- | ------ | ---------------------------------- | ----------------- |
 | `space_get_all` | GET    | `/{team_id}/projects`              | List all spaces   |
 | `space_get`     | GET    | `/{team_id}/projects/{project_id}` | Get space details |
 
-### Planned ⏸️
+#### Planned ⏸️
 
 | Tool                  | Method | Endpoint                                               | Description         |
 | --------------------- | ------ | ------------------------------------------------------ | ------------------- |
@@ -157,9 +155,34 @@ None - all endpoints implemented!
 | `space_remove_member` | DELETE | `/{team_id}/projects/{project_id}/members/{member_id}` | Remove member       |
 | `space_delete`        | DELETE | `/{team_id}/projects/{project_id}`                     | Delete space        |
 
-## Comments (8 tools)
+### Pages (7 tools)
 
-### Implemented ✅
+#### Implemented ✅
+
+| Tool             | Method | Endpoint                               | Description            |
+| ---------------- | ------ | -------------------------------------- | ---------------------- |
+| `page_create`    | POST   | `/{team_id}/pages`                     | Create new page        |
+| `page_update`    | PATCH  | `/{team_id}/pages/{page_id}`           | Update page properties |
+| `page_get`       | GET    | `/{team_id}/pages/{page_id}`           | Get page details       |
+| `page_get_all`   | GET    | `/{team_id}/pages`                     | List all pages         |
+| `page_duplicate` | POST   | `/{team_id}/pages/{page_id}/duplicate` | Clone page             |
+| `page_archive`   | POST   | `/{team_id}/pages/{page_id}/archive`   | Archive page           |
+| `page_delete`    | DELETE | `/{team_id}/pages/{page_id}`           | Delete page            |
+
+### Notes (4 tools)
+
+#### Implemented ✅
+
+| Tool           | Method | Endpoint                     | Description      |
+| -------------- | ------ | ---------------------------- | ---------------- |
+| `note_create`  | POST   | `/{team_id}/notes`           | Create new note  |
+| `note_get`     | GET    | `/{team_id}/notes/{note_id}` | Get note details |
+| `note_get_all` | GET    | `/{team_id}/notes`           | List all notes   |
+| `note_delete`  | DELETE | `/{team_id}/notes/{note_id}` | Delete note      |
+
+### Comments (8 tools)
+
+#### Implemented ✅
 
 | Tool                   | Method | Endpoint                                                       | Description                      |
 | ---------------------- | ------ | -------------------------------------------------------------- | -------------------------------- |
@@ -172,79 +195,270 @@ None - all endpoints implemented!
 | `comment_update_reply` | PATCH  | `/{team_id}/comments/{comment_id}/children/{child_comment_id}` | Edit a reply                     |
 | `comment_delete_reply` | DELETE | `/{team_id}/comments/{comment_id}/children/{child_comment_id}` | Delete a reply                   |
 
-### Notes
+#### Notes
 
 - Comments support status values: `resolved`, `open`, `orphaned`
 - Reply operations use child comment endpoints under the parent comment path
 - Deleting a parent comment also removes all child replies
+- See [`NOTES.md`](../NOTES.md) for details on @mention support
 
-### Mention Support
+### Search (1 tool)
 
-All comment tools (`comment_create`, `comment_update`, `comment_reply`, `comment_update_reply`) support @mentions for tagging workspace members. The system automatically:
-
-- **Scans content for {{@Username}} patterns** - Use `{{@Name}}` template syntax to mention users (e.g., `{{@Elliott Butt}}`)
-- **Looks up exact name matches** - Case-insensitive matching against workspace members  
-- **Converts to HTML user-mention tags** - Automatically formats as SuperThread's `<user-mention>` tags
-- **Gracefully handles non-matches** - Invalid names remain as plain text (comments still post successfully)
-
-**Why template syntax?** The `{{@Name}}` delimiters unambiguously mark where names start and end, handling complex names with spaces, Unicode, special characters, etc. This is more robust than trying to detect name boundaries with regex.
-
-**Best Practice:** LLMs should call `user_get_members` first to verify correct names when ambiguous. For example, if there are multiple "Steve" users, check the full names before mentioning.
-
-**Example:**
-```
-Input:  "Hey {{@Elliott Butt}}, can you review this?"
-Output: "<p>Hey <user-mention data-type="mention" user-id="uT2hPbnu" ...></user-mention>, can you review this?</p>"
-```
-
-## Search (1 tool)
-
-### Implemented ✅
+#### Implemented ✅
 
 | Tool         | Method | Endpoint            | Description                             |
 | ------------ | ------ | ------------------- | --------------------------------------- |
 | `search_get` | GET    | `/{team_id}/search` | Search across boards, cards, pages, etc |
 
-### Notes
+#### Notes
 
 - Search supports filtering by: `types`, `statuses`, `project_id`, `archived`, `field` (title/content)
 - Results can be returned grouped by entity type or ungrouped
 - Supports pagination via `cursor` parameter
 
-## Remaining Categories
+## Terminology Mapping
 
-The following categories (11 tools) are planned but not yet implemented:
+Superthread's API uses legacy terminology that differs from the modern UI. This document provides the complete mapping and explains how our MCP server handles the translation.
 
-- **Pages** (7 tools) - Documentation page management
-- **Notes** (4 tools) - Meeting note management
+### Why This Matters
 
-These will be added incrementally as we refine implementation patterns.
+When Superthread evolved, they updated the UI terminology to be more intuitive, but the API retained legacy names for backward compatibility. This creates confusion when building integrations.
 
-## Known API Limitations
+**Our Solution**: Use modern UI terms everywhere in our MCP server. The API client handles translation internally.
 
-### Card Content Updates
-**Issue:** The `content` field cannot be updated via REST API endpoints.
+### Complete Terminology Mapping
 
-**Reason:** Superthread uses [TipTap collaborative editor](https://newsletter.superthread.com/p/how-we-implemented-tiptap-editor) (built on ProseMirror) for all rich text content. Content changes are synced through a real-time collaboration protocol using operational transforms, not traditional REST API endpoints. Each card has a collaboration token (JWT) for connecting to the TipTap collaboration server.
+| Modern UI Term           | Legacy API Term | Used In API As       | Example                                |
+| ------------------------ | --------------- | -------------------- | -------------------------------------- |
+| **Workspace**            | `team`          | Path parameter       | `GET /{team_id}/cards`                 |
+| **Space**                | `project`       | Endpoint & parameter | `GET /{team_id}/projects/{project_id}` |
+| **Project** (Roadmap)    | `epic`          | Endpoint & parameter | `GET /{team_id}/epics/{epic_id}`       |
+| **Status** or **Column** | `list`          | Parameter            | `list_id` in card creation             |
 
-**Technical Details:**
-- Content is edited via TipTap's collaborative editing protocol (WebSocket-based)
-- Changes are sent as operational transforms (small incremental operations)
-- The collaboration token in card responses is used for real-time sync
-- Activity polling (`GET /{team_id}/activity?card_id={card_id}`) tracks changes after they're synced
+### Detailed Mappings
 
-**Workaround:** Content can only be set during card creation via `card_create`. To update existing content, you must use the Superthread UI. Programmatic content updates would require implementing the TipTap collaboration protocol, which is beyond the scope of a REST API client.
+#### 1. Workspace ↔ Team
 
-**Status:** This is an architectural limitation, not a missing API endpoint. Network inspection confirmed no REST endpoint exists for content updates.
+**UI:** "Workspace" - Your organization's main hub  
+**API:** `team` - Legacy term for the same concept
 
-### Card Member Assignment ✅ SOLVED VIA NETWORK INSPECTION
-**Solution Found:** Members can be added/removed from existing cards using undocumented endpoints discovered via browser network inspection:
-- **Add member**: `POST /{team_id}/cards/{card_id}/members` with body `{"user_id": "...", "role": "member"}`
-- **Remove member**: `DELETE /{team_id}/cards/{card_id}/members/{user_id}`
+**In Our Code:**
+```typescript
+// Tool parameter (what users see)
+workspace_id: z.string().describe("Workspace ID")
 
-**Status:** ⚠️ These endpoints are UNDOCUMENTED in Superthread's official API and were discovered by inspecting browser network traffic. They may change without notice.
+// Internal API call (what Superthread expects)
+await client.request(`/${team_id}/cards`, ...)
+```
 
-**Tools:** ✅ `card_add_member` and `card_remove_member` have been implemented
+**API Paths Using This:**
+- `GET /{team_id}/cards`
+- `GET /{team_id}/boards`
+- `GET /{team_id}/projects`
+- `GET /{team_id}/epics`
+- `GET /teams/{team_id}/members`
 
-### Empty DELETE Responses
-**Note:** DELETE endpoints (e.g., `card_delete`) return empty responses with no JSON body. Our API client handles this by returning `{success: true}` for empty 200/204 responses.
+#### 2. Space ↔ Project
+
+**UI:** "Space" - Organizational container for boards and pages  
+**API:** `project` - Same thing, old name
+
+**Important:** This causes confusion because "Project" means two different things:
+1. **Space** (organizational container) → API `/projects`
+2. **Roadmap Project** (epic/initiative) → API `/epics`
+
+**In Our Code:**
+```typescript
+// For Spaces (organizational containers)
+space_id: z.string().describe("Space ID")
+// Maps to: /{team_id}/projects/{project_id}
+
+// For Roadmap Projects (epics)
+project_id: z.string().describe("Project ID")  
+// Maps to: /{team_id}/epics/{epic_id}
+```
+
+**API Paths:**
+- `GET /{team_id}/projects` - Lists Spaces
+- `GET /{team_id}/projects/{project_id}` - Gets Space details
+
+#### 3. Project (Roadmap) ↔ Epic
+
+**UI:** "Project" on the Roadmap  
+**API:** `epic` - Large initiative tracking
+
+**In Our Code:**
+```typescript
+// For Roadmap Projects
+project_id: z.string().describe("Project ID (Roadmap)")
+// Maps to: /{team_id}/epics/{epic_id}
+```
+
+**API Paths:**
+- `GET /{team_id}/epics` - Lists Roadmap projects
+- `GET /{team_id}/epics/{epic_id}` - Gets project details
+
+#### 4. Status/Column ↔ List
+
+**UI:** "Status" or "Column" - Board columns (To Do, In Progress, Done)  
+**API:** `list` - Status columns
+
+**In Our Code:**
+```typescript
+// We use both terms interchangeably for clarity
+list_id: z.string().describe("List ID (status column)")
+// or
+status_id: z.string().describe("Status ID")
+// Both map to: list_id in API
+```
+
+**API Parameters:**
+- Card creation requires `list_id`
+- List management uses `/boards/{board_id}/lists/{list_id}`
+
+### Resource File Organization
+
+Our API client resource files use modern UI terminology:
+
+```
+src/api/
+├── spaces.ts    # Space operations → /projects endpoint
+├── projects.ts  # Roadmap operations → /epics endpoint
+├── boards.ts    # Board operations → /boards endpoint
+├── cards.ts     # Card operations → /cards endpoint
+└── ...
+```
+
+### How Translation Works
+
+#### Example: Creating a Card in a Space
+
+**User Intent:**
+"Create a card in Space A, Board B, List C"
+
+**Our Tool Call:**
+```typescript
+create_card({
+  workspace_id: "wks_123",  // UI term
+  space_id: "spc_456",      // UI term
+  board_id: "brd_789",      // Same in both
+  list_id: "lst_101",       // API term (we keep this)
+  title: "New task"
+})
+```
+
+**API Client Translation:**
+```typescript
+// spaces.ts (if needed to resolve space)
+GET /wks_123/projects/spc_456
+     ^^^^^^         ^^^^^^^^
+     team_id        project_id (API terms)
+
+// cards.ts
+POST /wks_123/cards
+      ^^^^^^
+      team_id
+{
+  "project_id": "spc_456",  // Space → project_id
+  "board_id": "brd_789",
+  "list_id": "lst_101",
+  "title": "New task"
+}
+```
+
+### Implementation Pattern
+
+Each resource class handles the mapping:
+
+```typescript
+// spaces.ts
+class SpaceResource {
+  async create(workspaceId: string, data: any) {
+    // workspaceId (UI) → team_id (API) in path
+    return this.client.request(`/${workspaceId}/projects`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+  }
+}
+
+// projects.ts (Roadmap)
+class ProjectResource {
+  async create(workspaceId: string, data: any) {
+    // workspaceId → team_id, creates epic
+    return this.client.request(`/${workspaceId}/epics`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
+  }
+}
+```
+
+### Decision Rationale
+
+#### Why Use UI Terminology?
+
+1. **User Experience**: AI and users interact with Superthread UI
+2. **Consistency**: Matches what users see in the application
+3. **Future-Proof**: If Superthread updates API, we only change one place
+4. **Clarity**: "Space" and "Project" have distinct meanings in UI
+
+#### Why Not Just Use API Terms?
+
+1. **Confusion**: "Project" means two different things
+2. **Poor UX**: Users would need to learn legacy terminology
+3. **Documentation Burden**: Would need to explain API quirks everywhere
+
+#### What About list_id vs status_id?
+
+We use `list_id` because:
+- Superthread UI uses both "list" and "status" interchangeably
+- API exclusively uses `list_id`
+- Less translation needed
+- But we do describe it as "(status column)" for clarity
+
+### Common Pitfalls
+
+#### ❌ Mixing Terminologies
+```typescript
+// Don't do this - mixes UI and API terms
+await client.request(`/${team_id}/projects`, {
+  body: { space_name: "My Space" }  // Confusing!
+})
+```
+
+#### ✅ Consistent UI Terms
+```typescript
+// Do this - consistent UI terminology
+async createSpace(workspaceId: string, data: { name: string }) {
+  // Translation happens in one place
+  return this.client.request(`/${workspaceId}/projects`, {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+}
+```
+
+### Reference Table
+
+Quick reference for developers:
+
+| When You See   | Think Of It As  | API Uses                       |
+| -------------- | --------------- | ------------------------------ |
+| `workspace_id` | Organization    | `{team_id}` in paths           |
+| `space_id`     | Team/Folder     | `{project_id}` for `/projects` |
+| `project_id`   | Epic/Initiative | `{epic_id}` for `/epics`       |
+| `list_id`      | Column/Status   | `{list_id}`                    |
+| `board_id`     | Board           | `{board_id}` (same!)           |
+| `card_id`      | Task/Ticket     | `{card_id}` (same!)            |
+
+### Testing Terminology Mapping
+
+When implementing API calls, verify:
+
+1. Tool uses UI terminology in parameters
+2. API client maps to correct endpoint
+3. Request body uses API field names
+4. Response parsing handles API field names
+5. Returned data uses UI terminology (if transformed)
+
