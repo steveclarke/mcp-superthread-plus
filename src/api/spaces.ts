@@ -11,9 +11,6 @@ import urlcat from "urlcat"
 import { safeId } from "../utils.js"
 
 /**
- * Space (organizational container) information from Superthread API
- */
-/**
  * Parameters for creating a space
  */
 export interface CreateSpaceParams {
@@ -50,124 +47,100 @@ export interface AddSpaceMemberParams {
   role?: string
 }
 
-/**
- * Space (organizational container) information from Superthread API
- */
-export interface Space {
-  id: string
-  team_id: string
-  title: string
-  description?: string
-  icon?: {
-    type: string
-    src?: string
-    emoji?: string
-    color?: string
-  }
-  user_id: string
-  time_created: number
-  time_updated: number
-  members?: Array<{
-    user_id: string
-    assigned_date: number
-    role: string
-  }>
-  total_members?: number
-  is_member?: boolean
-  boards?: Array<{
-    id: string
-    title: string
-  }>
-}
-
 export class SpaceResource {
   constructor(private client: SuperthreadClient) {}
 
   /**
    * Gets all spaces (organizational containers) in a workspace.
+   * API: GET /:workspace/projects
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
-   * @returns List of spaces
+   * @returns API response (passed through to LLM)
    */
-  async list(workspaceId: string): Promise<Space[]> {
+  async list(workspaceId: string): Promise<unknown> {
     const path = urlcat("/:workspace/projects", {
       workspace: safeId("workspaceId", workspaceId),
     })
-    const response = await this.client.request<{ projects: Space[] }>(path, {
+    return await this.client.request(path, {
       method: "GET",
     })
-    return response.projects || []
   }
 
   /**
    * Gets a specific space with full details.
+   * API: GET /:workspace/projects/:space
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param spaceId - Space ID (maps to project_id in API)
-   * @returns Space details
+   * @returns API response (passed through to LLM)
    */
-  async get(workspaceId: string, spaceId: string): Promise<Space> {
+  async get(workspaceId: string, spaceId: string): Promise<unknown> {
     const path = urlcat("/:workspace/projects/:space", {
       workspace: safeId("workspaceId", workspaceId),
       space: safeId("spaceId", spaceId),
     })
-    const response = await this.client.request<{ project: Space }>(path, {
+    return await this.client.request(path, {
       method: "GET",
     })
-    return response.project
   }
 
   /**
    * Creates a new space (organizational container).
+   * API: POST /:workspace/projects
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param params - Space creation parameters
-   * @returns Created space
+   * @returns API response (passed through to LLM)
    */
-  async create(workspaceId: string, params: CreateSpaceParams): Promise<Space> {
+  async create(workspaceId: string, params: CreateSpaceParams): Promise<unknown> {
     const path = urlcat("/:workspace/projects", {
       workspace: safeId("workspaceId", workspaceId),
     })
-    const response = await this.client.request<{ project: Space }>(path, {
+    return await this.client.request(path, {
       method: "POST",
       body: JSON.stringify(params),
     })
-    return response.project
   }
 
   /**
    * Updates an existing space.
+   * API: PATCH /:workspace/projects/:space
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param spaceId - Space ID (maps to project_id in API)
    * @param params - Space update parameters
-   * @returns Updated space
+   * @returns API response (passed through to LLM)
    */
-  async update(workspaceId: string, spaceId: string, params: UpdateSpaceParams): Promise<Space> {
+  async update(workspaceId: string, spaceId: string, params: UpdateSpaceParams): Promise<unknown> {
     const path = urlcat("/:workspace/projects/:space", {
       workspace: safeId("workspaceId", workspaceId),
       space: safeId("spaceId", spaceId),
     })
-    const response = await this.client.request<{ project: Space }>(path, {
+    return await this.client.request(path, {
       method: "PATCH",
       body: JSON.stringify(params),
     })
-    return response.project
   }
 
   /**
    * Adds a member to a space.
+   * API: POST /:workspace/projects/:space/members
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param spaceId - Space ID (maps to project_id in API)
    * @param params - Member to add
-   * @returns Success response
+   * @returns API response (passed through to LLM)
    */
   async addMember(
     workspaceId: string,
     spaceId: string,
     params: AddSpaceMemberParams
-  ): Promise<{ success: boolean }> {
+  ): Promise<unknown> {
     const path = urlcat("/:workspace/projects/:space/members", {
       workspace: safeId("workspaceId", workspaceId),
       space: safeId("spaceId", spaceId),
     })
-    return await this.client.request<{ success: boolean }>(path, {
+    return await this.client.request(path, {
       method: "POST",
       body: JSON.stringify(params),
     })
@@ -175,38 +148,38 @@ export class SpaceResource {
 
   /**
    * Removes a member from a space.
+   * API: DELETE /:workspace/projects/:space/members/:member
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param spaceId - Space ID (maps to project_id in API)
    * @param memberId - Member ID to remove
-   * @returns Success response
+   * @returns API response (passed through to LLM)
    */
-  async removeMember(
-    workspaceId: string,
-    spaceId: string,
-    memberId: string
-  ): Promise<{ success: boolean }> {
+  async removeMember(workspaceId: string, spaceId: string, memberId: string): Promise<unknown> {
     const path = urlcat("/:workspace/projects/:space/members/:member", {
       workspace: safeId("workspaceId", workspaceId),
       space: safeId("spaceId", spaceId),
       member: safeId("memberId", memberId),
     })
-    return await this.client.request<{ success: boolean }>(path, {
+    return await this.client.request(path, {
       method: "DELETE",
     })
   }
 
   /**
    * Deletes a space permanently.
+   * API: DELETE /:workspace/projects/:space
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param spaceId - Space ID (maps to project_id in API)
-   * @returns Success response
+   * @returns API response (passed through to LLM)
    */
-  async delete(workspaceId: string, spaceId: string): Promise<{ success: boolean }> {
+  async delete(workspaceId: string, spaceId: string): Promise<unknown> {
     const path = urlcat("/:workspace/projects/:space", {
       workspace: safeId("workspaceId", workspaceId),
       space: safeId("spaceId", spaceId),
     })
-    return await this.client.request<{ success: boolean }>(path, {
+    return await this.client.request(path, {
       method: "DELETE",
     })
   }

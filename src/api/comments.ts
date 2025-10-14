@@ -36,67 +36,22 @@ export interface ReplyToCommentParams {
   schema?: number // Schema version (optional)
 }
 
-/**
- * Comment information from Superthread API
- */
-export interface Comment {
-  id: string
-  type: string
-  content: string
-  schema?: number
-  page_id?: string
-  card_id?: string
-  user_id: string
-  team_id: string
-  time_created: number
-  time_updated: number
-  context?: string
-  status?: string
-  user?: unknown
-  user_updated?: unknown
-  reactions?: unknown[]
-  participants?: string[]
-  children?: unknown
-  parent_id?: string
-}
-
-/**
- * Comment creation response
- */
-export interface CreateCommentResponse {
-  comment: Comment
-}
-
-/**
- * Reply to comment response
- */
-export interface ReplyToCommentResponse {
-  child_comment: Comment
-}
-
-/**
- * Get all replies response
- */
-export interface GetRepliesResponse {
-  cursor: string
-  count: number
-  child_comments: Comment[]
-}
-
 export class CommentResource {
   constructor(private client: SuperthreadClient) {}
 
   /**
    * Creates a new comment on a card or page.
+   * API: POST /:workspace/comments
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param params - Comment creation parameters
-   * @returns Created comment details
+   * @returns API response (passed through to LLM)
    */
-  async create(workspaceId: string, params: CreateCommentParams): Promise<CreateCommentResponse> {
+  async create(workspaceId: string, params: CreateCommentParams): Promise<unknown> {
     const path = urlcat("/:workspace/comments", {
       workspace: safeId("workspaceId", workspaceId),
     })
-    return await this.client.request<CreateCommentResponse>(path, {
+    return await this.client.request(path, {
       method: "POST",
       body: JSON.stringify(params),
     })
@@ -105,21 +60,23 @@ export class CommentResource {
   /**
    * Updates an existing comment.
    * Only the original author can modify comments.
+   * API: PATCH /:workspace/comments/:comment
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param commentId - Comment ID to update
    * @param params - Comment update parameters
-   * @returns Updated comment details
+   * @returns API response (passed through to LLM)
    */
   async update(
     workspaceId: string,
     commentId: string,
     params: UpdateCommentParams
-  ): Promise<CreateCommentResponse> {
+  ): Promise<unknown> {
     const path = urlcat("/:workspace/comments/:comment", {
       workspace: safeId("workspaceId", workspaceId),
       comment: safeId("commentId", commentId),
     })
-    return await this.client.request<CreateCommentResponse>(path, {
+    return await this.client.request(path, {
       method: "PATCH",
       body: JSON.stringify(params),
     })
@@ -127,21 +84,23 @@ export class CommentResource {
 
   /**
    * Creates a reply (child comment) to an existing comment.
+   * API: POST /:workspace/comments/:comment/children
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param commentId - Parent comment ID to reply to
    * @param params - Reply parameters
-   * @returns Created reply details
+   * @returns API response (passed through to LLM)
    */
   async reply(
     workspaceId: string,
     commentId: string,
     params: ReplyToCommentParams
-  ): Promise<ReplyToCommentResponse> {
+  ): Promise<unknown> {
     const path = urlcat("/:workspace/comments/:comment/children", {
       workspace: safeId("workspaceId", workspaceId),
       comment: safeId("commentId", commentId),
     })
-    return await this.client.request<ReplyToCommentResponse>(path, {
+    return await this.client.request(path, {
       method: "POST",
       body: JSON.stringify(params),
     })
@@ -150,16 +109,18 @@ export class CommentResource {
   /**
    * Retrieves a specific comment by ID.
    * Includes metadata like author, reactions, timestamps, and child comments.
+   * API: GET /:workspace/comments/:comment
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param commentId - Comment ID to retrieve
-   * @returns Comment details
+   * @returns API response (passed through to LLM)
    */
-  async get(workspaceId: string, commentId: string): Promise<CreateCommentResponse> {
+  async get(workspaceId: string, commentId: string): Promise<unknown> {
     const path = urlcat("/:workspace/comments/:comment", {
       workspace: safeId("workspaceId", workspaceId),
       comment: safeId("commentId", commentId),
     })
-    return await this.client.request<CreateCommentResponse>(path, {
+    return await this.client.request(path, {
       method: "GET",
     })
   }
@@ -167,32 +128,36 @@ export class CommentResource {
   /**
    * Permanently deletes a comment.
    * Only the original author can delete their own comment.
+   * API: DELETE /:workspace/comments/:comment
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param commentId - Comment ID to delete
-   * @returns void (204 No Content)
+   * @returns API response (passed through to LLM)
    */
-  async delete(workspaceId: string, commentId: string): Promise<void> {
+  async delete(workspaceId: string, commentId: string): Promise<unknown> {
     const path = urlcat("/:workspace/comments/:comment", {
       workspace: safeId("workspaceId", workspaceId),
       comment: safeId("commentId", commentId),
     })
-    await this.client.request<void>(path, {
+    return await this.client.request(path, {
       method: "DELETE",
     })
   }
 
   /**
    * Retrieves all replies (child comments) for a parent comment.
+   * API: GET /:workspace/comments/:comment/children
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param commentId - Parent comment ID
-   * @returns List of child comments with pagination details
+   * @returns API response (passed through to LLM)
    */
-  async getReplies(workspaceId: string, commentId: string): Promise<GetRepliesResponse> {
+  async getReplies(workspaceId: string, commentId: string): Promise<unknown> {
     const path = urlcat("/:workspace/comments/:comment/children", {
       workspace: safeId("workspaceId", workspaceId),
       comment: safeId("commentId", commentId),
     })
-    return await this.client.request<GetRepliesResponse>(path, {
+    return await this.client.request(path, {
       method: "GET",
     })
   }
@@ -200,24 +165,26 @@ export class CommentResource {
   /**
    * Updates a specific reply (child comment).
    * Only the original author can modify their reply.
+   * API: PATCH /:workspace/comments/:comment/children/:child
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param commentId - Parent comment ID
    * @param childCommentId - Child comment ID to update
    * @param params - Comment update parameters
-   * @returns Updated reply details
+   * @returns API response (passed through to LLM)
    */
   async updateReply(
     workspaceId: string,
     commentId: string,
     childCommentId: string,
     params: UpdateCommentParams
-  ): Promise<ReplyToCommentResponse> {
+  ): Promise<unknown> {
     const path = urlcat("/:workspace/comments/:comment/children/:child", {
       workspace: safeId("workspaceId", workspaceId),
       comment: safeId("commentId", commentId),
       child: safeId("childCommentId", childCommentId),
     })
-    return await this.client.request<ReplyToCommentResponse>(path, {
+    return await this.client.request(path, {
       method: "PATCH",
       body: JSON.stringify(params),
     })
@@ -226,18 +193,24 @@ export class CommentResource {
   /**
    * Permanently deletes a reply (child comment).
    * Only the original author can delete their own reply.
+   * API: DELETE /:workspace/comments/:comment/children/:child
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param commentId - Parent comment ID
    * @param childCommentId - Child comment ID to delete
-   * @returns void (204 No Content)
+   * @returns API response (passed through to LLM)
    */
-  async deleteReply(workspaceId: string, commentId: string, childCommentId: string): Promise<void> {
+  async deleteReply(
+    workspaceId: string,
+    commentId: string,
+    childCommentId: string
+  ): Promise<unknown> {
     const path = urlcat("/:workspace/comments/:comment/children/:child", {
       workspace: safeId("workspaceId", workspaceId),
       comment: safeId("commentId", commentId),
       child: safeId("childCommentId", childCommentId),
     })
-    await this.client.request<void>(path, {
+    return await this.client.request(path, {
       method: "DELETE",
     })
   }

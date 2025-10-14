@@ -11,24 +11,6 @@ import urlcat from "urlcat"
 import { safeId } from "../utils.js"
 
 /**
- * Project (epic) information from Superthread API
- */
-export interface Project {
-  id: string
-  team_id: string
-  title: string
-  content: string
-  status: string
-  priority: number
-  owner_id: string
-  start_date?: number
-  due_date?: number
-  completed_date?: number
-  time_created: number
-  time_updated: number
-}
-
-/**
  * Project creation parameters
  */
 export interface CreateProjectParams {
@@ -61,57 +43,56 @@ export interface UpdateProjectParams {
   cover_image?: unknown
 }
 
-/**
- * Project response wrapper
- */
-export interface ProjectResponse {
-  epic: Project
-}
-
 export class ProjectResource {
   constructor(private client: SuperthreadClient) {}
 
   /**
    * Gets all roadmap projects (epics) in a workspace.
+   * API: GET /:workspace/epics
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
-   * @returns List of projects
+   * @returns API response (passed through to LLM)
    */
-  async list(workspaceId: string): Promise<Project[]> {
+  async list(workspaceId: string): Promise<unknown> {
     const path = urlcat("/:workspace/epics", {
       workspace: safeId("workspaceId", workspaceId),
     })
-    return await this.client.request<Project[]>(path, {
+    return await this.client.request(path, {
       method: "GET",
     })
   }
 
   /**
    * Gets a specific roadmap project.
+   * API: GET /:workspace/epics/:project
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param projectId - Project ID (maps to epic_id in API)
-   * @returns Project details
+   * @returns API response (passed through to LLM)
    */
-  async get(workspaceId: string, projectId: string): Promise<Project> {
+  async get(workspaceId: string, projectId: string): Promise<unknown> {
     const path = urlcat("/:workspace/epics/:project", {
       workspace: safeId("workspaceId", workspaceId),
       project: safeId("projectId", projectId),
     })
-    return await this.client.request<Project>(path, {
+    return await this.client.request(path, {
       method: "GET",
     })
   }
 
   /**
    * Creates a new roadmap project (epic).
+   * API: POST /:workspace/epics
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param params - Project creation parameters
-   * @returns Created project details
+   * @returns API response (passed through to LLM)
    */
-  async create(workspaceId: string, params: CreateProjectParams): Promise<ProjectResponse> {
+  async create(workspaceId: string, params: CreateProjectParams): Promise<unknown> {
     const path = urlcat("/:workspace/epics", {
       workspace: safeId("workspaceId", workspaceId),
     })
-    return await this.client.request<ProjectResponse>(path, {
+    return await this.client.request(path, {
       method: "POST",
       body: JSON.stringify(params),
     })
@@ -120,21 +101,23 @@ export class ProjectResource {
   /**
    * Updates an existing roadmap project.
    * Supports archiving via the archived parameter.
+   * API: PATCH /:workspace/epics/:project
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param projectId - Project ID (maps to epic_id in API)
    * @param params - Project update parameters
-   * @returns Updated project details
+   * @returns API response (passed through to LLM)
    */
   async update(
     workspaceId: string,
     projectId: string,
     params: UpdateProjectParams
-  ): Promise<ProjectResponse> {
+  ): Promise<unknown> {
     const path = urlcat("/:workspace/epics/:project", {
       workspace: safeId("workspaceId", workspaceId),
       project: safeId("projectId", projectId),
     })
-    return await this.client.request<ProjectResponse>(path, {
+    return await this.client.request(path, {
       method: "PATCH",
       body: JSON.stringify(params),
     })
@@ -142,22 +125,25 @@ export class ProjectResource {
 
   /**
    * Permanently deletes a project (epic).
+   * API: DELETE /:workspace/epics/:project
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param projectId - Project ID (maps to epic_id in API)
-   * @returns Success response
+   * @returns API response (passed through to LLM)
    */
-  async delete(workspaceId: string, projectId: string): Promise<{ success: boolean }> {
+  async delete(workspaceId: string, projectId: string): Promise<unknown> {
     const path = urlcat("/:workspace/epics/:project", {
       workspace: safeId("workspaceId", workspaceId),
       project: safeId("projectId", projectId),
     })
-    return await this.client.request<{ success: boolean }>(path, {
+    return await this.client.request(path, {
       method: "DELETE",
     })
   }
 
   /**
    * Links a card to a project (epic).
+   * API: POST /:workspace/epics/:project/cards/:card
    *
    * ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API.
    * It was discovered via browser network inspection and may change without notice.
@@ -165,25 +151,22 @@ export class ProjectResource {
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param projectId - Project ID (maps to epic_id in API)
    * @param cardId - Card ID to link to the project
-   * @returns Success response
+   * @returns API response (passed through to LLM)
    */
-  async addRelatedCard(
-    workspaceId: string,
-    projectId: string,
-    cardId: string
-  ): Promise<{ success: boolean }> {
+  async addRelatedCard(workspaceId: string, projectId: string, cardId: string): Promise<unknown> {
     const path = urlcat("/:workspace/epics/:project/cards/:card", {
       workspace: safeId("workspaceId", workspaceId),
       project: safeId("projectId", projectId),
       card: safeId("cardId", cardId),
     })
-    return await this.client.request<{ success: boolean }>(path, {
+    return await this.client.request(path, {
       method: "POST",
     })
   }
 
   /**
    * Removes a linked card from a project (epic).
+   * API: DELETE /:workspace/epics/:project/cards/:card
    *
    * ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API.
    * It was discovered via browser network inspection and may change without notice.
@@ -191,19 +174,19 @@ export class ProjectResource {
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param projectId - Project ID (maps to epic_id in API)
    * @param cardId - Card ID to unlink from the project
-   * @returns Success response
+   * @returns API response (passed through to LLM)
    */
   async removeRelatedCard(
     workspaceId: string,
     projectId: string,
     cardId: string
-  ): Promise<{ success: boolean }> {
+  ): Promise<unknown> {
     const path = urlcat("/:workspace/epics/:project/cards/:card", {
       workspace: safeId("workspaceId", workspaceId),
       project: safeId("projectId", projectId),
       card: safeId("cardId", cardId),
     })
-    return await this.client.request<{ success: boolean }>(path, {
+    return await this.client.request(path, {
       method: "DELETE",
     })
   }

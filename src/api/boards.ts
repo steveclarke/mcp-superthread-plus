@@ -8,26 +8,6 @@ import urlcat from "urlcat"
 import { safeId } from "../utils.js"
 
 /**
- * List information from Superthread API
- */
-export interface List {
-  id: string
-  team_id: string
-  title: string
-  content?: string
-  behavior?: string
-  board_id: string
-  user_id: string
-  project_id?: string
-  icon?: string
-  color?: string
-  card_order?: unknown
-  total_cards?: number
-  time_created: number
-  time_updated: number
-}
-
-/**
  * Parameters for creating a new list
  */
 export interface CreateListParams {
@@ -86,65 +66,39 @@ export interface CreateBoardParams {
   layout?: string
 }
 
-/**
- * Board information from Superthread API
- */
-export interface Board {
-  id: string
-  team_id: string
-  title: string
-  description?: string
-  project_id?: string
-  icon?: {
-    type: string
-    src?: string
-    emoji?: string
-    color?: string
-  }
-  user_id: string
-  time_created: number
-  time_updated: number
-  lists?: Array<{
-    id: string
-    title: string
-    behavior: string
-    color: string
-    card_order?: string[]
-    cards?: unknown[]
-  }>
-  list_order?: string[]
-}
-
 export class BoardResource {
   constructor(private client: SuperthreadClient) {}
 
   /**
    * Creates a new board in a workspace.
+   * API: POST /:workspace/boards
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param params - Board creation parameters
-   * @returns Created board details
+   * @returns API response (passed through to LLM)
    */
-  async create(workspaceId: string, params: CreateBoardParams): Promise<Board> {
+  async create(workspaceId: string, params: CreateBoardParams): Promise<unknown> {
     const path = urlcat("/:workspace/boards", {
       workspace: safeId("workspaceId", workspaceId),
     })
-    const response = await this.client.request<{ board: Board }>(path, {
+    return await this.client.request(path, {
       method: "POST",
       body: JSON.stringify(params),
     })
-    return response.board
   }
 
   /**
    * Gets all boards in a workspace.
+   * API: GET /:workspace/boards
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param options - Optional filters (project_id, bookmarked, or archived)
-   * @returns List of boards
+   * @returns API response (passed through to LLM)
    */
   async list(
     workspaceId: string,
     options?: { project_id?: string; bookmarked?: boolean; archived?: boolean }
-  ): Promise<Board[]> {
+  ): Promise<unknown> {
     const params = new URLSearchParams()
 
     // API requires at least one of: project_id, bookmarked, or archived
@@ -162,119 +116,129 @@ export class BoardResource {
       urlcat("/:workspace/boards", {
         workspace: safeId("workspaceId", workspaceId),
       }) + `?${params.toString()}`
-    const response = await this.client.request<{ boards: Board[] }>(path, {
+    return await this.client.request(path, {
       method: "GET",
     })
-    return response.boards || []
   }
 
   /**
    * Gets a specific board with full details including lists and cards.
+   * API: GET /:workspace/boards/:board
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param boardId - Board ID
-   * @returns Board details with lists and cards
+   * @returns API response (passed through to LLM)
    */
-  async get(workspaceId: string, boardId: string): Promise<Board> {
+  async get(workspaceId: string, boardId: string): Promise<unknown> {
     const path = urlcat("/:workspace/boards/:board", {
       workspace: safeId("workspaceId", workspaceId),
       board: safeId("boardId", boardId),
     })
-    const response = await this.client.request<{ board: Board }>(path, {
+    return await this.client.request(path, {
       method: "GET",
     })
-    return response.board
   }
 
   /**
    * Creates a new list (column/status) within a board.
+   * API: POST /:workspace/lists
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param params - List creation parameters
-   * @returns Created list details
+   * @returns API response (passed through to LLM)
    */
-  async createList(workspaceId: string, params: CreateListParams): Promise<List> {
+  async createList(workspaceId: string, params: CreateListParams): Promise<unknown> {
     const path = urlcat("/:workspace/lists", {
       workspace: safeId("workspaceId", workspaceId),
     })
-    const response = await this.client.request<{ list: List }>(path, {
+    return await this.client.request(path, {
       method: "POST",
       body: JSON.stringify(params),
     })
-    return response.list
   }
 
   /**
    * Updates an existing board.
+   * API: PATCH /:workspace/boards/:board
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param boardId - Board ID to update
    * @param params - Board update parameters
-   * @returns Updated board
+   * @returns API response (passed through to LLM)
    */
-  async update(workspaceId: string, boardId: string, params: UpdateBoardParams): Promise<Board> {
+  async update(workspaceId: string, boardId: string, params: UpdateBoardParams): Promise<unknown> {
     const path = urlcat("/:workspace/boards/:board", {
       workspace: safeId("workspaceId", workspaceId),
       board: safeId("boardId", boardId),
     })
-    const response = await this.client.request<{ board: Board }>(path, {
+    return await this.client.request(path, {
       method: "PATCH",
       body: JSON.stringify(params),
     })
-    return response.board
   }
 
   /**
    * Updates an existing list.
+   * API: PATCH /:workspace/lists/:list
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param listId - List ID to update
    * @param params - List update parameters
-   * @returns Updated list
+   * @returns API response (passed through to LLM)
    */
-  async updateList(workspaceId: string, listId: string, params: UpdateListParams): Promise<List> {
+  async updateList(
+    workspaceId: string,
+    listId: string,
+    params: UpdateListParams
+  ): Promise<unknown> {
     const path = urlcat("/:workspace/lists/:list", {
       workspace: safeId("workspaceId", workspaceId),
       list: safeId("listId", listId),
     })
-    const response = await this.client.request<{ list: List }>(path, {
+    return await this.client.request(path, {
       method: "PATCH",
       body: JSON.stringify(params),
     })
-    return response.list
   }
 
   /**
    * Duplicates a board.
+   * API: POST /:workspace/boards/:board/copy
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param boardId - Board ID to duplicate
    * @param params - Optional title and project_id for the copy
-   * @returns Duplicated board
+   * @returns API response (passed through to LLM)
    */
   async duplicate(
     workspaceId: string,
     boardId: string,
     params?: { title?: string; project_id?: string }
-  ): Promise<Board> {
+  ): Promise<unknown> {
     const path = urlcat("/:workspace/boards/:board/copy", {
       workspace: safeId("workspaceId", workspaceId),
       board: safeId("boardId", boardId),
     })
-    const response = await this.client.request<{ board: Board }>(path, {
+    return await this.client.request(path, {
       method: "POST",
       body: params ? JSON.stringify(params) : undefined,
     })
-    return response.board
   }
 
   /**
    * Deletes a board permanently.
+   * API: DELETE /:workspace/boards/:board
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param boardId - Board ID to delete
-   * @returns Success response
+   * @returns API response (passed through to LLM)
    */
-  async delete(workspaceId: string, boardId: string): Promise<{ success: boolean }> {
+  async delete(workspaceId: string, boardId: string): Promise<unknown> {
     const path = urlcat("/:workspace/boards/:board", {
       workspace: safeId("workspaceId", workspaceId),
       board: safeId("boardId", boardId),
     })
-    return await this.client.request<{ success: boolean }>(path, {
+    return await this.client.request(path, {
       method: "DELETE",
     })
   }

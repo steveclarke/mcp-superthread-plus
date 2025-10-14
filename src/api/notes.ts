@@ -73,58 +73,6 @@ export interface CreateNoteParams {
 }
 
 /**
- * Note response object
- */
-export interface Note {
-  id: string
-  title: string
-  transcript?: string
-  transcripts?: Array<{
-    content: string
-    source: string
-    id: string
-    time_created: number
-    time_updated: number
-  }>
-  user_notes?: string
-  ai_notes?: Array<{
-    id: string
-    note_template_id: string
-    title: string
-    content: string
-    time_updated: number
-    related_resources?: Array<{
-      id: string
-      type: string
-      cosine_similarity: number
-    }>
-  }>
-  user?: unknown
-  user_updated?: unknown
-  team_id: string
-  last_note_template_id?: string
-  is_public?: boolean
-  public_settings?: {
-    url: string
-  }
-  time_created: number
-  time_updated: number
-  meeting_metadata?: {
-    id: string
-    name: string
-    description: string
-    links: MeetingLink[]
-    location: string
-    start_time: number
-    end_time: number
-  }
-  meeting_date?: number
-  meeting_time?: number
-  meeting_organizer?: MeetingParticipant
-  meeting_attendees?: MeetingParticipant[]
-}
-
-/**
  * Note API resource for managing notes.
  */
 export class NoteResource {
@@ -132,65 +80,70 @@ export class NoteResource {
 
   /**
    * Creates a new note in a workspace.
+   * API: POST /:workspace/notes
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param params - Note creation parameters
-   * @returns Created note details
+   * @returns API response (passed through to LLM)
    */
-  async create(workspaceId: string, params: CreateNoteParams): Promise<Note> {
+  async create(workspaceId: string, params: CreateNoteParams): Promise<unknown> {
     const path = urlcat("/:workspace/notes", {
       workspace: safeId("workspaceId", workspaceId),
     })
-    const response = await this.client.request<{ note: Note }>(path, {
+    return await this.client.request(path, {
       method: "POST",
       body: JSON.stringify(params),
     })
-    return response.note
   }
 
   /**
    * Retrieves a specific note by ID.
+   * API: GET /:workspace/notes/:note
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param noteId - Note ID to retrieve
-   * @returns Note details
+   * @returns API response (passed through to LLM)
    */
-  async get(workspaceId: string, noteId: string): Promise<Note> {
+  async get(workspaceId: string, noteId: string): Promise<unknown> {
     const path = urlcat("/:workspace/notes/:note", {
       workspace: safeId("workspaceId", workspaceId),
       note: safeId("noteId", noteId),
     })
-    const response = await this.client.request<{ note: Note }>(path, {
+    return await this.client.request(path, {
       method: "GET",
     })
-    return response.note
   }
 
   /**
    * Lists all notes in a workspace.
+   * API: GET /:workspace/notes
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
-   * @returns Array of notes
+   * @returns API response (passed through to LLM)
    */
-  async list(workspaceId: string): Promise<Note[]> {
+  async list(workspaceId: string): Promise<unknown> {
     const path = urlcat("/:workspace/notes", {
       workspace: safeId("workspaceId", workspaceId),
     })
-    const response = await this.client.request<{ notes: Note[] }>(path, {
+    return await this.client.request(path, {
       method: "GET",
     })
-    return response.notes
   }
 
   /**
    * Permanently deletes a note.
+   * API: DELETE /:workspace/notes/:note
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param noteId - Note ID to delete
-   * @returns Success response
+   * @returns API response (passed through to LLM)
    */
-  async delete(workspaceId: string, noteId: string): Promise<{ success: boolean }> {
+  async delete(workspaceId: string, noteId: string): Promise<unknown> {
     const path = urlcat("/:workspace/notes/:note", {
       workspace: safeId("workspaceId", workspaceId),
       note: safeId("noteId", noteId),
     })
-    return await this.client.request<{ success: boolean }>(path, {
+    return await this.client.request(path, {
       method: "DELETE",
     })
   }

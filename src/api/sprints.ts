@@ -7,65 +7,37 @@ import type { SuperthreadClient } from "./client.js"
 import urlcat from "urlcat"
 import { safeId } from "../utils.js"
 
-/**
- * Sprint list (column/status) within a sprint
- */
-export interface SprintList {
-  id: string
-  title: string
-  behavior: "committed" | "started" | "completed" | "cancelled"
-  team_id: string
-  time_created: number
-  time_updated: number
-}
-
-/**
- * Sprint information from Superthread API
- */
-export interface Sprint {
-  id: string
-  title: string
-  start_date: number
-  end_date: number
-  override_end_date?: number
-  project_id: string
-  team_id: string
-  state: string
-  lists: SprintList[]
-  progress?: unknown[]
-  unfinished_cards?: unknown
-  time_created: number
-  time_updated: number
-}
-
 export class SprintResource {
   constructor(private client: SuperthreadClient) {}
 
   /**
    * Gets all sprints for a space.
+   * API: GET /:workspace/projects/:project
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param spaceId - Space ID (maps to project_id in API)
-   * @returns List of sprints with basic information
+   * @returns API response (passed through to LLM)
    */
-  async list(workspaceId: string, spaceId: string): Promise<Sprint[]> {
+  async list(workspaceId: string, spaceId: string): Promise<unknown> {
     const path = urlcat("/:workspace/projects/:project", {
       workspace: safeId("workspaceId", workspaceId),
       project: safeId("spaceId", spaceId),
     })
-    const response = await this.client.request<{ project: { sprints?: Sprint[] } }>(path, {
+    return await this.client.request(path, {
       method: "GET",
     })
-    return response.project.sprints || []
   }
 
   /**
    * Gets detailed sprint information including list IDs.
+   * API: GET /:workspace/sprints/:sprint
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param sprintId - Sprint ID
    * @param spaceId - Space ID (maps to project_id in API) - required query parameter
-   * @returns Sprint details including lists
+   * @returns API response (passed through to LLM)
    */
-  async get(workspaceId: string, sprintId: string, spaceId: string): Promise<Sprint> {
+  async get(workspaceId: string, sprintId: string, spaceId: string): Promise<unknown> {
     const path = urlcat("/:workspace/sprints/:sprint", {
       workspace: safeId("workspaceId", workspaceId),
       sprint: safeId("sprintId", sprintId),
@@ -73,9 +45,8 @@ export class SprintResource {
     const params = new URLSearchParams()
     params.append("project_id", safeId("spaceId", spaceId))
 
-    const response = await this.client.request<{ sprint: Sprint }>(`${path}?${params.toString()}`, {
+    return await this.client.request(`${path}?${params.toString()}`, {
       method: "GET",
     })
-    return response.sprint
   }
 }

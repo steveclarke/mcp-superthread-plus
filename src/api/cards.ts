@@ -8,58 +8,6 @@ import { safeId } from "../utils.js"
 import type { SuperthreadClient } from "./client.js"
 
 /**
- * Card information from Superthread API
- */
-export interface Card {
-  id: string
-  type: string
-  team_id: string
-  title: string
-  content?: string
-  status?: string
-  priority?: number
-  board_id?: string
-  board_title?: string
-  list_id?: string
-  list_color?: string
-  list_title?: string
-  project_id?: string
-  user_id: string
-  user_id_updated?: string
-  start_date?: number
-  due_date?: number
-  completed_date?: number
-  time_created: number
-  time_updated: number
-  // Complex nested fields kept as unknown
-  icon?: unknown
-  collaboration?: unknown
-  user?: unknown
-  user_updated?: unknown
-  members?: unknown[]
-  checklists?: unknown[]
-  checklist_order?: unknown
-  checklist_item_order?: unknown
-  parent_card?: unknown
-  child_cards?: unknown[]
-  child_card_order?: unknown
-  linked_cards?: unknown[]
-  archived?: unknown
-  archived_list?: boolean
-  archived_board?: boolean
-  tags?: unknown[]
-  external_links?: unknown[]
-  hints?: unknown[]
-  epic?: unknown
-  cover_image?: unknown
-  total_comments?: number
-  total_files?: number
-  is_watching?: boolean
-  is_bookmarked?: boolean
-  estimate?: number
-}
-
-/**
  * Parameters for creating a new card
  */
 export interface CreateCardParams {
@@ -161,33 +109,11 @@ export interface DuplicateCardParams {
 }
 
 /**
- * Tag information from Superthread API
- */
-export interface Tag {
-  id: string
-  team_id: string
-  project_id?: string
-  name: string
-  slug: string
-  color: string
-  total_cards: number
-}
-
-/**
  * Parameters for retrieving tags
  */
 export interface GetTagsParams {
   project_id?: string
   all?: boolean
-}
-
-/**
- * Response from get tags endpoint
- */
-export interface GetTagsResponse {
-  cursor: string
-  count: number
-  tags: Tag[]
 }
 
 /**
@@ -199,65 +125,18 @@ export interface AddTagsToCardParams {
   ids?: string[]
 }
 
-/**
- * Checklist item from Superthread API
- */
-export interface ChecklistItem {
-  id: string
-  checklist_id: string
-  title: string
-  content?: string
-  user_id: string
-  time_created: number
-  time_updated: number
-  checked: boolean
-}
-
-/**
- * Checklist from Superthread API
- */
-export interface Checklist {
-  id: string
-  card_id: string
-  title: string
-  content?: string
-  user_id: string
-  time_created: number
-  time_updated: number
-  items?: ChecklistItem[]
-}
-
-/**
- * Response from creating a checklist
- */
-export interface CreateChecklistResponse {
-  checklist: Checklist
-}
-
-/**
- * Response from adding a checklist item
- */
-export interface AddChecklistItemResponse {
-  checklist_item: ChecklistItem
-}
-
-/**
- * Response from updating a checklist item
- */
-export interface UpdateChecklistItemResponse {
-  checklist_item: ChecklistItem
-}
-
 export class CardResource {
   constructor(private client: SuperthreadClient) {}
 
   /**
    * Creates a new card.
+   * API: POST /:workspace/cards
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param params - Card creation parameters
-   * @returns Created card details
+   * @returns API response (passed through to LLM)
    */
-  async create(workspaceId: string, params: CreateCardParams): Promise<Card> {
+  async create(workspaceId: string, params: CreateCardParams): Promise<unknown> {
     // Validate required fields
     if (!params.board_id && !params.sprint_id) {
       throw new Error("Either board_id or sprint_id must be provided")
@@ -266,58 +145,61 @@ export class CardResource {
     const path = urlcat("/:workspace/cards", {
       workspace: safeId("workspaceId", workspaceId),
     })
-    const response = await this.client.request<{ card: Card }>(path, {
+    return await this.client.request(path, {
       method: "POST",
       body: JSON.stringify(params),
     })
-    return response.card
   }
 
   /**
    * Updates an existing card.
    * Note: If archived=true/false, only archiving is processed and other changes are ignored.
+   * API: PATCH /:workspace/cards/:card
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param cardId - Card ID to update
    * @param params - Card update parameters (only specified fields will be updated)
-   * @returns Updated card details
+   * @returns API response (passed through to LLM)
    */
-  async update(workspaceId: string, cardId: string, params: UpdateCardParams): Promise<Card> {
+  async update(workspaceId: string, cardId: string, params: UpdateCardParams): Promise<unknown> {
     const path = urlcat("/:workspace/cards/:card", {
       workspace: safeId("workspaceId", workspaceId),
       card: safeId("cardId", cardId),
     })
-    const response = await this.client.request<{ card: Card }>(path, {
+    return await this.client.request(path, {
       method: "PATCH",
       body: JSON.stringify(params),
     })
-    return response.card
   }
 
   /**
    * Gets a specific card with full details.
+   * API: GET /:workspace/cards/:card
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param cardId - Card ID
-   * @returns Card details including checklists, tags, links, and relationships
+   * @returns API response (passed through to LLM)
    */
-  async get(workspaceId: string, cardId: string): Promise<Card> {
+  async get(workspaceId: string, cardId: string): Promise<unknown> {
     const path = urlcat("/:workspace/cards/:card", {
       workspace: safeId("workspaceId", workspaceId),
       card: safeId("cardId", cardId),
     })
-    const response = await this.client.request<{ card: Card }>(path, {
+    return await this.client.request(path, {
       method: "GET",
     })
-    return response.card
   }
 
   /**
    * Gets cards assigned to a user with optional filtering.
    * Uses the views/preview API endpoint with card filtering.
+   * API: POST /:workspace/views/preview
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param params - Filter parameters (user_id required, others optional)
-   * @returns List of cards assigned to the user
+   * @returns API response (passed through to LLM)
    */
-  async getAssigned(workspaceId: string, params: GetAssignedCardsParams): Promise<Card[]> {
+  async getAssigned(workspaceId: string, params: GetAssignedCardsParams): Promise<unknown> {
     // Build the views/preview request body
     const requestBody: {
       type: string
@@ -372,77 +254,84 @@ export class CardResource {
     const path = urlcat("/:workspace/views/preview", {
       workspace: safeId("workspaceId", workspaceId),
     })
-    const response = await this.client.request<{ cards: Card[] }>(path, {
+    return await this.client.request(path, {
       method: "POST",
       body: JSON.stringify(requestBody),
     })
-    return response.cards || []
   }
 
   /**
    * Links two cards with a relationship.
+   * API: POST /:workspace/cards/:card/linked_cards
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param cardId - Source card ID
    * @param params - Linked card parameters (card_id and linked_card_type)
-   * @returns Linked card details
+   * @returns API response (passed through to LLM)
    */
   async addRelated(
     workspaceId: string,
     cardId: string,
     params: AddRelatedCardParams
-  ): Promise<{ linked_card: Card }> {
+  ): Promise<unknown> {
     const path = urlcat("/:workspace/cards/:card/linked_cards", {
       workspace: safeId("workspaceId", workspaceId),
       card: safeId("cardId", cardId),
     })
-    const response = await this.client.request<{ linked_card: Card }>(path, {
+    return await this.client.request(path, {
       method: "POST",
       body: JSON.stringify(params),
     })
-    return response
   }
 
   /**
    * Removes a relationship between two linked cards.
+   * API: DELETE /:workspace/cards/:card/linked_cards/:linkedcard
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param cardId - Source card ID
    * @param linkedCardId - Linked card ID to remove
-   * @returns Success response
+   * @returns API response (passed through to LLM)
    */
-  async removeRelated(
-    workspaceId: string,
-    cardId: string,
-    linkedCardId: string
-  ): Promise<{ success: boolean }> {
+  async removeRelated(workspaceId: string, cardId: string, linkedCardId: string): Promise<unknown> {
     const path = urlcat("/:workspace/cards/:card/linked_cards/:linkedcard", {
       workspace: safeId("workspaceId", workspaceId),
       card: safeId("cardId", cardId),
       linkedcard: safeId("linkedCardId", linkedCardId),
     })
-    const response = await this.client.request<{ success: boolean }>(path, {
+    return await this.client.request(path, {
       method: "DELETE",
     })
-    return response
   }
 
   /**
    * Duplicates an existing card.
    * If params are not provided, automatically duplicates to the same location.
+   * API: POST /:workspace/cards/:card/copy
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param cardId - Card ID to duplicate
    * @param params - Optional parameters for where to duplicate the card
-   * @returns The newly created duplicate card
+   * @returns API response (passed through to LLM)
    */
   async duplicate(
     workspaceId: string,
     cardId: string,
     params?: DuplicateCardParams
-  ): Promise<Card> {
+  ): Promise<unknown> {
     let body = params || {}
 
     // If no params provided, get the card details to duplicate to same location
     if (!params || !params.project_id) {
-      const card = await this.get(workspaceId, cardId)
+      const cardResponse = await this.get(workspaceId, cardId)
+      type CardData = {
+        project_id?: string
+        board_id?: string
+        list_id?: string
+        card?: { project_id?: string; board_id?: string; list_id?: string }
+      }
+      const cardData = cardResponse as CardData
+      const card = cardData.card || cardData
       body = {
         project_id: card.project_id || params?.project_id,
         board_id: params?.board_id || card.board_id,
@@ -455,37 +344,39 @@ export class CardResource {
       workspace: safeId("workspaceId", workspaceId),
       card: safeId("cardId", cardId),
     })
-    const response = await this.client.request<{ card: Card }>(path, {
+    return await this.client.request(path, {
       method: "POST",
       body: JSON.stringify(body),
     })
-    return response.card
   }
 
   /**
    * Permanently deletes a card.
+   * API: DELETE /:workspace/cards/:card
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param cardId - Card ID to delete
-   * @returns Success response
+   * @returns API response (passed through to LLM)
    */
-  async delete(workspaceId: string, cardId: string): Promise<{ success: boolean }> {
+  async delete(workspaceId: string, cardId: string): Promise<unknown> {
     const path = urlcat("/:workspace/cards/:card", {
       workspace: safeId("workspaceId", workspaceId),
       card: safeId("cardId", cardId),
     })
-    const response = await this.client.request<{ success: boolean }>(path, {
+    return await this.client.request(path, {
       method: "DELETE",
     })
-    return response
   }
 
   /**
    * Retrieves tags for a workspace, optionally filtered by project.
+   * API: GET /:workspace/tags
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param params - Optional filter parameters
-   * @returns Tags with cursor and count
+   * @returns API response (passed through to LLM)
    */
-  async getTags(workspaceId: string, params?: GetTagsParams): Promise<GetTagsResponse> {
+  async getTags(workspaceId: string, params?: GetTagsParams): Promise<unknown> {
     // Build query string
     const queryParams = new URLSearchParams()
     if (params?.project_id) {
@@ -501,24 +392,25 @@ export class CardResource {
         workspace: safeId("workspaceId", workspaceId),
       }) + (queryString ? `?${queryString}` : "")
 
-    const response = await this.client.request<GetTagsResponse>(path, {
+    return await this.client.request(path, {
       method: "GET",
     })
-    return response
   }
 
   /**
    * Adds one or more tags to a card.
+   * API: POST /:workspace/cards/:card/tags
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param cardId - Card ID to add tags to
    * @param params - Tag parameters (either id or ids must be specified)
-   * @returns Success response (204 No Content)
+   * @returns API response (passed through to LLM)
    */
   async addTags(
     workspaceId: string,
     cardId: string,
     params: AddTagsToCardParams
-  ): Promise<{ success: boolean }> {
+  ): Promise<unknown> {
     // Validate that at least one of id or ids is provided
     if (!params.id && !params.ids) {
       throw new Error("Either 'id' or 'ids' must be specified")
@@ -528,38 +420,35 @@ export class CardResource {
       workspace: safeId("workspaceId", workspaceId),
       card: safeId("cardId", cardId),
     })
-    const response = await this.client.request<{ success: boolean }>(path, {
+    return await this.client.request(path, {
       method: "POST",
       body: JSON.stringify(params),
     })
-    return response
   }
 
   /**
    * Removes a tag from a card.
+   * API: DELETE /:workspace/cards/:card/tags/:tag
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param cardId - Card ID to remove tag from
    * @param tagId - Tag ID to remove
-   * @returns Success response (204 No Content)
+   * @returns API response (passed through to LLM)
    */
-  async removeTag(
-    workspaceId: string,
-    cardId: string,
-    tagId: string
-  ): Promise<{ success: boolean }> {
+  async removeTag(workspaceId: string, cardId: string, tagId: string): Promise<unknown> {
     const path = urlcat("/:workspace/cards/:card/tags/:tag", {
       workspace: safeId("workspaceId", workspaceId),
       card: safeId("cardId", cardId),
       tag: safeId("tagId", tagId),
     })
-    const response = await this.client.request<{ success: boolean }>(path, {
+    return await this.client.request(path, {
       method: "DELETE",
     })
-    return response
   }
 
   /**
    * Adds a member to a card.
+   * API: POST /:workspace/cards/:card/members
    *
    * ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API.
    * It was discovered via browser network inspection and may change without notice.
@@ -568,27 +457,27 @@ export class CardResource {
    * @param cardId - Card ID to add member to
    * @param userId - User ID to add as member
    * @param role - Member role (defaults to "member")
-   * @returns Success response
+   * @returns API response (passed through to LLM)
    */
   async addMember(
     workspaceId: string,
     cardId: string,
     userId: string,
     role: string = "member"
-  ): Promise<{ success: boolean }> {
+  ): Promise<unknown> {
     const path = urlcat("/:workspace/cards/:card/members", {
       workspace: safeId("workspaceId", workspaceId),
       card: safeId("cardId", cardId),
     })
-    const response = await this.client.request<{ success: boolean }>(path, {
+    return await this.client.request(path, {
       method: "POST",
       body: JSON.stringify({ user_id: userId, role }),
     })
-    return response
   }
 
   /**
    * Removes a member from a card.
+   * API: DELETE /:workspace/cards/:card/members/:user
    *
    * ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API.
    * It was discovered via browser network inspection and may change without notice.
@@ -596,26 +485,22 @@ export class CardResource {
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param cardId - Card ID to remove member from
    * @param userId - User ID to remove
-   * @returns Success response
+   * @returns API response (passed through to LLM)
    */
-  async removeMember(
-    workspaceId: string,
-    cardId: string,
-    userId: string
-  ): Promise<{ success: boolean }> {
+  async removeMember(workspaceId: string, cardId: string, userId: string): Promise<unknown> {
     const path = urlcat("/:workspace/cards/:card/members/:user", {
       workspace: safeId("workspaceId", workspaceId),
       card: safeId("cardId", cardId),
       user: safeId("userId", userId),
     })
-    const response = await this.client.request<{ success: boolean }>(path, {
+    return await this.client.request(path, {
       method: "DELETE",
     })
-    return response
   }
 
   /**
    * Creates a new checklist on a card.
+   * API: POST /:workspace/cards/:card/checklists
    *
    * ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API.
    * It was discovered via browser network inspection and may change without notice.
@@ -623,26 +508,22 @@ export class CardResource {
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param cardId - Card ID to add checklist to
    * @param title - Checklist title
-   * @returns Checklist creation response
+   * @returns API response (passed through to LLM)
    */
-  async createChecklist(
-    workspaceId: string,
-    cardId: string,
-    title: string
-  ): Promise<CreateChecklistResponse> {
+  async createChecklist(workspaceId: string, cardId: string, title: string): Promise<unknown> {
     const path = urlcat("/:workspace/cards/:card/checklists", {
       workspace: safeId("workspaceId", workspaceId),
       card: safeId("cardId", cardId),
     })
-    const response = await this.client.request<CreateChecklistResponse>(path, {
+    return await this.client.request(path, {
       method: "POST",
       body: JSON.stringify({ title }),
     })
-    return response
   }
 
   /**
    * Adds an item to a checklist.
+   * API: POST /:workspace/cards/:card/checklists/:checklist/items
    *
    * ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API.
    * It was discovered via browser network inspection and may change without notice.
@@ -651,31 +532,31 @@ export class CardResource {
    * @param cardId - Card ID containing the checklist
    * @param checklistId - Checklist ID to add item to
    * @param title - Item title (can include HTML like "<p>text</p>")
-   * @returns Checklist item creation response
+   * @returns API response (passed through to LLM)
    */
   async addChecklistItem(
     workspaceId: string,
     cardId: string,
     checklistId: string,
     title: string
-  ): Promise<AddChecklistItemResponse> {
+  ): Promise<unknown> {
     const path = urlcat("/:workspace/cards/:card/checklists/:checklist/items", {
       workspace: safeId("workspaceId", workspaceId),
       card: safeId("cardId", cardId),
       checklist: safeId("checklistId", checklistId),
     })
-    const response = await this.client.request<AddChecklistItemResponse>(path, {
+    return await this.client.request(path, {
       method: "POST",
       body: JSON.stringify({
         title,
         checklist_id: checklistId, // Required in body per API observation
       }),
     })
-    return response
   }
 
   /**
    * Updates a checklist item (e.g., to check/uncheck it or update title).
+   * API: PATCH /:workspace/cards/:card/checklists/:checklist/items/:item
    *
    * ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API.
    * It was discovered via browser network inspection and may change without notice.
@@ -685,7 +566,7 @@ export class CardResource {
    * @param checklistId - Checklist ID containing the item
    * @param itemId - Item ID to update
    * @param updates - Fields to update (e.g., {checked: true} or {title: "..."})
-   * @returns Checklist item update response
+   * @returns API response (passed through to LLM)
    */
   async updateChecklistItem(
     workspaceId: string,
@@ -693,22 +574,22 @@ export class CardResource {
     checklistId: string,
     itemId: string,
     updates: { checked?: boolean; title?: string }
-  ): Promise<UpdateChecklistItemResponse> {
+  ): Promise<unknown> {
     const path = urlcat("/:workspace/cards/:card/checklists/:checklist/items/:item", {
       workspace: safeId("workspaceId", workspaceId),
       card: safeId("cardId", cardId),
       checklist: safeId("checklistId", checklistId),
       item: safeId("itemId", itemId),
     })
-    const response = await this.client.request<UpdateChecklistItemResponse>(path, {
+    return await this.client.request(path, {
       method: "PATCH",
       body: JSON.stringify(updates),
     })
-    return response
   }
 
   /**
    * Deletes a checklist item.
+   * API: DELETE /:workspace/cards/:card/checklists/:checklist/items/:item
    *
    * ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API.
    * It was discovered via browser network inspection and may change without notice.
@@ -717,28 +598,28 @@ export class CardResource {
    * @param cardId - Card ID containing the checklist
    * @param checklistId - Checklist ID containing the item
    * @param itemId - Item ID to delete
-   * @returns Success response
+   * @returns API response (passed through to LLM)
    */
   async deleteChecklistItem(
     workspaceId: string,
     cardId: string,
     checklistId: string,
     itemId: string
-  ): Promise<{ success: boolean }> {
+  ): Promise<unknown> {
     const path = urlcat("/:workspace/cards/:card/checklists/:checklist/items/:item", {
       workspace: safeId("workspaceId", workspaceId),
       card: safeId("cardId", cardId),
       checklist: safeId("checklistId", checklistId),
       item: safeId("itemId", itemId),
     })
-    const response = await this.client.request<{ success: boolean }>(path, {
+    return await this.client.request(path, {
       method: "DELETE",
     })
-    return response
   }
 
   /**
    * Updates a checklist (e.g., to change its title).
+   * API: PATCH /:workspace/cards/:card/checklists/:checklist
    *
    * ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API.
    * It was discovered via browser network inspection and may change without notice.
@@ -747,31 +628,31 @@ export class CardResource {
    * @param cardId - Card ID to containing the checklist
    * @param checklistId - Checklist ID to update
    * @param title - New checklist title
-   * @returns Checklist update response
+   * @returns API response (passed through to LLM)
    */
   async updateChecklist(
     workspaceId: string,
     cardId: string,
     checklistId: string,
     title: string
-  ): Promise<{ checklist: Checklist }> {
+  ): Promise<unknown> {
     const path = urlcat("/:workspace/cards/:card/checklists/:checklist", {
       workspace: safeId("workspaceId", workspaceId),
       card: safeId("cardId", cardId),
       checklist: safeId("checklistId", checklistId),
     })
-    const response = await this.client.request<{ checklist: Checklist }>(path, {
+    return await this.client.request(path, {
       method: "PATCH",
       body: JSON.stringify({
         card_id: cardId,
         title,
       }),
     })
-    return response
   }
 
   /**
    * Deletes an entire checklist from a card.
+   * API: DELETE /:workspace/cards/:card/checklists/:checklist
    *
    * ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API.
    * It was discovered via browser network inspection and may change without notice.
@@ -779,21 +660,20 @@ export class CardResource {
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param cardId - Card ID containing the checklist
    * @param checklistId - Checklist ID to delete
-   * @returns Success response
+   * @returns API response (passed through to LLM)
    */
   async deleteChecklist(
     workspaceId: string,
     cardId: string,
     checklistId: string
-  ): Promise<{ success: boolean }> {
+  ): Promise<unknown> {
     const path = urlcat("/:workspace/cards/:card/checklists/:checklist", {
       workspace: safeId("workspaceId", workspaceId),
       card: safeId("cardId", cardId),
       checklist: safeId("checklistId", checklistId),
     })
-    const response = await this.client.request<{ success: boolean }>(path, {
+    return await this.client.request(path, {
       method: "DELETE",
     })
-    return response
   }
 }

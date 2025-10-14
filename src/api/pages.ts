@@ -84,52 +84,6 @@ export interface DuplicatePageParams {
 }
 
 /**
- * Page response object
- */
-export interface Page {
-  id: string
-  alias_id?: string
-  title: string
-  font?: string
-  icon?: PageIcon
-  content?: string
-  schema?: number
-  collaboration?: {
-    token: string
-  }
-  project_id: string
-  cover_image?: PageCoverImage
-  user_id: string
-  user_id_updated?: string
-  user?: unknown
-  user_updated?: unknown
-  team_id: string
-  time_created: number
-  time_updated: number
-  members?: Array<{
-    user_id: string
-    assigned_date: number
-    role: string
-  }>
-  bookmarked?: boolean
-  archived?: {
-    user_id: string
-    time_archived: number
-    parent_page_id?: string
-  }
-  is_public?: boolean
-  public_settings?: {
-    url: string
-    robots: string[]
-  }
-  total_comments?: number
-  is_watching?: boolean
-  is_bookmarked?: boolean
-  hide_table_of_contents?: boolean
-  hide_subpages?: boolean
-}
-
-/**
  * Page API resource for managing pages.
  */
 export class PageResource {
@@ -137,62 +91,67 @@ export class PageResource {
 
   /**
    * Creates a new page in a workspace.
+   * API: POST /:workspace/pages
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param params - Page creation parameters
-   * @returns Created page details
+   * @returns API response (passed through to LLM)
    */
-  async create(workspaceId: string, params: CreatePageParams): Promise<Page> {
+  async create(workspaceId: string, params: CreatePageParams): Promise<unknown> {
     const path = urlcat("/:workspace/pages", {
       workspace: safeId("workspaceId", workspaceId),
     })
-    const response = await this.client.request<{ page: Page }>(path, {
+    return await this.client.request(path, {
       method: "POST",
       body: JSON.stringify(params),
     })
-    return response.page
   }
 
   /**
    * Updates an existing page.
+   * API: PATCH /:workspace/pages/:page
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param pageId - Page ID to update
    * @param params - Page update parameters
-   * @returns Updated page details
+   * @returns API response (passed through to LLM)
    */
-  async update(workspaceId: string, pageId: string, params: UpdatePageParams): Promise<Page> {
+  async update(workspaceId: string, pageId: string, params: UpdatePageParams): Promise<unknown> {
     const path = urlcat("/:workspace/pages/:page", {
       workspace: safeId("workspaceId", workspaceId),
       page: safeId("pageId", pageId),
     })
-    const response = await this.client.request<{ page: Page }>(path, {
+    return await this.client.request(path, {
       method: "PATCH",
       body: JSON.stringify(params),
     })
-    return response.page
   }
 
   /**
    * Retrieves a specific page by ID.
+   * API: GET /:workspace/pages/:page
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param pageId - Page ID to retrieve
-   * @returns Page details
+   * @returns API response (passed through to LLM)
    */
-  async get(workspaceId: string, pageId: string): Promise<Page> {
+  async get(workspaceId: string, pageId: string): Promise<unknown> {
     const path = urlcat("/:workspace/pages/:page", {
       workspace: safeId("workspaceId", workspaceId),
       page: safeId("pageId", pageId),
     })
-    const response = await this.client.request<{ page: Page }>(path, {
+    return await this.client.request(path, {
       method: "GET",
     })
-    return response.page
   }
 
   /**
    * Lists all pages in a workspace with optional filtering.
+   * API: GET /:workspace/pages
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param params - Optional filtering parameters
-   * @returns Array of pages
+   * @returns API response (passed through to LLM)
    */
   async list(
     workspaceId: string,
@@ -201,7 +160,7 @@ export class PageResource {
       archived?: boolean
       updated_recently?: boolean
     }
-  ): Promise<Page[]> {
+  ): Promise<unknown> {
     const queryParams = new URLSearchParams()
     if (params?.project_id) queryParams.append("project_id", params.project_id)
     if (params?.archived !== undefined) queryParams.append("archived", String(params.archived))
@@ -214,60 +173,67 @@ export class PageResource {
         workspace: safeId("workspaceId", workspaceId),
       }) + (queryString ? `?${queryString}` : "")
 
-    const response = await this.client.request<{ pages: Page[] }>(path, {
+    return await this.client.request(path, {
       method: "GET",
     })
-    return response.pages
   }
 
   /**
    * Duplicates an existing page.
+   * API: POST /:workspace/pages/:page/copy
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param pageId - Page ID to duplicate
    * @param params - Duplication parameters
-   * @returns Duplicated page details
+   * @returns API response (passed through to LLM)
    */
-  async duplicate(workspaceId: string, pageId: string, params: DuplicatePageParams): Promise<Page> {
+  async duplicate(
+    workspaceId: string,
+    pageId: string,
+    params: DuplicatePageParams
+  ): Promise<unknown> {
     const path = urlcat("/:workspace/pages/:page/copy", {
       workspace: safeId("workspaceId", workspaceId),
       page: safeId("pageId", pageId),
     })
-    const response = await this.client.request<{ page: Page }>(path, {
+    return await this.client.request(path, {
       method: "POST",
       body: JSON.stringify(params),
     })
-    return response.page
   }
 
   /**
    * Archives or unarchives a page.
+   * API: PUT /:workspace/pages/:page/archive
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param pageId - Page ID to archive
-   * @returns Archived page details
+   * @returns API response (passed through to LLM)
    */
-  async archive(workspaceId: string, pageId: string): Promise<Page> {
+  async archive(workspaceId: string, pageId: string): Promise<unknown> {
     const path = urlcat("/:workspace/pages/:page/archive", {
       workspace: safeId("workspaceId", workspaceId),
       page: safeId("pageId", pageId),
     })
-    const response = await this.client.request<{ page: Page }>(path, {
+    return await this.client.request(path, {
       method: "PUT",
     })
-    return response.page
   }
 
   /**
    * Permanently deletes a page.
+   * API: DELETE /:workspace/pages/:page
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param pageId - Page ID to delete
-   * @returns Success response
+   * @returns API response (passed through to LLM)
    */
-  async delete(workspaceId: string, pageId: string): Promise<{ success: boolean }> {
+  async delete(workspaceId: string, pageId: string): Promise<unknown> {
     const path = urlcat("/:workspace/pages/:page", {
       workspace: safeId("workspaceId", workspaceId),
       page: safeId("pageId", pageId),
     })
-    return await this.client.request<{ success: boolean }>(path, {
+    return await this.client.request(path, {
       method: "DELETE",
     })
   }

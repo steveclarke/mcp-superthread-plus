@@ -21,43 +21,18 @@ export interface SearchParams {
   cursor?: string // Pagination cursor
 }
 
-/**
- * Individual search result that can contain different entity types
- */
-export interface SearchResult {
-  board?: unknown
-  page?: unknown
-  card?: unknown
-  project?: unknown
-  epic?: unknown
-  note?: unknown
-}
-
-/**
- * Search response from Superthread API
- */
-export interface SearchResponse {
-  cursor: string
-  count: number
-  results: SearchResult[] // Ungrouped results
-  boards?: unknown[] // Grouped by type
-  cards?: unknown[]
-  pages?: unknown[]
-  projects?: unknown[]
-  epics?: unknown[]
-  notes?: unknown[]
-}
-
 export class SearchResource {
   constructor(private client: SuperthreadClient) {}
 
   /**
    * Execute a search query across workspace entities.
+   * API: GET /:workspace/search
+   *
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param params - Search parameters including query, filters, and options
-   * @returns Search results with entities matching the query
+   * @returns API response (passed through to LLM)
    */
-  async search(workspaceId: string, params: SearchParams): Promise<SearchResponse> {
+  async search(workspaceId: string, params: SearchParams): Promise<unknown> {
     const queryParams = new URLSearchParams()
     queryParams.append("query", params.q)
 
@@ -73,6 +48,6 @@ export class SearchResource {
       urlcat("/:workspace/search", {
         workspace: safeId("workspaceId", workspaceId),
       }) + `?${queryParams.toString()}`
-    return await this.client.request<SearchResponse>(path, { method: "GET" })
+    return await this.client.request(path, { method: "GET" })
   }
 }

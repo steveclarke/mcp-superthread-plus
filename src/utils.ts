@@ -82,13 +82,18 @@ export async function formatMentions(
   }
 
   // Fetch workspace members
-  let members
+  let membersResponse
   try {
-    members = await client.user.getMembers(workspaceId)
+    membersResponse = await client.user.getMembers(workspaceId)
   } catch {
     // If we can't fetch members, return content as-is
     return content.startsWith("<") ? content : `<p>${content}</p>`
   }
+
+  // Extract members array from response (API returns { members: [...] })
+  type MemberItem = { id: string; display_name: string }
+  type MembersResponse = { members?: MemberItem[] }
+  const members = (membersResponse as MembersResponse)?.members || []
 
   // Create a map of lowercase names to member info for case-insensitive matching
   const memberMap = new Map<string, { id: string; name: string }>()
