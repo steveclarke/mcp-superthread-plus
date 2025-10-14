@@ -513,4 +513,44 @@ export function registerCardTools(server: McpServer) {
       }
     }
   )
+
+  // card_remove_tag - Remove a tag from a card
+  server.registerTool(
+    "card_remove_tag",
+    {
+      title: "Remove Tag from Card",
+      description: "Remove a specific tag from a card.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        card_id: z.string().describe("Card ID to remove tag from"),
+        tag_id: z.string().describe("Tag ID to remove"),
+      },
+    },
+    async (args: { workspace_id: string; card_id: string; tag_id: string }) => {
+      try {
+        const client = createClient()
+        const result = await client.cards.removeTag(args.workspace_id, args.card_id, args.tag_id)
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${errorMessage}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
 }

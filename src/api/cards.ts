@@ -438,4 +438,25 @@ export class CardResource {
     )
     return response
   }
+
+  /**
+   * Removes a tag from a card.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param cardId - Card ID to remove tag from
+   * @param tagId - Tag ID to remove
+   * @returns Success response (204 No Content)
+   */
+  async removeTag(
+    workspaceId: string,
+    cardId: string,
+    tagId: string
+  ): Promise<{ success: boolean }> {
+    const response = await this.client.request<{ success: boolean }>(
+      `/${workspaceId}/cards/${cardId}/tags/${tagId}`,
+      {
+        method: "DELETE",
+      }
+    )
+    return response
+  }
 }
