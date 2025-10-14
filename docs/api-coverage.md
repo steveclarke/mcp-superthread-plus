@@ -1,6 +1,6 @@
 # API Coverage
 
-Complete list of all 57 planned tools, their SuperThread API endpoints, and implementation status.
+Complete list of all 63 planned tools, their SuperThread API endpoints, and implementation status.
 
 ## Development Approach
 
@@ -19,7 +19,7 @@ Tools are organized into 9 categories matching SuperThread's domain model.
 | Category           | Total Tools | Implemented | Read-Only | Write  | Status              |
 | ------------------ | ----------- | ----------- | --------- | ------ | ------------------- |
 | Users              | 5           | 2           | 2         | 0      | 40% ✅               |
-| Cards              | 13          | 13          | 3         | 10     | 100% ✅              |
+| Cards              | 16          | 16          | 3         | 13     | 100% ✅              |
 | Projects (Roadmap) | 7           | 7           | 2         | 5      | 100% ✅              |
 | Boards             | 8           | 8           | 2         | 6      | 100% ✅              |
 | Spaces             | 7           | 2           | 2         | 0      | 29% ✅               |
@@ -27,7 +27,7 @@ Tools are organized into 9 categories matching SuperThread's domain model.
 | Notes              | 4           | 0           | 0         | 0      | 0% ⏸️                |
 | Comments           | 8           | 8           | 2         | 6      | 100% ✅              |
 | Search             | 1           | 1           | 1         | 0      | 100% ✅              |
-| **Total**          | **60**      | **40**      | **15**    | **25** | **67% implemented** |
+| **Total**          | **63**      | **43**      | **15**    | **28** | **68% implemented** |
 
 **Legend:** ✅ Partial | 🚧 In Progress | ⏸️ Planned
 
@@ -48,30 +48,33 @@ Tools are organized into 9 categories matching SuperThread's domain model.
 | `user_update_member`     | PATCH  | `/{team_id}/members/{member_id}` | Update member role  |
 | `user_delete_member`     | DELETE | `/{team_id}/members/{member_id}` | Remove member       |
 
-## Cards (13 tools)
+## Cards (16 tools)
 
 ### Implemented ✅
 
-| Tool                  | Method | Endpoint                                                   | Description                            |
-| --------------------- | ------ | ---------------------------------------------------------- | -------------------------------------- |
-| `card_create`         | POST   | `/{team_id}/cards`                                         | Create new card                        |
-| `card_update`         | PATCH  | `/{team_id}/cards/{card_id}`                               | Update card properties                 |
-| `card_get`            | GET    | `/{team_id}/cards/{card_id}`                               | Get card details                       |
-| `card_duplicate`      | POST   | `/{team_id}/cards/{card_id}/copy`                          | Clone card                             |
-| `card_get_assigned`   | POST   | `/{team_id}/views/preview`                                 | Get user's assigned cards              |
-| `card_add_related`    | POST   | `/{team_id}/cards/{card_id}/linked_cards`                  | Link cards with relationships          |
-| `card_delete`         | DELETE | `/{team_id}/cards/{card_id}`                               | Delete card permanently                |
-| `card_get_tags`       | GET    | `/{team_id}/tags`                                          | List available tags                    |
-| `card_add_tags`       | POST   | `/{team_id}/cards/{card_id}/tags`                          | Add tags to card                       |
-| `card_remove_tag`     | DELETE | `/{team_id}/cards/{card_id}/tags/{tag_id}`                 | Remove tag from card                   |
-| `card_remove_related` | DELETE | `/{team_id}/cards/{card_id}/linked_cards/{linked_card_id}` | Remove card relationship               |
-| `card_add_member`     | POST   | `/{team_id}/cards/{card_id}/members`                       | Add member to card ⚠️ UNDOCUMENTED      |
-| `card_remove_member`  | DELETE | `/{team_id}/cards/{card_id}/members/{user_id}`             | Remove member from card ⚠️ UNDOCUMENTED |
+| Tool                         | Method | Endpoint                                                               | Description                                        |
+| ---------------------------- | ------ | ---------------------------------------------------------------------- | -------------------------------------------------- |
+| `card_create`                | POST   | `/{team_id}/cards`                                                     | Create new card                                    |
+| `card_update`                | PATCH  | `/{team_id}/cards/{card_id}`                                           | Update card properties                             |
+| `card_get`                   | GET    | `/{team_id}/cards/{card_id}`                                           | Get card details                                   |
+| `card_duplicate`             | POST   | `/{team_id}/cards/{card_id}/copy`                                      | Clone card                                         |
+| `card_get_assigned`          | POST   | `/{team_id}/views/preview`                                             | Get user's assigned cards                          |
+| `card_add_related`           | POST   | `/{team_id}/cards/{card_id}/linked_cards`                              | Link cards with relationships                      |
+| `card_delete`                | DELETE | `/{team_id}/cards/{card_id}`                                           | Delete card permanently                            |
+| `card_get_tags`              | GET    | `/{team_id}/tags`                                                      | List available tags                                |
+| `card_add_tags`              | POST   | `/{team_id}/cards/{card_id}/tags`                                      | Add tags to card                                   |
+| `card_remove_tag`            | DELETE | `/{team_id}/cards/{card_id}/tags/{tag_id}`                             | Remove tag from card                               |
+| `card_remove_related`        | DELETE | `/{team_id}/cards/{card_id}/linked_cards/{linked_card_id}`             | Remove card relationship                           |
+| `card_add_member`            | POST   | `/{team_id}/cards/{card_id}/members`                                   | Add member to card ⚠️ UNDOCUMENTED                  |
+| `card_remove_member`         | DELETE | `/{team_id}/cards/{card_id}/members/{user_id}`                         | Remove member from card ⚠️ UNDOCUMENTED             |
+| `card_create_checklist`      | POST   | `/{team_id}/cards/{card_id}/checklists`                                | Create checklist on card ⚠️ UNDOCUMENTED            |
+| `card_add_checklist_item`    | POST   | `/{team_id}/cards/{card_id}/checklists/{checklist_id}/items`           | Add item to checklist ⚠️ UNDOCUMENTED               |
+| `card_update_checklist_item` | PATCH  | `/{team_id}/cards/{card_id}/checklists/{checklist_id}/items/{item_id}` | Update checklist item (check/title) ⚠️ UNDOCUMENTED |
 
 ### Notes
 
 - **Archive functionality** is handled by `card_update` with `archived: true/false` parameter (no separate tool needed)
-- ⚠️ **UNDOCUMENTED ENDPOINTS**: `card_add_member` and `card_remove_member` were discovered via browser network inspection and are NOT in SuperThread's official API documentation. These may change without notice.
+- ⚠️ **UNDOCUMENTED ENDPOINTS**: `card_add_member`, `card_remove_member`, `card_create_checklist`, `card_add_checklist_item`, and `card_update_checklist_item` were discovered via browser network inspection and are NOT in SuperThread's official API documentation. These may change without notice.
 - See "Known API Limitations" section below for constraint on updating `content`
 
 ## Projects/Roadmap (7 tools)

@@ -197,6 +197,55 @@ export interface AddTagsToCardParams {
   ids?: string[]
 }
 
+/**
+ * Checklist item from SuperThread API
+ */
+export interface ChecklistItem {
+  id: string
+  checklist_id: string
+  title: string
+  content?: string
+  user_id: string
+  time_created: number
+  time_updated: number
+  checked: boolean
+}
+
+/**
+ * Checklist from SuperThread API
+ */
+export interface Checklist {
+  id: string
+  card_id: string
+  title: string
+  content?: string
+  user_id: string
+  time_created: number
+  time_updated: number
+  items?: ChecklistItem[]
+}
+
+/**
+ * Response from creating a checklist
+ */
+export interface CreateChecklistResponse {
+  checklist: Checklist
+}
+
+/**
+ * Response from adding a checklist item
+ */
+export interface AddChecklistItemResponse {
+  checklist_item: ChecklistItem
+}
+
+/**
+ * Response from updating a checklist item
+ */
+export interface UpdateChecklistItemResponse {
+  checklist_item: ChecklistItem
+}
+
 export class CardResource {
   constructor(private client: SuperThreadClient) {}
 
@@ -530,6 +579,93 @@ export class CardResource {
       `/${workspaceId}/cards/${cardId}/members/${userId}`,
       {
         method: "DELETE",
+      }
+    )
+    return response
+  }
+
+  /**
+   * Creates a new checklist on a card.
+   *
+   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API.
+   * It was discovered via browser network inspection and may change without notice.
+   *
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param cardId - Card ID to add checklist to
+   * @param title - Checklist title
+   * @returns Checklist creation response
+   */
+  async createChecklist(
+    workspaceId: string,
+    cardId: string,
+    title: string
+  ): Promise<CreateChecklistResponse> {
+    const response = await this.client.request<CreateChecklistResponse>(
+      `/${workspaceId}/cards/${cardId}/checklists`,
+      {
+        method: "POST",
+        body: JSON.stringify({ title }),
+      }
+    )
+    return response
+  }
+
+  /**
+   * Adds an item to a checklist.
+   *
+   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API.
+   * It was discovered via browser network inspection and may change without notice.
+   *
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param cardId - Card ID containing the checklist
+   * @param checklistId - Checklist ID to add item to
+   * @param title - Item title (can include HTML like "<p>text</p>")
+   * @returns Checklist item creation response
+   */
+  async addChecklistItem(
+    workspaceId: string,
+    cardId: string,
+    checklistId: string,
+    title: string
+  ): Promise<AddChecklistItemResponse> {
+    const response = await this.client.request<AddChecklistItemResponse>(
+      `/${workspaceId}/cards/${cardId}/checklists/${checklistId}/items`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          title,
+          checklist_id: checklistId, // Required in body per API observation
+        }),
+      }
+    )
+    return response
+  }
+
+  /**
+   * Updates a checklist item (e.g., to check/uncheck it or update title).
+   *
+   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API.
+   * It was discovered via browser network inspection and may change without notice.
+   *
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param cardId - Card ID containing the checklist
+   * @param checklistId - Checklist ID containing the item
+   * @param itemId - Item ID to update
+   * @param updates - Fields to update (e.g., {checked: true} or {title: "..."})
+   * @returns Checklist item update response
+   */
+  async updateChecklistItem(
+    workspaceId: string,
+    cardId: string,
+    checklistId: string,
+    itemId: string,
+    updates: { checked?: boolean; title?: string }
+  ): Promise<UpdateChecklistItemResponse> {
+    const response = await this.client.request<UpdateChecklistItemResponse>(
+      `/${workspaceId}/cards/${cardId}/checklists/${checklistId}/items/${itemId}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(updates),
       }
     )
     return response

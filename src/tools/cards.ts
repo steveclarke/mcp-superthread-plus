@@ -691,4 +691,155 @@ export function registerCardTools(server: McpServer) {
       }
     }
   )
+
+  // card_create_checklist - Create checklist on card
+  server.registerTool(
+    "card_create_checklist",
+    {
+      title: "Create Checklist on Card",
+      description:
+        "Create a new checklist on a card. ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API and may change without notice.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        card_id: z.string().describe("Card ID to add checklist to"),
+        title: z.string().describe("Checklist title"),
+      },
+    },
+    async (args: { workspace_id: string; card_id: string; title: string }) => {
+      try {
+        const client = createClient()
+        const result: Awaited<ReturnType<typeof client.cards.createChecklist>> =
+          await client.cards.createChecklist(args.workspace_id, args.card_id, args.title)
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
+
+  // card_add_checklist_item - Add item to checklist
+  server.registerTool(
+    "card_add_checklist_item",
+    {
+      title: "Add Item to Checklist",
+      description:
+        "Add an item to a card's checklist. Item title can include HTML formatting. ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API and may change without notice.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        card_id: z.string().describe("Card ID containing the checklist"),
+        checklist_id: z.string().describe("Checklist ID to add item to"),
+        title: z.string().describe("Item title (can include HTML like '<p>text</p>')"),
+      },
+    },
+    async (args: {
+      workspace_id: string
+      card_id: string
+      checklist_id: string
+      title: string
+    }) => {
+      try {
+        const client = createClient()
+        const result: Awaited<ReturnType<typeof client.cards.addChecklistItem>> =
+          await client.cards.addChecklistItem(
+            args.workspace_id,
+            args.card_id,
+            args.checklist_id,
+            args.title
+          )
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
+
+  // card_update_checklist_item - Update checklist item
+  server.registerTool(
+    "card_update_checklist_item",
+    {
+      title: "Update Checklist Item",
+      description:
+        "Update a checklist item's checked status or title. ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API and may change without notice.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        card_id: z.string().describe("Card ID containing the checklist"),
+        checklist_id: z.string().describe("Checklist ID containing the item"),
+        item_id: z.string().describe("Item ID to update"),
+        checked: z.boolean().optional().describe("Check/uncheck the item"),
+        title: z.string().optional().describe("Update item title (can include HTML)"),
+      },
+    },
+    async (args: {
+      workspace_id: string
+      card_id: string
+      checklist_id: string
+      item_id: string
+      checked?: boolean
+      title?: string
+    }) => {
+      try {
+        const client = createClient()
+        const updates: { checked?: boolean; title?: string } = {}
+        if (args.checked !== undefined) updates.checked = args.checked
+        if (args.title !== undefined) updates.title = args.title
+
+        const result: Awaited<ReturnType<typeof client.cards.updateChecklistItem>> =
+          await client.cards.updateChecklistItem(
+            args.workspace_id,
+            args.card_id,
+            args.checklist_id,
+            args.item_id,
+            updates
+          )
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
 }
