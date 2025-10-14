@@ -26,9 +26,14 @@ export interface UserAccount {
  */
 export interface WorkspaceMember {
   id: string
-  email: string
-  name: string
+  email?: string
+  display_name: string
   role: string
+  status: string
+  first_name?: string
+  last_name?: string
+  profile_image?: string
+  color?: string
 }
 
 export class UserResource {
@@ -47,14 +52,21 @@ export class UserResource {
   /**
    * Gets workspace members.
    * @param workspaceId - Workspace ID (maps to team_id in API)
-   * @returns List of workspace members
+   * @returns List of workspace members (active members only)
    */
   async getMembers(workspaceId: string): Promise<WorkspaceMember[]> {
     const path = urlcat("/teams/:workspace/members", {
       workspace: safeId("workspaceId", workspaceId),
     })
-    return await this.client.request<WorkspaceMember[]>(path, {
+    const response = await this.client.request<{
+      members: WorkspaceMember[]
+      inactive?: WorkspaceMember[]
+      invited?: WorkspaceMember[]
+      robots?: WorkspaceMember[]
+    }>(path, {
       method: "GET",
     })
+    // Return only active members
+    return response.members || []
   }
 }

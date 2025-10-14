@@ -178,6 +178,25 @@ None - all endpoints implemented!
 - Reply operations use child comment endpoints under the parent comment path
 - Deleting a parent comment also removes all child replies
 
+### Mention Support
+
+All comment tools (`comment_create`, `comment_update`, `comment_reply`, `comment_update_reply`) support @mentions for tagging workspace members. The system automatically:
+
+- **Scans content for {{@Username}} patterns** - Use `{{@Name}}` template syntax to mention users (e.g., `{{@Elliott Butt}}`)
+- **Looks up exact name matches** - Case-insensitive matching against workspace members  
+- **Converts to HTML user-mention tags** - Automatically formats as SuperThread's `<user-mention>` tags
+- **Gracefully handles non-matches** - Invalid names remain as plain text (comments still post successfully)
+
+**Why template syntax?** The `{{@Name}}` delimiters unambiguously mark where names start and end, handling complex names with spaces, Unicode, special characters, etc. This is more robust than trying to detect name boundaries with regex.
+
+**Best Practice:** LLMs should call `user_get_members` first to verify correct names when ambiguous. For example, if there are multiple "Steve" users, check the full names before mentioning.
+
+**Example:**
+```
+Input:  "Hey {{@Elliott Butt}}, can you review this?"
+Output: "<p>Hey <user-mention data-type="mention" user-id="uT2hPbnu" ...></user-mention>, can you review this?</p>"
+```
+
 ## Search (1 tool)
 
 ### Implemented ✅

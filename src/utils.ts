@@ -4,6 +4,7 @@
  */
 
 import validator from "validator"
+import type { SuperthreadClient } from "./api/client.js"
 
 /**
  * Error thrown when an ID fails validation.
@@ -54,4 +55,75 @@ export function safeId(name: string, value: string): string {
   }
 
   return cleaned
+}
+
+/**
+ * Converts {{@mentions}} in content to SuperThread's HTML user-mention tags.
+ * Uses template syntax {{@Name}} to unambiguously identify mention boundaries.
+ * Non-matching names are left as plain text (graceful degradation).
+ *
+ * @param content - Comment content that may contain {{@Name}} patterns
+ * @param workspaceId - Workspace ID to fetch members from
+ * @param client - SuperthreadClient instance
+ * @returns Content with {{@mentions}} converted to HTML tags
+ *
+ * @example
+ * // Input: "Hey {{@Steve Clarke}}, check this out!"
+ * // Output: "<p>Hey <user-mention data-type=\"mention\" user-id=\"u123\" ...></user-mention>, check this out!</p>"
+ */
+export async function formatMentions(
+  content: string,
+  workspaceId: string,
+  client: SuperthreadClient
+): Promise<string> {
+  // If content is empty or doesn't contain {{@, return as-is wrapped in <p> tags
+  if (!content || !content.includes("{{@")) {
+    return content.startsWith("<") ? content : `<p>${content}</p>`
+  }
+
+  // Fetch workspace members
+  let members
+  try {
+    members = await client.user.getMembers(workspaceId)
+  } catch {
+    // If we can't fetch members, return content as-is
+    return content.startsWith("<") ? content : `<p>${content}</p>`
+  }
+
+  // Create a map of lowercase names to member info for case-insensitive matching
+  const memberMap = new Map<string, { id: string; name: string }>()
+  for (const member of members) {
+    memberMap.set(member.display_name.toLowerCase(), {
+      id: member.id,
+      name: member.display_name,
+    })
+  }
+
+  // Pattern to match {{@Name}} - simple and unambiguous
+  // Matches anything between {{@ and }} delimiters
+  const mentionPattern = /\{\{@([^}]+)\}\}/g
+
+  // Get current Unix timestamp for mention-time attribute
+  const mentionTime = Math.floor(Date.now() / 1000)
+
+  // Replace {{@mentions}} with HTML tags
+  let processedContent = content.replace(mentionPattern, (match: string, name: string) => {
+    const trimmedName = name.trim()
+    const memberInfo = memberMap.get(trimmedName.toLowerCase())
+
+    if (memberInfo) {
+      // Found a matching member - convert to HTML mention tag
+      return `<user-mention data-type="mention" user-id="${memberInfo.id}" mention-time="${mentionTime}" user-value="${memberInfo.name}" denotation-char="@"></user-mention>`
+    }
+
+    // No match found - leave the template syntax as plain text
+    return match
+  })
+
+  // Wrap in <p> tags if not already HTML
+  if (!processedContent.startsWith("<")) {
+    processedContent = `<p>${processedContent}</p>`
+  }
+
+  return processedContent
 }
