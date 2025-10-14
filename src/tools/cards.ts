@@ -601,4 +601,94 @@ export function registerCardTools(server: McpServer) {
       }
     }
   )
+
+  // card_add_member - Add member to card
+  server.registerTool(
+    "card_add_member",
+    {
+      title: "Add Member to Card",
+      description:
+        "Add a member to a card. ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API and may change without notice.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        card_id: z.string().describe("Card ID to add member to"),
+        user_id: z.string().describe("User ID to add as member"),
+        role: z.string().optional().describe("Member role (defaults to 'member')"),
+      },
+    },
+    async (args: { workspace_id: string; card_id: string; user_id: string; role?: string }) => {
+      try {
+        const client = createClient()
+        const result = await client.cards.addMember(
+          args.workspace_id,
+          args.card_id,
+          args.user_id,
+          args.role || "member"
+        )
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${errorMessage}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
+
+  // card_remove_member - Remove member from card
+  server.registerTool(
+    "card_remove_member",
+    {
+      title: "Remove Member from Card",
+      description:
+        "Remove a member from a card. ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API and may change without notice.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        card_id: z.string().describe("Card ID to remove member from"),
+        user_id: z.string().describe("User ID to remove"),
+      },
+    },
+    async (args: { workspace_id: string; card_id: string; user_id: string }) => {
+      try {
+        const client = createClient()
+        const result = await client.cards.removeMember(
+          args.workspace_id,
+          args.card_id,
+          args.user_id
+        )
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${errorMessage}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
 }

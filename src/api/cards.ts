@@ -481,4 +481,57 @@ export class CardResource {
     )
     return response
   }
+
+  /**
+   * Adds a member to a card.
+   *
+   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API.
+   * It was discovered via browser network inspection and may change without notice.
+   *
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param cardId - Card ID to add member to
+   * @param userId - User ID to add as member
+   * @param role - Member role (defaults to "member")
+   * @returns Success response
+   */
+  async addMember(
+    workspaceId: string,
+    cardId: string,
+    userId: string,
+    role: string = "member"
+  ): Promise<{ success: boolean }> {
+    const response = await this.client.request<{ success: boolean }>(
+      `/${workspaceId}/cards/${cardId}/members`,
+      {
+        method: "POST",
+        body: JSON.stringify({ user_id: userId, role }),
+      }
+    )
+    return response
+  }
+
+  /**
+   * Removes a member from a card.
+   *
+   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API.
+   * It was discovered via browser network inspection and may change without notice.
+   *
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param cardId - Card ID to remove member from
+   * @param userId - User ID to remove
+   * @returns Success response
+   */
+  async removeMember(
+    workspaceId: string,
+    cardId: string,
+    userId: string
+  ): Promise<{ success: boolean }> {
+    const response = await this.client.request<{ success: boolean }>(
+      `/${workspaceId}/cards/${cardId}/members/${userId}`,
+      {
+        method: "DELETE",
+      }
+    )
+    return response
+  }
 }
