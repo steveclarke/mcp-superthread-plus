@@ -6,9 +6,9 @@ Complete list of all 60 planned tools, their SuperThread API endpoints, and impl
 
 We're implementing tools **incrementally** to establish solid patterns before scaling:
 
-1. **Phase 1 (Current)**: 3 tools implemented - establishing patterns
-2. **Phase 2**: Add 5-10 more commonly used tools
-3. **Phase 3+**: Continue adding based on actual usage needs
+1. **Phase 1 (Complete)**: Core patterns established ✅
+2. **Phase 2 (Current)**: 26 tools implemented - covering primary workflows ✅
+3. **Phase 3**: Add remaining tools based on usage needs
 
 ## Tool Organization
 
@@ -19,15 +19,15 @@ Tools are organized into 9 categories matching SuperThread's domain model.
 | Category           | Total Tools | Implemented | Read-Only | Write | Status              |
 | ------------------ | ----------- | ----------- | --------- | ----- | ------------------- |
 | Users              | 5           | 2           | 2         | 0     | 40% ✅               |
-| Cards              | 12          | 7           | 2         | 5     | 58% ✅               |
+| Cards              | 12          | 10          | 3         | 7     | 83% ✅               |
 | Projects (Roadmap) | 8           | 2           | 2         | 0     | 25% ✅               |
 | Boards             | 8           | 4           | 2         | 2     | 50% ✅               |
 | Spaces             | 7           | 2           | 2         | 0     | 29% ✅               |
 | Pages              | 7           | 0           | 0         | 0     | 0% ⏸️                |
 | Notes              | 4           | 0           | 0         | 0     | 0% ⏸️                |
-| Comments           | 8           | 0           | 0         | 0     | 0% ⏸️                |
-| Search             | 1           | 0           | 0         | 0     | 0% ⏸️                |
-| **Total**          | **60**      | **17**      | **10**    | **7** | **28% implemented** |
+| Comments           | 8           | 5           | 1         | 4     | 63% ✅               |
+| Search             | 1           | 1           | 1         | 0     | 100% ✅              |
+| **Total**          | **60**      | **26**      | **13**    | **13**| **43% implemented** |
 
 **Legend:** ✅ Partial | 🚧 In Progress | ⏸️ Planned
 
@@ -61,15 +61,15 @@ Tools are organized into 9 categories matching SuperThread's domain model.
 | `card_get_assigned` | POST   | `/{team_id}/views/preview`                | Get user's assigned cards     |
 | `card_add_related`  | POST   | `/{team_id}/cards/{card_id}/linked_cards` | Link cards with relationships |
 | `card_delete`       | DELETE | `/{team_id}/cards/{card_id}`              | Delete card permanently       |
+| `tag_get_all`       | GET    | `/{team_id}/tags`                         | List available tags           |
+| `card_add_tags`     | POST   | `/{team_id}/cards/{card_id}/tags`         | Add tags to card              |
+| `card_remove_tag`   | DELETE | `/{team_id}/cards/{card_id}/tags/{tag_id}`| Remove tag from card          |
 
 ### Planned ⏸️
 
 | Tool                  | Method | Endpoint                                                   | Description              |
 | --------------------- | ------ | ---------------------------------------------------------- | ------------------------ |
 | `card_remove_related` | DELETE | `/{team_id}/cards/{card_id}/linked_cards/{linked_card_id}` | Remove card relationship |
-| `card_get_tags`       | GET    | `/{team_id}/tags`                                          | List available tags      |
-| `card_add_tags`       | POST   | `/{team_id}/cards/{card_id}/tags`                          | Add tags to card         |
-| `card_remove_tag`     | DELETE | `/{team_id}/cards/{card_id}/tags/{tag_id}`                 | Remove tag               |
 
 ### Notes
 
@@ -135,14 +135,51 @@ Tools are organized into 9 categories matching SuperThread's domain model.
 | `space_remove_member` | DELETE | `/{team_id}/projects/{project_id}/members/{member_id}` | Remove member       |
 | `space_delete`        | DELETE | `/{team_id}/projects/{project_id}`                     | Delete space        |
 
+## Comments (8 tools)
+
+### Implemented ✅
+
+| Tool             | Method | Endpoint                                      | Description                      |
+| ---------------- | ------ | --------------------------------------------- | -------------------------------- |
+| `comment_create` | POST   | `/{team_id}/comments`                         | Create comment on card/page      |
+| `comment_update` | PATCH  | `/{team_id}/comments/{comment_id}`            | Edit existing comment            |
+| `comment_get`    | GET    | `/{team_id}/comments/{comment_id}`            | Get comment details with replies |
+| `comment_reply`  | POST   | `/{team_id}/comments/{comment_id}/children`   | Reply to comment (thread)        |
+| `comment_delete` | DELETE | `/{team_id}/comments/{comment_id}`            | Delete comment permanently       |
+
+### Planned ⏸️
+
+| Tool                       | Method | Endpoint                                                        | Description              |
+| -------------------------- | ------ | --------------------------------------------------------------- | ------------------------ |
+| `comment_get_all_replies`  | GET    | `/{team_id}/comments/{comment_id}/children`                     | Get all replies          |
+| `comment_update_reply`     | PATCH  | `/{team_id}/comments/{comment_id}/children/{child_comment_id}`  | Edit a reply             |
+| `comment_delete_reply`     | DELETE | `/{team_id}/comments/{comment_id}/children/{child_comment_id}`  | Delete a reply           |
+
+### Notes
+
+- **Reply deletion** requires a separate endpoint. Deleting a parent comment removes all child replies.
+- Comments support status values: `resolved`, `open`, `orphaned`
+
+## Search (1 tool)
+
+### Implemented ✅
+
+| Tool         | Method | Endpoint            | Description                          |
+| ------------ | ------ | ------------------- | ------------------------------------ |
+| `search_get` | GET    | `/{team_id}/search` | Search across boards, cards, pages, etc |
+
+### Notes
+
+- Search supports filtering by: `types`, `statuses`, `project_id`, `archived`, `field` (title/content)
+- Results can be returned grouped by entity type or ungrouped
+- Supports pagination via `cursor` parameter
+
 ## Remaining Categories
 
-The following categories (22 tools) are planned but not yet implemented:
+The following categories (11 tools) are planned but not yet implemented:
 
 - **Pages** (7 tools) - Documentation page management
 - **Notes** (4 tools) - Meeting note management
-- **Comments** (8 tools) - Comment and reply management
-- **Search** (1 tool) - Global search across entities
 
 These will be added incrementally as we refine implementation patterns.
 
