@@ -1,13 +1,13 @@
 # API Coverage
 
-Complete list of all 60 planned tools, their SuperThread API endpoints, and implementation status.
+Complete list of all 57 planned tools, their SuperThread API endpoints, and implementation status.
 
 ## Development Approach
 
 We're implementing tools **incrementally** to establish solid patterns before scaling:
 
 1. **Phase 1 (Complete)**: Core patterns established ✅
-2. **Phase 2 (Current)**: 26 tools implemented - covering primary workflows ✅
+2. **Phase 2 (Current)**: 32 tools implemented - covering primary workflows ✅
 3. **Phase 3**: Add remaining tools based on usage needs
 
 ## Tool Organization
@@ -20,14 +20,14 @@ Tools are organized into 9 categories matching SuperThread's domain model.
 | ------------------ | ----------- | ----------- | --------- | ----- | ------------------- |
 | Users              | 5           | 2           | 2         | 0     | 40% ✅               |
 | Cards              | 11          | 11          | 3         | 8     | 100% ✅              |
-| Projects (Roadmap) | 8           | 2           | 2         | 0     | 25% ✅               |
+| Projects (Roadmap) | 6           | 5           | 2         | 3     | 83% ✅               |
 | Boards             | 8           | 4           | 2         | 2     | 50% ✅               |
 | Spaces             | 7           | 2           | 2         | 0     | 29% ✅               |
 | Pages              | 7           | 0           | 0         | 0     | 0% ⏸️                |
 | Notes              | 4           | 0           | 0         | 0     | 0% ⏸️                |
 | Comments           | 8           | 8           | 2         | 6     | 100% ✅              |
 | Search             | 1           | 1           | 1         | 0     | 100% ✅              |
-| **Total**          | **59**      | **29**      | **15**    | **14**| **49% implemented** |
+| **Total**          | **57**      | **32**      | **15**    | **17**| **56% implemented** |
 
 **Legend:** ✅ Partial | 🚧 In Progress | ⏸️ Planned
 
@@ -71,25 +71,26 @@ Tools are organized into 9 categories matching SuperThread's domain model.
 - **Archive functionality** is handled by `card_update` with `archived: true/false` parameter (no separate tool needed)
 - See "Known API Limitations" section below for constraints on updating `content` and `members`
 
-## Projects/Roadmap (8 tools)
+## Projects/Roadmap (6 tools)
 
 ### Implemented ✅
 
-| Tool              | Method | Endpoint                     | Description               |
-| ----------------- | ------ | ---------------------------- | ------------------------- |
-| `project_get_all` | GET    | `/{team_id}/epics`           | List all roadmap projects |
-| `project_get`     | GET    | `/{team_id}/epics/{epic_id}` | Get project details       |
+| Tool              | Method | Endpoint                     | Description                |
+| ----------------- | ------ | ---------------------------- | -------------------------- |
+| `project_get_all` | GET    | `/{team_id}/epics`           | List all roadmap projects  |
+| `project_get`     | GET    | `/{team_id}/epics/{epic_id}` | Get project details        |
+| `project_create`  | POST   | `/{team_id}/epics`           | Create roadmap project     |
+| `project_update`  | PATCH  | `/{team_id}/epics/{epic_id}` | Update project properties  |
+| `project_delete`  | DELETE | `/{team_id}/epics/{epic_id}` | Delete project permanently |
 
 ### Planned ⏸️
 
-| Tool                     | Method | Endpoint                             | Description            |
-| ------------------------ | ------ | ------------------------------------ | ---------------------- |
-| `project_create`         | POST   | `/{team_id}/epics`                   | Create roadmap project |
-| `project_update`         | PATCH  | `/{team_id}/epics/{epic_id}`         | Update project         |
-| `project_add_related`    | POST   | `/{team_id}/epics/{epic_id}/related` | Add related card       |
-| `project_remove_related` | DELETE | `/{team_id}/epics/{epic_id}/related` | Remove related card    |
-| `project_archive`        | PATCH  | `/{team_id}/epics/{epic_id}`         | Archive project        |
-| `project_delete`         | DELETE | `/{team_id}/epics/{epic_id}`         | Delete project         |
+None - all endpoints implemented!
+
+### Notes
+
+- **Archive functionality** is handled by `project_update` with `archived: true/false` parameter (no separate tool needed)
+- **Card-to-project relationships** are managed via the card's `epic_id` field using `card_create` or `card_update` (no separate project endpoint)
 
 ## Boards (8 tools)
 

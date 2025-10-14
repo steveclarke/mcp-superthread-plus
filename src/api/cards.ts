@@ -94,6 +94,7 @@ export interface UpdateCardParams {
   board_id?: string
   list_id?: string
   project_id?: string
+  epic_id?: string
   sprint_id?: string
   owner_id?: string
   start_date?: number

@@ -105,6 +105,7 @@ export function registerCardTools(server: McpServer) {
         board_id: z.string().optional().describe("Move card to different board"),
         list_id: z.string().optional().describe("Move card to different list"),
         project_id: z.string().optional().describe("Change project/space association"),
+        epic_id: z.string().optional().describe("Change epic/roadmap project association"),
         sprint_id: z.string().optional().describe("Change sprint association"),
         owner_id: z.string().optional().describe("Change card owner"),
         start_date: z.number().optional().describe("Update start date (Unix timestamp in seconds)"),
@@ -126,6 +127,7 @@ export function registerCardTools(server: McpServer) {
         if (args.board_id !== undefined) params.board_id = args.board_id
         if (args.list_id !== undefined) params.list_id = args.list_id
         if (args.project_id !== undefined) params.project_id = args.project_id
+        if (args.epic_id !== undefined) params.epic_id = args.epic_id
         if (args.sprint_id !== undefined) params.sprint_id = args.sprint_id
         if (args.owner_id !== undefined) params.owner_id = args.owner_id
         if (args.start_date !== undefined) params.start_date = args.start_date
