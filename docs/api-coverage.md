@@ -22,12 +22,13 @@ Tools are organized into 9 categories matching Superthread's domain model.
 | Cards              | 19          | 19          | 3         | 16     | 100% ✅              |
 | Projects (Roadmap) | 7           | 7           | 2         | 5      | 100% ✅              |
 | Boards             | 8           | 8           | 2         | 6      | 100% ✅              |
+| Sprints            | 2           | 2           | 2         | 0      | 100% ✅              |
 | Spaces             | 7           | 2           | 2         | 0      | 29% ✅               |
 | Pages              | 7           | 0           | 0         | 0      | 0% ⏸️                |
 | Notes              | 4           | 0           | 0         | 0      | 0% ⏸️                |
 | Comments           | 8           | 8           | 2         | 6      | 100% ✅              |
 | Search             | 1           | 1           | 1         | 0      | 100% ✅              |
-| **Total**          | **66**      | **46**      | **15**    | **31** | **70% implemented** |
+| **Total**          | **68**      | **48**      | **17**    | **31** | **71% implemented** |
 
 **Legend:** ✅ Partial | 🚧 In Progress | ⏸️ Planned
 
@@ -119,6 +120,23 @@ None - all endpoints implemented!
 | `board_update_list` | PATCH  | `/{team_id}/lists/{list_id}`             | Update list/column          |
 | `board_duplicate`   | POST   | `/{team_id}/boards/{board_id}/duplicate` | Clone board                 |
 | `board_delete`      | DELETE | `/{team_id}/boards/{board_id}`           | Delete board                |
+
+## Sprints (2 tools)
+
+### Implemented ✅
+
+| Tool             | Method | Endpoint                                                 | Description                           |
+| ---------------- | ------ | -------------------------------------------------------- | ------------------------------------- |
+| `sprint_get_all` | GET    | `/{team_id}/projects/{project_id}` (returns sprints)     | List all sprints for a space          |
+| `sprint_get`     | GET    | `/{team_id}/sprints/{sprint_id}?project_id={project_id}` | Get sprint details including list IDs |
+
+### Notes
+
+- **Sprint list IDs** are UUID-based and unique to each sprint (e.g., `dc8a470f-a871-47d8-980b-40bd987f2bdf`)
+- Each sprint has standard lists: "Not started" (committed), "In progress" (started), "Done" (completed), "Cancelled" (cancelled)
+- These list IDs are required when creating cards in sprints via `card_create` with `sprint_id` parameter
+- Sprint endpoints were discovered via browser network inspection and are **not documented** in SuperThread's official API documentation
+- The `project_id` query parameter is required for the `sprint_get` endpoint
 
 ## Spaces (7 tools)
 

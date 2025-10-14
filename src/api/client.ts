@@ -15,6 +15,7 @@ import { SearchResource } from "./search.js"
 import { PageResource } from "./pages.js"
 import { CommentResource } from "./comments.js"
 import { NoteResource } from "./notes.js"
+import { SprintResource } from "./sprints.js"
 
 /**
  * Main Superthread API client.
@@ -26,6 +27,7 @@ import { NoteResource } from "./notes.js"
  * - `client.spaces.*` - Space (organizational container) operations
  * - `client.boards.*` - Board and kanban operations
  * - `client.cards.*` - Card operations
+ * - `client.sprints.*` - Sprint operations
  * - `client.search.*` - Search operations
  * - `client.comments.*` - Comment operations
  * - etc.
@@ -70,6 +72,9 @@ export class SuperthreadClient {
   /** Note operations */
   public notes: NoteResource
 
+  /** Sprint operations */
+  public sprints: SprintResource
+
   constructor(apiKey: string, baseUrl: string) {
     this.apiKey = apiKey
     this.baseUrl = baseUrl
@@ -83,6 +88,7 @@ export class SuperthreadClient {
     this.pages = new PageResource(this)
     this.comments = new CommentResource(this)
     this.notes = new NoteResource(this)
+    this.sprints = new SprintResource(this)
   }
 
   /**

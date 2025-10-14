@@ -9,6 +9,7 @@ import { registerProjectTools } from "./projects.js"
 import { registerSpaceTools } from "./spaces.js"
 import { registerBoardTools } from "./boards.js"
 import { registerCardTools } from "./cards.js"
+import { registerSprintTools } from "./sprints.js"
 import { registerSearchTools } from "./search.js"
 import { registerPageTools } from "./pages.js"
 import { registerCommentTools } from "./comments.js"
@@ -25,6 +26,7 @@ export function registerAllTools(server: McpServer): void {
   registerSpaceTools(server)
   registerBoardTools(server)
   registerCardTools(server)
+  registerSprintTools(server)
   registerSearchTools(server)
   registerPageTools(server)
   registerCommentTools(server)
