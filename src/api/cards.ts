@@ -336,6 +336,27 @@ export class CardResource {
   }
 
   /**
+   * Removes a relationship between two linked cards.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param cardId - Source card ID
+   * @param linkedCardId - Linked card ID to remove
+   * @returns Success response
+   */
+  async removeRelated(
+    workspaceId: string,
+    cardId: string,
+    linkedCardId: string
+  ): Promise<{ success: boolean }> {
+    const response = await this.client.request<{ success: boolean }>(
+      `/${workspaceId}/cards/${cardId}/linked_cards/${linkedCardId}`,
+      {
+        method: "DELETE",
+      }
+    )
+    return response
+  }
+
+  /**
    * Duplicates an existing card.
    * If params are not provided, automatically duplicates to the same location.
    * @param workspaceId - Workspace ID (maps to team_id in API)

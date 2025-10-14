@@ -337,6 +337,52 @@ export function registerCardTools(server: McpServer) {
     }
   )
 
+  // card_remove_related - Remove a relationship between linked cards
+  server.registerTool(
+    "card_remove_related",
+    {
+      title: "Remove Related Card",
+      description:
+        "Remove a relationship between two linked cards. This removes the link but does not delete either card.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        card_id: z.string().describe("Source card ID"),
+        linked_card_id: z.string().describe("Linked card ID to remove"),
+      },
+    },
+    async (args) => {
+      try {
+        const client = createClient()
+
+        const result = await client.cards.removeRelated(
+          args.workspace_id,
+          args.card_id,
+          args.linked_card_id
+        )
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${errorMessage}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
+
   // card_duplicate - Duplicate an existing card
   server.registerTool(
     "card_duplicate",
@@ -417,9 +463,9 @@ export function registerCardTools(server: McpServer) {
     }
   )
 
-  // tag_get_all - Get tags for workspace or project
+  // card_get_tags - Get tags for workspace or project
   server.registerTool(
-    "tag_get_all",
+    "card_get_tags",
     {
       title: "Get Tags",
       description:

@@ -19,7 +19,7 @@ Tools are organized into 9 categories matching SuperThread's domain model.
 | Category           | Total Tools | Implemented | Read-Only | Write | Status              |
 | ------------------ | ----------- | ----------- | --------- | ----- | ------------------- |
 | Users              | 5           | 2           | 2         | 0     | 40% ✅               |
-| Cards              | 12          | 10          | 3         | 7     | 83% ✅               |
+| Cards              | 11          | 11          | 3         | 8     | 100% ✅              |
 | Projects (Roadmap) | 8           | 2           | 2         | 0     | 25% ✅               |
 | Boards             | 8           | 4           | 2         | 2     | 50% ✅               |
 | Spaces             | 7           | 2           | 2         | 0     | 29% ✅               |
@@ -27,7 +27,7 @@ Tools are organized into 9 categories matching SuperThread's domain model.
 | Notes              | 4           | 0           | 0         | 0     | 0% ⏸️                |
 | Comments           | 8           | 5           | 1         | 4     | 63% ✅               |
 | Search             | 1           | 1           | 1         | 0     | 100% ✅              |
-| **Total**          | **60**      | **26**      | **13**    | **13**| **43% implemented** |
+| **Total**          | **59**      | **26**      | **13**    | **13**| **44% implemented** |
 
 **Legend:** ✅ Partial | 🚧 In Progress | ⏸️ Planned
 
@@ -48,7 +48,7 @@ Tools are organized into 9 categories matching SuperThread's domain model.
 | `user_update_member`     | PATCH  | `/{team_id}/members/{member_id}` | Update member role  |
 | `user_delete_member`     | DELETE | `/{team_id}/members/{member_id}` | Remove member       |
 
-## Cards (12 tools)
+## Cards (11 tools)
 
 ### Implemented ✅
 
@@ -61,14 +61,9 @@ Tools are organized into 9 categories matching SuperThread's domain model.
 | `card_get_assigned` | POST   | `/{team_id}/views/preview`                | Get user's assigned cards     |
 | `card_add_related`  | POST   | `/{team_id}/cards/{card_id}/linked_cards` | Link cards with relationships |
 | `card_delete`       | DELETE | `/{team_id}/cards/{card_id}`              | Delete card permanently       |
-| `tag_get_all`       | GET    | `/{team_id}/tags`                         | List available tags           |
+| `card_get_tags`     | GET    | `/{team_id}/tags`                         | List available tags           |
 | `card_add_tags`     | POST   | `/{team_id}/cards/{card_id}/tags`         | Add tags to card              |
 | `card_remove_tag`   | DELETE | `/{team_id}/cards/{card_id}/tags/{tag_id}`| Remove tag from card          |
-
-### Planned ⏸️
-
-| Tool                  | Method | Endpoint                                                   | Description              |
-| --------------------- | ------ | ---------------------------------------------------------- | ------------------------ |
 | `card_remove_related` | DELETE | `/{team_id}/cards/{card_id}/linked_cards/{linked_card_id}` | Remove card relationship |
 
 ### Notes
