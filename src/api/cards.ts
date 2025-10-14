@@ -3,6 +3,8 @@
  * Provides card operations.
  */
 
+import urlcat from "urlcat"
+import { safeId } from "../utils.js"
 import type { SuperthreadClient } from "./client.js"
 
 /**
@@ -261,7 +263,10 @@ export class CardResource {
       throw new Error("Either board_id or sprint_id must be provided")
     }
 
-    const response = await this.client.request<{ card: Card }>(`/${workspaceId}/cards`, {
+    const path = urlcat("/:workspace/cards", {
+      workspace: safeId("workspaceId", workspaceId),
+    })
+    const response = await this.client.request<{ card: Card }>(path, {
       method: "POST",
       body: JSON.stringify(params),
     })
@@ -277,7 +282,11 @@ export class CardResource {
    * @returns Updated card details
    */
   async update(workspaceId: string, cardId: string, params: UpdateCardParams): Promise<Card> {
-    const response = await this.client.request<{ card: Card }>(`/${workspaceId}/cards/${cardId}`, {
+    const path = urlcat("/:workspace/cards/:card", {
+      workspace: safeId("workspaceId", workspaceId),
+      card: safeId("cardId", cardId),
+    })
+    const response = await this.client.request<{ card: Card }>(path, {
       method: "PATCH",
       body: JSON.stringify(params),
     })
@@ -291,7 +300,11 @@ export class CardResource {
    * @returns Card details including checklists, tags, links, and relationships
    */
   async get(workspaceId: string, cardId: string): Promise<Card> {
-    const response = await this.client.request<{ card: Card }>(`/${workspaceId}/cards/${cardId}`, {
+    const path = urlcat("/:workspace/cards/:card", {
+      workspace: safeId("workspaceId", workspaceId),
+      card: safeId("cardId", cardId),
+    })
+    const response = await this.client.request<{ card: Card }>(path, {
       method: "GET",
     })
     return response.card
@@ -356,7 +369,10 @@ export class CardResource {
       requestBody.card_filters.include!.priority = [params.priority]
     }
 
-    const response = await this.client.request<{ cards: Card[] }>(`/${workspaceId}/views/preview`, {
+    const path = urlcat("/:workspace/views/preview", {
+      workspace: safeId("workspaceId", workspaceId),
+    })
+    const response = await this.client.request<{ cards: Card[] }>(path, {
       method: "POST",
       body: JSON.stringify(requestBody),
     })
@@ -375,13 +391,14 @@ export class CardResource {
     cardId: string,
     params: AddRelatedCardParams
   ): Promise<{ linked_card: Card }> {
-    const response = await this.client.request<{ linked_card: Card }>(
-      `/${workspaceId}/cards/${cardId}/linked_cards`,
-      {
-        method: "POST",
-        body: JSON.stringify(params),
-      }
-    )
+    const path = urlcat("/:workspace/cards/:card/linked_cards", {
+      workspace: safeId("workspaceId", workspaceId),
+      card: safeId("cardId", cardId),
+    })
+    const response = await this.client.request<{ linked_card: Card }>(path, {
+      method: "POST",
+      body: JSON.stringify(params),
+    })
     return response
   }
 
@@ -397,12 +414,14 @@ export class CardResource {
     cardId: string,
     linkedCardId: string
   ): Promise<{ success: boolean }> {
-    const response = await this.client.request<{ success: boolean }>(
-      `/${workspaceId}/cards/${cardId}/linked_cards/${linkedCardId}`,
-      {
-        method: "DELETE",
-      }
-    )
+    const path = urlcat("/:workspace/cards/:card/linked_cards/:linkedcard", {
+      workspace: safeId("workspaceId", workspaceId),
+      card: safeId("cardId", cardId),
+      linkedcard: safeId("linkedCardId", linkedCardId),
+    })
+    const response = await this.client.request<{ success: boolean }>(path, {
+      method: "DELETE",
+    })
     return response
   }
 
@@ -432,13 +451,14 @@ export class CardResource {
       }
     }
 
-    const response = await this.client.request<{ card: Card }>(
-      `/${workspaceId}/cards/${cardId}/copy`,
-      {
-        method: "POST",
-        body: JSON.stringify(body),
-      }
-    )
+    const path = urlcat("/:workspace/cards/:card/copy", {
+      workspace: safeId("workspaceId", workspaceId),
+      card: safeId("cardId", cardId),
+    })
+    const response = await this.client.request<{ card: Card }>(path, {
+      method: "POST",
+      body: JSON.stringify(body),
+    })
     return response.card
   }
 
@@ -449,12 +469,13 @@ export class CardResource {
    * @returns Success response
    */
   async delete(workspaceId: string, cardId: string): Promise<{ success: boolean }> {
-    const response = await this.client.request<{ success: boolean }>(
-      `/${workspaceId}/cards/${cardId}`,
-      {
-        method: "DELETE",
-      }
-    )
+    const path = urlcat("/:workspace/cards/:card", {
+      workspace: safeId("workspaceId", workspaceId),
+      card: safeId("cardId", cardId),
+    })
+    const response = await this.client.request<{ success: boolean }>(path, {
+      method: "DELETE",
+    })
     return response
   }
 
@@ -475,7 +496,10 @@ export class CardResource {
     }
 
     const queryString = queryParams.toString()
-    const path = `/${workspaceId}/tags${queryString ? `?${queryString}` : ""}`
+    const path =
+      urlcat("/:workspace/tags", {
+        workspace: safeId("workspaceId", workspaceId),
+      }) + (queryString ? `?${queryString}` : "")
 
     const response = await this.client.request<GetTagsResponse>(path, {
       method: "GET",
@@ -500,13 +524,14 @@ export class CardResource {
       throw new Error("Either 'id' or 'ids' must be specified")
     }
 
-    const response = await this.client.request<{ success: boolean }>(
-      `/${workspaceId}/cards/${cardId}/tags`,
-      {
-        method: "POST",
-        body: JSON.stringify(params),
-      }
-    )
+    const path = urlcat("/:workspace/cards/:card/tags", {
+      workspace: safeId("workspaceId", workspaceId),
+      card: safeId("cardId", cardId),
+    })
+    const response = await this.client.request<{ success: boolean }>(path, {
+      method: "POST",
+      body: JSON.stringify(params),
+    })
     return response
   }
 
@@ -522,12 +547,14 @@ export class CardResource {
     cardId: string,
     tagId: string
   ): Promise<{ success: boolean }> {
-    const response = await this.client.request<{ success: boolean }>(
-      `/${workspaceId}/cards/${cardId}/tags/${tagId}`,
-      {
-        method: "DELETE",
-      }
-    )
+    const path = urlcat("/:workspace/cards/:card/tags/:tag", {
+      workspace: safeId("workspaceId", workspaceId),
+      card: safeId("cardId", cardId),
+      tag: safeId("tagId", tagId),
+    })
+    const response = await this.client.request<{ success: boolean }>(path, {
+      method: "DELETE",
+    })
     return response
   }
 
@@ -549,13 +576,14 @@ export class CardResource {
     userId: string,
     role: string = "member"
   ): Promise<{ success: boolean }> {
-    const response = await this.client.request<{ success: boolean }>(
-      `/${workspaceId}/cards/${cardId}/members`,
-      {
-        method: "POST",
-        body: JSON.stringify({ user_id: userId, role }),
-      }
-    )
+    const path = urlcat("/:workspace/cards/:card/members", {
+      workspace: safeId("workspaceId", workspaceId),
+      card: safeId("cardId", cardId),
+    })
+    const response = await this.client.request<{ success: boolean }>(path, {
+      method: "POST",
+      body: JSON.stringify({ user_id: userId, role }),
+    })
     return response
   }
 
@@ -575,12 +603,14 @@ export class CardResource {
     cardId: string,
     userId: string
   ): Promise<{ success: boolean }> {
-    const response = await this.client.request<{ success: boolean }>(
-      `/${workspaceId}/cards/${cardId}/members/${userId}`,
-      {
-        method: "DELETE",
-      }
-    )
+    const path = urlcat("/:workspace/cards/:card/members/:user", {
+      workspace: safeId("workspaceId", workspaceId),
+      card: safeId("cardId", cardId),
+      user: safeId("userId", userId),
+    })
+    const response = await this.client.request<{ success: boolean }>(path, {
+      method: "DELETE",
+    })
     return response
   }
 
@@ -600,13 +630,14 @@ export class CardResource {
     cardId: string,
     title: string
   ): Promise<CreateChecklistResponse> {
-    const response = await this.client.request<CreateChecklistResponse>(
-      `/${workspaceId}/cards/${cardId}/checklists`,
-      {
-        method: "POST",
-        body: JSON.stringify({ title }),
-      }
-    )
+    const path = urlcat("/:workspace/cards/:card/checklists", {
+      workspace: safeId("workspaceId", workspaceId),
+      card: safeId("cardId", cardId),
+    })
+    const response = await this.client.request<CreateChecklistResponse>(path, {
+      method: "POST",
+      body: JSON.stringify({ title }),
+    })
     return response
   }
 
@@ -628,16 +659,18 @@ export class CardResource {
     checklistId: string,
     title: string
   ): Promise<AddChecklistItemResponse> {
-    const response = await this.client.request<AddChecklistItemResponse>(
-      `/${workspaceId}/cards/${cardId}/checklists/${checklistId}/items`,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          title,
-          checklist_id: checklistId, // Required in body per API observation
-        }),
-      }
-    )
+    const path = urlcat("/:workspace/cards/:card/checklists/:checklist/items", {
+      workspace: safeId("workspaceId", workspaceId),
+      card: safeId("cardId", cardId),
+      checklist: safeId("checklistId", checklistId),
+    })
+    const response = await this.client.request<AddChecklistItemResponse>(path, {
+      method: "POST",
+      body: JSON.stringify({
+        title,
+        checklist_id: checklistId, // Required in body per API observation
+      }),
+    })
     return response
   }
 
@@ -661,13 +694,16 @@ export class CardResource {
     itemId: string,
     updates: { checked?: boolean; title?: string }
   ): Promise<UpdateChecklistItemResponse> {
-    const response = await this.client.request<UpdateChecklistItemResponse>(
-      `/${workspaceId}/cards/${cardId}/checklists/${checklistId}/items/${itemId}`,
-      {
-        method: "PATCH",
-        body: JSON.stringify(updates),
-      }
-    )
+    const path = urlcat("/:workspace/cards/:card/checklists/:checklist/items/:item", {
+      workspace: safeId("workspaceId", workspaceId),
+      card: safeId("cardId", cardId),
+      checklist: safeId("checklistId", checklistId),
+      item: safeId("itemId", itemId),
+    })
+    const response = await this.client.request<UpdateChecklistItemResponse>(path, {
+      method: "PATCH",
+      body: JSON.stringify(updates),
+    })
     return response
   }
 
@@ -689,12 +725,15 @@ export class CardResource {
     checklistId: string,
     itemId: string
   ): Promise<{ success: boolean }> {
-    const response = await this.client.request<{ success: boolean }>(
-      `/${workspaceId}/cards/${cardId}/checklists/${checklistId}/items/${itemId}`,
-      {
-        method: "DELETE",
-      }
-    )
+    const path = urlcat("/:workspace/cards/:card/checklists/:checklist/items/:item", {
+      workspace: safeId("workspaceId", workspaceId),
+      card: safeId("cardId", cardId),
+      checklist: safeId("checklistId", checklistId),
+      item: safeId("itemId", itemId),
+    })
+    const response = await this.client.request<{ success: boolean }>(path, {
+      method: "DELETE",
+    })
     return response
   }
 
@@ -705,7 +744,7 @@ export class CardResource {
    * It was discovered via browser network inspection and may change without notice.
    *
    * @param workspaceId - Workspace ID (maps to team_id in API)
-   * @param cardId - Card ID containing the checklist
+   * @param cardId - Card ID to containing the checklist
    * @param checklistId - Checklist ID to update
    * @param title - New checklist title
    * @returns Checklist update response
@@ -716,16 +755,18 @@ export class CardResource {
     checklistId: string,
     title: string
   ): Promise<{ checklist: Checklist }> {
-    const response = await this.client.request<{ checklist: Checklist }>(
-      `/${workspaceId}/cards/${cardId}/checklists/${checklistId}`,
-      {
-        method: "PATCH",
-        body: JSON.stringify({
-          card_id: cardId,
-          title,
-        }),
-      }
-    )
+    const path = urlcat("/:workspace/cards/:card/checklists/:checklist", {
+      workspace: safeId("workspaceId", workspaceId),
+      card: safeId("cardId", cardId),
+      checklist: safeId("checklistId", checklistId),
+    })
+    const response = await this.client.request<{ checklist: Checklist }>(path, {
+      method: "PATCH",
+      body: JSON.stringify({
+        card_id: cardId,
+        title,
+      }),
+    })
     return response
   }
 
@@ -745,12 +786,14 @@ export class CardResource {
     cardId: string,
     checklistId: string
   ): Promise<{ success: boolean }> {
-    const response = await this.client.request<{ success: boolean }>(
-      `/${workspaceId}/cards/${cardId}/checklists/${checklistId}`,
-      {
-        method: "DELETE",
-      }
-    )
+    const path = urlcat("/:workspace/cards/:card/checklists/:checklist", {
+      workspace: safeId("workspaceId", workspaceId),
+      card: safeId("cardId", cardId),
+      checklist: safeId("checklistId", checklistId),
+    })
+    const response = await this.client.request<{ success: boolean }>(path, {
+      method: "DELETE",
+    })
     return response
   }
 }

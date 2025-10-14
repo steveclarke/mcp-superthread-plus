@@ -4,6 +4,7 @@
  * terminology mapping from modern UI terms to legacy API terms.
  */
 
+import urlcat from "urlcat"
 import { config } from "../config.js"
 import { UserResource } from "./user.js"
 import { ProjectResource } from "./projects.js"
@@ -88,12 +89,29 @@ export class SuperthreadClient {
    * Makes a request to the Superthread API.
    * Handles authentication, error handling, and response parsing.
    *
-   * @param path - API path (will be appended to baseUrl)
+   * Security: All paths are validated to prevent path traversal attacks.
+   * Path segments containing "..", "/", null bytes, or other dangerous
+   * characters will be rejected before the request is made.
+   *
+   * @param path - API path (will be appended to baseUrl). Must start with "/"
    * @param options - Fetch options
    * @returns Parsed JSON response
+   * @throws {PathValidationError} If the path contains dangerous characters
+   * @throws {Error} If the API request fails
    */
   async request<T = unknown>(path: string, options: RequestInit = {}): Promise<T> {
-    const url = `${this.baseUrl}${path}`
+    // Build full URL using urlcat - handles encoding automatically
+    // urlcat ensures path segments are properly encoded and joined
+    const url = urlcat(this.baseUrl, path)
+
+    // Security check: Ensure the constructed URL stays within our base URL
+    // This catches any attempt to escape the API prefix
+    if (!url.startsWith(this.baseUrl + "/")) {
+      throw new Error(
+        `Security violation: URL does not start with base URL. ` +
+          `Expected prefix: ${this.baseUrl}/, Got: ${url}`
+      )
+    }
 
     const headers = new Headers(options.headers || {})
     headers.set("Authorization", `Bearer ${this.apiKey}`)

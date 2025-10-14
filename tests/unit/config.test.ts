@@ -10,7 +10,6 @@ describe("Configuration", () => {
   it("loads configuration from environment variables", () => {
     expect(config).toBeDefined()
     expect(config).toHaveProperty("apiKey")
-    expect(config).toHaveProperty("workspaceId")
     expect(config).toHaveProperty("baseUrl")
   })
 

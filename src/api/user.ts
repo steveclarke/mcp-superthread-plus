@@ -3,6 +3,8 @@
  * Provides user and team member operations.
  */
 
+import urlcat from "urlcat"
+import { safeId } from "../utils.js"
 import type { SuperthreadClient } from "./client.js"
 
 /**
@@ -48,7 +50,10 @@ export class UserResource {
    * @returns List of workspace members
    */
   async getMembers(workspaceId: string): Promise<WorkspaceMember[]> {
-    return await this.client.request<WorkspaceMember[]>(`/teams/${workspaceId}/members`, {
+    const path = urlcat("/teams/:workspace/members", {
+      workspace: safeId("workspaceId", workspaceId),
+    })
+    return await this.client.request<WorkspaceMember[]>(path, {
       method: "GET",
     })
   }

@@ -4,6 +4,8 @@
  */
 
 import type { SuperthreadClient } from "./client.js"
+import urlcat from "urlcat"
+import { safeId } from "../utils.js"
 
 /**
  * Meeting participant
@@ -135,7 +137,10 @@ export class NoteResource {
    * @returns Created note details
    */
   async create(workspaceId: string, params: CreateNoteParams): Promise<Note> {
-    const response = await this.client.request<{ note: Note }>(`/${workspaceId}/notes`, {
+    const path = urlcat("/:workspace/notes", {
+      workspace: safeId("workspaceId", workspaceId),
+    })
+    const response = await this.client.request<{ note: Note }>(path, {
       method: "POST",
       body: JSON.stringify(params),
     })
@@ -149,7 +154,11 @@ export class NoteResource {
    * @returns Note details
    */
   async get(workspaceId: string, noteId: string): Promise<Note> {
-    const response = await this.client.request<{ note: Note }>(`/${workspaceId}/notes/${noteId}`, {
+    const path = urlcat("/:workspace/notes/:note", {
+      workspace: safeId("workspaceId", workspaceId),
+      note: safeId("noteId", noteId),
+    })
+    const response = await this.client.request<{ note: Note }>(path, {
       method: "GET",
     })
     return response.note
@@ -161,7 +170,10 @@ export class NoteResource {
    * @returns Array of notes
    */
   async list(workspaceId: string): Promise<Note[]> {
-    const response = await this.client.request<{ notes: Note[] }>(`/${workspaceId}/notes`, {
+    const path = urlcat("/:workspace/notes", {
+      workspace: safeId("workspaceId", workspaceId),
+    })
+    const response = await this.client.request<{ notes: Note[] }>(path, {
       method: "GET",
     })
     return response.notes
@@ -174,7 +186,11 @@ export class NoteResource {
    * @returns Success response
    */
   async delete(workspaceId: string, noteId: string): Promise<{ success: boolean }> {
-    return await this.client.request<{ success: boolean }>(`/${workspaceId}/notes/${noteId}`, {
+    const path = urlcat("/:workspace/notes/:note", {
+      workspace: safeId("workspaceId", workspaceId),
+      note: safeId("noteId", noteId),
+    })
+    return await this.client.request<{ success: boolean }>(path, {
       method: "DELETE",
     })
   }

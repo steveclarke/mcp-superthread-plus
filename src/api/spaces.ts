@@ -7,6 +7,8 @@
  */
 
 import type { SuperthreadClient } from "./client.js"
+import urlcat from "urlcat"
+import { safeId } from "../utils.js"
 
 /**
  * Space (organizational container) information from Superthread API
@@ -87,7 +89,10 @@ export class SpaceResource {
    * @returns List of spaces
    */
   async list(workspaceId: string): Promise<Space[]> {
-    const response = await this.client.request<{ projects: Space[] }>(`/${workspaceId}/projects`, {
+    const path = urlcat("/:workspace/projects", {
+      workspace: safeId("workspaceId", workspaceId),
+    })
+    const response = await this.client.request<{ projects: Space[] }>(path, {
       method: "GET",
     })
     return response.projects || []
@@ -100,12 +105,13 @@ export class SpaceResource {
    * @returns Space details
    */
   async get(workspaceId: string, spaceId: string): Promise<Space> {
-    const response = await this.client.request<{ project: Space }>(
-      `/${workspaceId}/projects/${spaceId}`,
-      {
-        method: "GET",
-      }
-    )
+    const path = urlcat("/:workspace/projects/:space", {
+      workspace: safeId("workspaceId", workspaceId),
+      space: safeId("spaceId", spaceId),
+    })
+    const response = await this.client.request<{ project: Space }>(path, {
+      method: "GET",
+    })
     return response.project
   }
 
@@ -116,7 +122,10 @@ export class SpaceResource {
    * @returns Created space
    */
   async create(workspaceId: string, params: CreateSpaceParams): Promise<Space> {
-    const response = await this.client.request<{ project: Space }>(`/${workspaceId}/projects`, {
+    const path = urlcat("/:workspace/projects", {
+      workspace: safeId("workspaceId", workspaceId),
+    })
+    const response = await this.client.request<{ project: Space }>(path, {
       method: "POST",
       body: JSON.stringify(params),
     })
@@ -131,13 +140,14 @@ export class SpaceResource {
    * @returns Updated space
    */
   async update(workspaceId: string, spaceId: string, params: UpdateSpaceParams): Promise<Space> {
-    const response = await this.client.request<{ project: Space }>(
-      `/${workspaceId}/projects/${spaceId}`,
-      {
-        method: "PATCH",
-        body: JSON.stringify(params),
-      }
-    )
+    const path = urlcat("/:workspace/projects/:space", {
+      workspace: safeId("workspaceId", workspaceId),
+      space: safeId("spaceId", spaceId),
+    })
+    const response = await this.client.request<{ project: Space }>(path, {
+      method: "PATCH",
+      body: JSON.stringify(params),
+    })
     return response.project
   }
 
@@ -153,13 +163,14 @@ export class SpaceResource {
     spaceId: string,
     params: AddSpaceMemberParams
   ): Promise<{ success: boolean }> {
-    return await this.client.request<{ success: boolean }>(
-      `/${workspaceId}/projects/${spaceId}/members`,
-      {
-        method: "POST",
-        body: JSON.stringify(params),
-      }
-    )
+    const path = urlcat("/:workspace/projects/:space/members", {
+      workspace: safeId("workspaceId", workspaceId),
+      space: safeId("spaceId", spaceId),
+    })
+    return await this.client.request<{ success: boolean }>(path, {
+      method: "POST",
+      body: JSON.stringify(params),
+    })
   }
 
   /**
@@ -174,12 +185,14 @@ export class SpaceResource {
     spaceId: string,
     memberId: string
   ): Promise<{ success: boolean }> {
-    return await this.client.request<{ success: boolean }>(
-      `/${workspaceId}/projects/${spaceId}/members/${memberId}`,
-      {
-        method: "DELETE",
-      }
-    )
+    const path = urlcat("/:workspace/projects/:space/members/:member", {
+      workspace: safeId("workspaceId", workspaceId),
+      space: safeId("spaceId", spaceId),
+      member: safeId("memberId", memberId),
+    })
+    return await this.client.request<{ success: boolean }>(path, {
+      method: "DELETE",
+    })
   }
 
   /**
@@ -189,7 +202,11 @@ export class SpaceResource {
    * @returns Success response
    */
   async delete(workspaceId: string, spaceId: string): Promise<{ success: boolean }> {
-    return await this.client.request<{ success: boolean }>(`/${workspaceId}/projects/${spaceId}`, {
+    const path = urlcat("/:workspace/projects/:space", {
+      workspace: safeId("workspaceId", workspaceId),
+      space: safeId("spaceId", spaceId),
+    })
+    return await this.client.request<{ success: boolean }>(path, {
       method: "DELETE",
     })
   }

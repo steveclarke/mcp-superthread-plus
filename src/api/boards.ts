@@ -4,6 +4,8 @@
  */
 
 import type { SuperthreadClient } from "./client.js"
+import urlcat from "urlcat"
+import { safeId } from "../utils.js"
 
 /**
  * List information from Superthread API
@@ -123,7 +125,10 @@ export class BoardResource {
    * @returns Created board details
    */
   async create(workspaceId: string, params: CreateBoardParams): Promise<Board> {
-    const response = await this.client.request<{ board: Board }>(`/${workspaceId}/boards`, {
+    const path = urlcat("/:workspace/boards", {
+      workspace: safeId("workspaceId", workspaceId),
+    })
+    const response = await this.client.request<{ board: Board }>(path, {
       method: "POST",
       body: JSON.stringify(params),
     })
@@ -153,12 +158,13 @@ export class BoardResource {
       params.append("archived", String(options.archived))
     }
 
-    const response = await this.client.request<{ boards: Board[] }>(
-      `/${workspaceId}/boards?${params.toString()}`,
-      {
-        method: "GET",
-      }
-    )
+    const path =
+      urlcat("/:workspace/boards", {
+        workspace: safeId("workspaceId", workspaceId),
+      }) + `?${params.toString()}`
+    const response = await this.client.request<{ boards: Board[] }>(path, {
+      method: "GET",
+    })
     return response.boards || []
   }
 
@@ -169,12 +175,13 @@ export class BoardResource {
    * @returns Board details with lists and cards
    */
   async get(workspaceId: string, boardId: string): Promise<Board> {
-    const response = await this.client.request<{ board: Board }>(
-      `/${workspaceId}/boards/${boardId}`,
-      {
-        method: "GET",
-      }
-    )
+    const path = urlcat("/:workspace/boards/:board", {
+      workspace: safeId("workspaceId", workspaceId),
+      board: safeId("boardId", boardId),
+    })
+    const response = await this.client.request<{ board: Board }>(path, {
+      method: "GET",
+    })
     return response.board
   }
 
@@ -185,7 +192,10 @@ export class BoardResource {
    * @returns Created list details
    */
   async createList(workspaceId: string, params: CreateListParams): Promise<List> {
-    const response = await this.client.request<{ list: List }>(`/${workspaceId}/lists`, {
+    const path = urlcat("/:workspace/lists", {
+      workspace: safeId("workspaceId", workspaceId),
+    })
+    const response = await this.client.request<{ list: List }>(path, {
       method: "POST",
       body: JSON.stringify(params),
     })
@@ -200,13 +210,14 @@ export class BoardResource {
    * @returns Updated board
    */
   async update(workspaceId: string, boardId: string, params: UpdateBoardParams): Promise<Board> {
-    const response = await this.client.request<{ board: Board }>(
-      `/${workspaceId}/boards/${boardId}`,
-      {
-        method: "PATCH",
-        body: JSON.stringify(params),
-      }
-    )
+    const path = urlcat("/:workspace/boards/:board", {
+      workspace: safeId("workspaceId", workspaceId),
+      board: safeId("boardId", boardId),
+    })
+    const response = await this.client.request<{ board: Board }>(path, {
+      method: "PATCH",
+      body: JSON.stringify(params),
+    })
     return response.board
   }
 
@@ -218,7 +229,11 @@ export class BoardResource {
    * @returns Updated list
    */
   async updateList(workspaceId: string, listId: string, params: UpdateListParams): Promise<List> {
-    const response = await this.client.request<{ list: List }>(`/${workspaceId}/lists/${listId}`, {
+    const path = urlcat("/:workspace/lists/:list", {
+      workspace: safeId("workspaceId", workspaceId),
+      list: safeId("listId", listId),
+    })
+    const response = await this.client.request<{ list: List }>(path, {
       method: "PATCH",
       body: JSON.stringify(params),
     })
@@ -237,13 +252,14 @@ export class BoardResource {
     boardId: string,
     params?: { title?: string; project_id?: string }
   ): Promise<Board> {
-    const response = await this.client.request<{ board: Board }>(
-      `/${workspaceId}/boards/${boardId}/copy`,
-      {
-        method: "POST",
-        body: params ? JSON.stringify(params) : undefined,
-      }
-    )
+    const path = urlcat("/:workspace/boards/:board/copy", {
+      workspace: safeId("workspaceId", workspaceId),
+      board: safeId("boardId", boardId),
+    })
+    const response = await this.client.request<{ board: Board }>(path, {
+      method: "POST",
+      body: params ? JSON.stringify(params) : undefined,
+    })
     return response.board
   }
 
@@ -254,7 +270,11 @@ export class BoardResource {
    * @returns Success response
    */
   async delete(workspaceId: string, boardId: string): Promise<{ success: boolean }> {
-    return await this.client.request<{ success: boolean }>(`/${workspaceId}/boards/${boardId}`, {
+    const path = urlcat("/:workspace/boards/:board", {
+      workspace: safeId("workspaceId", workspaceId),
+      board: safeId("boardId", boardId),
+    })
+    return await this.client.request<{ success: boolean }>(path, {
       method: "DELETE",
     })
   }

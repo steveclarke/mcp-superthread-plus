@@ -4,6 +4,8 @@
  */
 
 import type { SuperthreadClient } from "./client.js"
+import urlcat from "urlcat"
+import { safeId } from "../utils.js"
 
 /**
  * Comment creation parameters
@@ -91,7 +93,10 @@ export class CommentResource {
    * @returns Created comment details
    */
   async create(workspaceId: string, params: CreateCommentParams): Promise<CreateCommentResponse> {
-    return await this.client.request<CreateCommentResponse>(`/${workspaceId}/comments`, {
+    const path = urlcat("/:workspace/comments", {
+      workspace: safeId("workspaceId", workspaceId),
+    })
+    return await this.client.request<CreateCommentResponse>(path, {
       method: "POST",
       body: JSON.stringify(params),
     })
@@ -110,13 +115,14 @@ export class CommentResource {
     commentId: string,
     params: UpdateCommentParams
   ): Promise<CreateCommentResponse> {
-    return await this.client.request<CreateCommentResponse>(
-      `/${workspaceId}/comments/${commentId}`,
-      {
-        method: "PATCH",
-        body: JSON.stringify(params),
-      }
-    )
+    const path = urlcat("/:workspace/comments/:comment", {
+      workspace: safeId("workspaceId", workspaceId),
+      comment: safeId("commentId", commentId),
+    })
+    return await this.client.request<CreateCommentResponse>(path, {
+      method: "PATCH",
+      body: JSON.stringify(params),
+    })
   }
 
   /**
@@ -131,13 +137,14 @@ export class CommentResource {
     commentId: string,
     params: ReplyToCommentParams
   ): Promise<ReplyToCommentResponse> {
-    return await this.client.request<ReplyToCommentResponse>(
-      `/${workspaceId}/comments/${commentId}/children`,
-      {
-        method: "POST",
-        body: JSON.stringify(params),
-      }
-    )
+    const path = urlcat("/:workspace/comments/:comment/children", {
+      workspace: safeId("workspaceId", workspaceId),
+      comment: safeId("commentId", commentId),
+    })
+    return await this.client.request<ReplyToCommentResponse>(path, {
+      method: "POST",
+      body: JSON.stringify(params),
+    })
   }
 
   /**
@@ -148,12 +155,13 @@ export class CommentResource {
    * @returns Comment details
    */
   async get(workspaceId: string, commentId: string): Promise<CreateCommentResponse> {
-    return await this.client.request<CreateCommentResponse>(
-      `/${workspaceId}/comments/${commentId}`,
-      {
-        method: "GET",
-      }
-    )
+    const path = urlcat("/:workspace/comments/:comment", {
+      workspace: safeId("workspaceId", workspaceId),
+      comment: safeId("commentId", commentId),
+    })
+    return await this.client.request<CreateCommentResponse>(path, {
+      method: "GET",
+    })
   }
 
   /**
@@ -164,7 +172,11 @@ export class CommentResource {
    * @returns void (204 No Content)
    */
   async delete(workspaceId: string, commentId: string): Promise<void> {
-    await this.client.request<void>(`/${workspaceId}/comments/${commentId}`, {
+    const path = urlcat("/:workspace/comments/:comment", {
+      workspace: safeId("workspaceId", workspaceId),
+      comment: safeId("commentId", commentId),
+    })
+    await this.client.request<void>(path, {
       method: "DELETE",
     })
   }
@@ -176,12 +188,13 @@ export class CommentResource {
    * @returns List of child comments with pagination details
    */
   async getReplies(workspaceId: string, commentId: string): Promise<GetRepliesResponse> {
-    return await this.client.request<GetRepliesResponse>(
-      `/${workspaceId}/comments/${commentId}/children`,
-      {
-        method: "GET",
-      }
-    )
+    const path = urlcat("/:workspace/comments/:comment/children", {
+      workspace: safeId("workspaceId", workspaceId),
+      comment: safeId("commentId", commentId),
+    })
+    return await this.client.request<GetRepliesResponse>(path, {
+      method: "GET",
+    })
   }
 
   /**
@@ -199,13 +212,15 @@ export class CommentResource {
     childCommentId: string,
     params: UpdateCommentParams
   ): Promise<ReplyToCommentResponse> {
-    return await this.client.request<ReplyToCommentResponse>(
-      `/${workspaceId}/comments/${commentId}/children/${childCommentId}`,
-      {
-        method: "PATCH",
-        body: JSON.stringify(params),
-      }
-    )
+    const path = urlcat("/:workspace/comments/:comment/children/:child", {
+      workspace: safeId("workspaceId", workspaceId),
+      comment: safeId("commentId", commentId),
+      child: safeId("childCommentId", childCommentId),
+    })
+    return await this.client.request<ReplyToCommentResponse>(path, {
+      method: "PATCH",
+      body: JSON.stringify(params),
+    })
   }
 
   /**
@@ -217,11 +232,13 @@ export class CommentResource {
    * @returns void (204 No Content)
    */
   async deleteReply(workspaceId: string, commentId: string, childCommentId: string): Promise<void> {
-    await this.client.request<void>(
-      `/${workspaceId}/comments/${commentId}/children/${childCommentId}`,
-      {
-        method: "DELETE",
-      }
-    )
+    const path = urlcat("/:workspace/comments/:comment/children/:child", {
+      workspace: safeId("workspaceId", workspaceId),
+      comment: safeId("commentId", commentId),
+      child: safeId("childCommentId", childCommentId),
+    })
+    await this.client.request<void>(path, {
+      method: "DELETE",
+    })
   }
 }

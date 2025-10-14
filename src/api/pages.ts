@@ -4,6 +4,8 @@
  */
 
 import type { SuperthreadClient } from "./client.js"
+import urlcat from "urlcat"
+import { safeId } from "../utils.js"
 
 /**
  * Page icon configuration
@@ -140,7 +142,10 @@ export class PageResource {
    * @returns Created page details
    */
   async create(workspaceId: string, params: CreatePageParams): Promise<Page> {
-    const response = await this.client.request<{ page: Page }>(`/${workspaceId}/pages`, {
+    const path = urlcat("/:workspace/pages", {
+      workspace: safeId("workspaceId", workspaceId),
+    })
+    const response = await this.client.request<{ page: Page }>(path, {
       method: "POST",
       body: JSON.stringify(params),
     })
@@ -155,7 +160,11 @@ export class PageResource {
    * @returns Updated page details
    */
   async update(workspaceId: string, pageId: string, params: UpdatePageParams): Promise<Page> {
-    const response = await this.client.request<{ page: Page }>(`/${workspaceId}/pages/${pageId}`, {
+    const path = urlcat("/:workspace/pages/:page", {
+      workspace: safeId("workspaceId", workspaceId),
+      page: safeId("pageId", pageId),
+    })
+    const response = await this.client.request<{ page: Page }>(path, {
       method: "PATCH",
       body: JSON.stringify(params),
     })
@@ -169,7 +178,11 @@ export class PageResource {
    * @returns Page details
    */
   async get(workspaceId: string, pageId: string): Promise<Page> {
-    const response = await this.client.request<{ page: Page }>(`/${workspaceId}/pages/${pageId}`, {
+    const path = urlcat("/:workspace/pages/:page", {
+      workspace: safeId("workspaceId", workspaceId),
+      page: safeId("pageId", pageId),
+    })
+    const response = await this.client.request<{ page: Page }>(path, {
       method: "GET",
     })
     return response.page
@@ -196,7 +209,10 @@ export class PageResource {
       queryParams.append("updated_recently", String(params.updated_recently))
 
     const queryString = queryParams.toString()
-    const path = `/${workspaceId}/pages${queryString ? `?${queryString}` : ""}`
+    const path =
+      urlcat("/:workspace/pages", {
+        workspace: safeId("workspaceId", workspaceId),
+      }) + (queryString ? `?${queryString}` : "")
 
     const response = await this.client.request<{ pages: Page[] }>(path, {
       method: "GET",
@@ -212,13 +228,14 @@ export class PageResource {
    * @returns Duplicated page details
    */
   async duplicate(workspaceId: string, pageId: string, params: DuplicatePageParams): Promise<Page> {
-    const response = await this.client.request<{ page: Page }>(
-      `/${workspaceId}/pages/${pageId}/copy`,
-      {
-        method: "POST",
-        body: JSON.stringify(params),
-      }
-    )
+    const path = urlcat("/:workspace/pages/:page/copy", {
+      workspace: safeId("workspaceId", workspaceId),
+      page: safeId("pageId", pageId),
+    })
+    const response = await this.client.request<{ page: Page }>(path, {
+      method: "POST",
+      body: JSON.stringify(params),
+    })
     return response.page
   }
 
@@ -229,12 +246,13 @@ export class PageResource {
    * @returns Archived page details
    */
   async archive(workspaceId: string, pageId: string): Promise<Page> {
-    const response = await this.client.request<{ page: Page }>(
-      `/${workspaceId}/pages/${pageId}/archive`,
-      {
-        method: "PUT",
-      }
-    )
+    const path = urlcat("/:workspace/pages/:page/archive", {
+      workspace: safeId("workspaceId", workspaceId),
+      page: safeId("pageId", pageId),
+    })
+    const response = await this.client.request<{ page: Page }>(path, {
+      method: "PUT",
+    })
     return response.page
   }
 
@@ -245,7 +263,11 @@ export class PageResource {
    * @returns Success response
    */
   async delete(workspaceId: string, pageId: string): Promise<{ success: boolean }> {
-    return await this.client.request<{ success: boolean }>(`/${workspaceId}/pages/${pageId}`, {
+    const path = urlcat("/:workspace/pages/:page", {
+      workspace: safeId("workspaceId", workspaceId),
+      page: safeId("pageId", pageId),
+    })
+    return await this.client.request<{ success: boolean }>(path, {
       method: "DELETE",
     })
   }

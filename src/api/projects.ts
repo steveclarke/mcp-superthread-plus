@@ -7,6 +7,8 @@
  */
 
 import type { SuperthreadClient } from "./client.js"
+import urlcat from "urlcat"
+import { safeId } from "../utils.js"
 
 /**
  * Project (epic) information from Superthread API
@@ -75,7 +77,10 @@ export class ProjectResource {
    * @returns List of projects
    */
   async list(workspaceId: string): Promise<Project[]> {
-    return await this.client.request<Project[]>(`/${workspaceId}/epics`, {
+    const path = urlcat("/:workspace/epics", {
+      workspace: safeId("workspaceId", workspaceId),
+    })
+    return await this.client.request<Project[]>(path, {
       method: "GET",
     })
   }
@@ -87,7 +92,11 @@ export class ProjectResource {
    * @returns Project details
    */
   async get(workspaceId: string, projectId: string): Promise<Project> {
-    return await this.client.request<Project>(`/${workspaceId}/epics/${projectId}`, {
+    const path = urlcat("/:workspace/epics/:project", {
+      workspace: safeId("workspaceId", workspaceId),
+      project: safeId("projectId", projectId),
+    })
+    return await this.client.request<Project>(path, {
       method: "GET",
     })
   }
@@ -99,7 +108,10 @@ export class ProjectResource {
    * @returns Created project details
    */
   async create(workspaceId: string, params: CreateProjectParams): Promise<ProjectResponse> {
-    return await this.client.request<ProjectResponse>(`/${workspaceId}/epics`, {
+    const path = urlcat("/:workspace/epics", {
+      workspace: safeId("workspaceId", workspaceId),
+    })
+    return await this.client.request<ProjectResponse>(path, {
       method: "POST",
       body: JSON.stringify(params),
     })
@@ -118,7 +130,11 @@ export class ProjectResource {
     projectId: string,
     params: UpdateProjectParams
   ): Promise<ProjectResponse> {
-    return await this.client.request<ProjectResponse>(`/${workspaceId}/epics/${projectId}`, {
+    const path = urlcat("/:workspace/epics/:project", {
+      workspace: safeId("workspaceId", workspaceId),
+      project: safeId("projectId", projectId),
+    })
+    return await this.client.request<ProjectResponse>(path, {
       method: "PATCH",
       body: JSON.stringify(params),
     })
@@ -131,7 +147,11 @@ export class ProjectResource {
    * @returns Success response
    */
   async delete(workspaceId: string, projectId: string): Promise<{ success: boolean }> {
-    return await this.client.request<{ success: boolean }>(`/${workspaceId}/epics/${projectId}`, {
+    const path = urlcat("/:workspace/epics/:project", {
+      workspace: safeId("workspaceId", workspaceId),
+      project: safeId("projectId", projectId),
+    })
+    return await this.client.request<{ success: boolean }>(path, {
       method: "DELETE",
     })
   }
@@ -152,12 +172,14 @@ export class ProjectResource {
     projectId: string,
     cardId: string
   ): Promise<{ success: boolean }> {
-    return await this.client.request<{ success: boolean }>(
-      `/${workspaceId}/epics/${projectId}/cards/${cardId}`,
-      {
-        method: "POST",
-      }
-    )
+    const path = urlcat("/:workspace/epics/:project/cards/:card", {
+      workspace: safeId("workspaceId", workspaceId),
+      project: safeId("projectId", projectId),
+      card: safeId("cardId", cardId),
+    })
+    return await this.client.request<{ success: boolean }>(path, {
+      method: "POST",
+    })
   }
 
   /**
@@ -176,11 +198,13 @@ export class ProjectResource {
     projectId: string,
     cardId: string
   ): Promise<{ success: boolean }> {
-    return await this.client.request<{ success: boolean }>(
-      `/${workspaceId}/epics/${projectId}/cards/${cardId}`,
-      {
-        method: "DELETE",
-      }
-    )
+    const path = urlcat("/:workspace/epics/:project/cards/:card", {
+      workspace: safeId("workspaceId", workspaceId),
+      project: safeId("projectId", projectId),
+      card: safeId("cardId", cardId),
+    })
+    return await this.client.request<{ success: boolean }>(path, {
+      method: "DELETE",
+    })
   }
 }

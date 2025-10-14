@@ -4,6 +4,8 @@
  */
 
 import type { SuperthreadClient } from "./client.js"
+import urlcat from "urlcat"
+import { safeId } from "../utils.js"
 
 /**
  * Search parameters for querying workspace entities
@@ -67,7 +69,10 @@ export class SearchResource {
     if (params.grouped !== undefined) queryParams.append("grouped", String(params.grouped))
     if (params.cursor) queryParams.append("cursor", params.cursor)
 
-    const path = `/${workspaceId}/search?${queryParams.toString()}`
+    const path =
+      urlcat("/:workspace/search", {
+        workspace: safeId("workspaceId", workspaceId),
+      }) + `?${queryParams.toString()}`
     return await this.client.request<SearchResponse>(path, { method: "GET" })
   }
 }
