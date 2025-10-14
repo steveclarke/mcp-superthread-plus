@@ -157,6 +157,45 @@ export interface DuplicateCardParams {
   title?: string
 }
 
+/**
+ * Tag information from SuperThread API
+ */
+export interface Tag {
+  id: string
+  team_id: string
+  project_id?: string
+  name: string
+  slug: string
+  color: string
+  total_cards: number
+}
+
+/**
+ * Parameters for retrieving tags
+ */
+export interface GetTagsParams {
+  project_id?: string
+  all?: boolean
+}
+
+/**
+ * Response from get tags endpoint
+ */
+export interface GetTagsResponse {
+  cursor: string
+  count: number
+  tags: Tag[]
+}
+
+/**
+ * Parameters for adding tags to a card
+ * Either id or ids must be specified
+ */
+export interface AddTagsToCardParams {
+  id?: string
+  ids?: string[]
+}
+
 export class CardResource {
   constructor(private client: SuperThreadClient) {}
 
@@ -343,6 +382,58 @@ export class CardResource {
       `/${workspaceId}/cards/${cardId}`,
       {
         method: "DELETE",
+      }
+    )
+    return response
+  }
+
+  /**
+   * Retrieves tags for a workspace, optionally filtered by project.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param params - Optional filter parameters
+   * @returns Tags with cursor and count
+   */
+  async getTags(workspaceId: string, params?: GetTagsParams): Promise<GetTagsResponse> {
+    // Build query string
+    const queryParams = new URLSearchParams()
+    if (params?.project_id) {
+      queryParams.append("project_id", params.project_id)
+    }
+    if (params?.all !== undefined) {
+      queryParams.append("all", String(params.all))
+    }
+
+    const queryString = queryParams.toString()
+    const path = `/${workspaceId}/tags${queryString ? `?${queryString}` : ""}`
+
+    const response = await this.client.request<GetTagsResponse>(path, {
+      method: "GET",
+    })
+    return response
+  }
+
+  /**
+   * Adds one or more tags to a card.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param cardId - Card ID to add tags to
+   * @param params - Tag parameters (either id or ids must be specified)
+   * @returns Success response (204 No Content)
+   */
+  async addTags(
+    workspaceId: string,
+    cardId: string,
+    params: AddTagsToCardParams
+  ): Promise<{ success: boolean }> {
+    // Validate that at least one of id or ids is provided
+    if (!params.id && !params.ids) {
+      throw new Error("Either 'id' or 'ids' must be specified")
+    }
+
+    const response = await this.client.request<{ success: boolean }>(
+      `/${workspaceId}/cards/${cardId}/tags`,
+      {
+        method: "POST",
+        body: JSON.stringify(params),
       }
     )
     return response

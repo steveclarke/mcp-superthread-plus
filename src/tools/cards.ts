@@ -11,6 +11,7 @@ import type {
   UpdateCardParams,
   GetAssignedCardsParams,
   AddRelatedCardParams,
+  AddTagsToCardParams,
 } from "../api/cards.js"
 
 /**
@@ -392,6 +393,103 @@ export function registerCardTools(server: McpServer) {
       try {
         const client = createClient()
         const result = await client.cards.delete(args.workspace_id, args.card_id)
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${errorMessage}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
+
+  // tag_get_all - Get tags for workspace or project
+  server.registerTool(
+    "tag_get_all",
+    {
+      title: "Get Tags",
+      description:
+        "Retrieve tags for a workspace or project (optionally). Returns a list of tags with their metadata including name, color, and card counts.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        project_id: z.string().optional().describe("Project/Space ID to filter tags by project"),
+        all: z.boolean().optional().describe("Return all tags in workspace"),
+      },
+    },
+    async (args) => {
+      try {
+        const client = createClient()
+
+        const params: { project_id?: string; all?: boolean } = {}
+        if (args.project_id) params.project_id = args.project_id
+        if (args.all !== undefined) params.all = args.all
+
+        const result = await client.cards.getTags(
+          args.workspace_id,
+          Object.keys(params).length > 0 ? params : undefined
+        )
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${errorMessage}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
+
+  // card_add_tags - Add tags to a card
+  server.registerTool(
+    "card_add_tags",
+    {
+      title: "Add Tags to Card",
+      description:
+        "Add one or more tags to a card. Provide either a single tag ID (id) or multiple tag IDs (ids).",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        card_id: z.string().describe("Card ID to add tags to"),
+        id: z.string().optional().describe("Single tag ID to add"),
+        ids: z.array(z.string()).optional().describe("Array of tag IDs to add"),
+      },
+    },
+    async (args: { workspace_id: string; card_id: string; id?: string; ids?: string[] }) => {
+      try {
+        const client = createClient()
+
+        // Build params object
+        const params: AddTagsToCardParams = {}
+        if (args.id) params.id = args.id
+        if (args.ids) params.ids = args.ids
+
+        const result = await client.cards.addTags(args.workspace_id, args.card_id, params)
 
         return {
           content: [
