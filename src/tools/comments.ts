@@ -281,4 +281,155 @@ export function registerCommentTools(server: McpServer) {
       }
     }
   )
+
+  // comment_get_replies - Get all replies to a comment
+  server.registerTool(
+    "comment_get_replies",
+    {
+      title: "Get All Replies",
+      description:
+        "Retrieves a list of comments (child comments or replies) associated with a parent comment. The response includes nested metadata and pagination details.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        comment_id: z.string().describe("Parent comment ID to get replies from"),
+      },
+    },
+    async (args: { workspace_id: string; comment_id: string }) => {
+      try {
+        const client = createClient()
+        const result = await client.comments.getReplies(args.workspace_id, args.comment_id)
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${errorMessage}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
+
+  // comment_update_reply - Update a reply
+  server.registerTool(
+    "comment_update_reply",
+    {
+      title: "Edit Reply",
+      description:
+        "Modifies a specific child comment (reply). Only the original author can modify their reply. The request body should specify the fields to update, such as content, status, or context.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        comment_id: z.string().describe("Parent comment ID"),
+        child_comment_id: z.string().describe("Child comment ID to update"),
+        content: z
+          .string()
+          .max(102400)
+          .optional()
+          .describe("Updated comment text (maximum 102400 characters)"),
+        schema: z.number().optional().describe("Schema version"),
+        context: z.string().optional().describe("Updated highlighted text context"),
+        status: z.enum(["resolved", "open", "orphaned"]).optional().describe("Comment status"),
+      },
+    },
+    async (args: {
+      workspace_id: string
+      comment_id: string
+      child_comment_id: string
+      content?: string
+      schema?: number
+      context?: string
+      status?: "resolved" | "open" | "orphaned"
+    }) => {
+      try {
+        const client = createClient()
+
+        const params: UpdateCommentParams = {}
+
+        if (args.content !== undefined) params.content = args.content
+        if (args.schema !== undefined) params.schema = args.schema
+        if (args.context !== undefined) params.context = args.context
+        if (args.status) params.status = args.status
+
+        const result = await client.comments.updateReply(
+          args.workspace_id,
+          args.comment_id,
+          args.child_comment_id,
+          params
+        )
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${errorMessage}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
+
+  // comment_delete_reply - Delete a reply
+  server.registerTool(
+    "comment_delete_reply",
+    {
+      title: "Delete Reply",
+      description:
+        "Permanently removes a specific child comment (reply). Only the original author can delete their own reply.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        comment_id: z.string().describe("Parent comment ID"),
+        child_comment_id: z.string().describe("Child comment ID to delete"),
+      },
+    },
+    async (args: { workspace_id: string; comment_id: string; child_comment_id: string }) => {
+      try {
+        const client = createClient()
+        await client.comments.deleteReply(args.workspace_id, args.comment_id, args.child_comment_id)
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Reply ${args.child_comment_id} successfully deleted`,
+            },
+          ],
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${errorMessage}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
 }

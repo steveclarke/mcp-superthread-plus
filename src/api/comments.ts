@@ -72,6 +72,15 @@ export interface ReplyToCommentResponse {
   child_comment: Comment
 }
 
+/**
+ * Get all replies response
+ */
+export interface GetRepliesResponse {
+  cursor: string
+  count: number
+  child_comments: Comment[]
+}
+
 export class CommentResource {
   constructor(private client: SuperThreadClient) {}
 
@@ -158,5 +167,61 @@ export class CommentResource {
     await this.client.request<void>(`/${workspaceId}/comments/${commentId}`, {
       method: "DELETE",
     })
+  }
+
+  /**
+   * Retrieves all replies (child comments) for a parent comment.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param commentId - Parent comment ID
+   * @returns List of child comments with pagination details
+   */
+  async getReplies(workspaceId: string, commentId: string): Promise<GetRepliesResponse> {
+    return await this.client.request<GetRepliesResponse>(
+      `/${workspaceId}/comments/${commentId}/children`,
+      {
+        method: "GET",
+      }
+    )
+  }
+
+  /**
+   * Updates a specific reply (child comment).
+   * Only the original author can modify their reply.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param commentId - Parent comment ID
+   * @param childCommentId - Child comment ID to update
+   * @param params - Comment update parameters
+   * @returns Updated reply details
+   */
+  async updateReply(
+    workspaceId: string,
+    commentId: string,
+    childCommentId: string,
+    params: UpdateCommentParams
+  ): Promise<ReplyToCommentResponse> {
+    return await this.client.request<ReplyToCommentResponse>(
+      `/${workspaceId}/comments/${commentId}/children/${childCommentId}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(params),
+      }
+    )
+  }
+
+  /**
+   * Permanently deletes a reply (child comment).
+   * Only the original author can delete their own reply.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param commentId - Parent comment ID
+   * @param childCommentId - Child comment ID to delete
+   * @returns void (204 No Content)
+   */
+  async deleteReply(workspaceId: string, commentId: string, childCommentId: string): Promise<void> {
+    await this.client.request<void>(
+      `/${workspaceId}/comments/${commentId}/children/${childCommentId}`,
+      {
+        method: "DELETE",
+      }
+    )
   }
 }

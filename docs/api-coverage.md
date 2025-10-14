@@ -25,9 +25,9 @@ Tools are organized into 9 categories matching SuperThread's domain model.
 | Spaces             | 7           | 2           | 2         | 0     | 29% ✅               |
 | Pages              | 7           | 0           | 0         | 0     | 0% ⏸️                |
 | Notes              | 4           | 0           | 0         | 0     | 0% ⏸️                |
-| Comments           | 8           | 5           | 1         | 4     | 63% ✅               |
+| Comments           | 8           | 8           | 2         | 6     | 100% ✅              |
 | Search             | 1           | 1           | 1         | 0     | 100% ✅              |
-| **Total**          | **59**      | **26**      | **13**    | **13**| **44% implemented** |
+| **Total**          | **59**      | **29**      | **15**    | **14**| **49% implemented** |
 
 **Legend:** ✅ Partial | 🚧 In Progress | ⏸️ Planned
 
@@ -134,26 +134,22 @@ Tools are organized into 9 categories matching SuperThread's domain model.
 
 ### Implemented ✅
 
-| Tool             | Method | Endpoint                                      | Description                      |
-| ---------------- | ------ | --------------------------------------------- | -------------------------------- |
-| `comment_create` | POST   | `/{team_id}/comments`                         | Create comment on card/page      |
-| `comment_update` | PATCH  | `/{team_id}/comments/{comment_id}`            | Edit existing comment            |
-| `comment_get`    | GET    | `/{team_id}/comments/{comment_id}`            | Get comment details with replies |
-| `comment_reply`  | POST   | `/{team_id}/comments/{comment_id}/children`   | Reply to comment (thread)        |
-| `comment_delete` | DELETE | `/{team_id}/comments/{comment_id}`            | Delete comment permanently       |
-
-### Planned ⏸️
-
-| Tool                       | Method | Endpoint                                                        | Description              |
-| -------------------------- | ------ | --------------------------------------------------------------- | ------------------------ |
-| `comment_get_all_replies`  | GET    | `/{team_id}/comments/{comment_id}/children`                     | Get all replies          |
-| `comment_update_reply`     | PATCH  | `/{team_id}/comments/{comment_id}/children/{child_comment_id}`  | Edit a reply             |
-| `comment_delete_reply`     | DELETE | `/{team_id}/comments/{comment_id}/children/{child_comment_id}`  | Delete a reply           |
+| Tool                    | Method | Endpoint                                                        | Description                      |
+| ----------------------- | ------ | --------------------------------------------------------------- | -------------------------------- |
+| `comment_create`        | POST   | `/{team_id}/comments`                                           | Create comment on card/page      |
+| `comment_update`        | PATCH  | `/{team_id}/comments/{comment_id}`                              | Edit existing comment            |
+| `comment_get`           | GET    | `/{team_id}/comments/{comment_id}`                              | Get comment details with replies |
+| `comment_reply`         | POST   | `/{team_id}/comments/{comment_id}/children`                     | Reply to comment (thread)        |
+| `comment_delete`        | DELETE | `/{team_id}/comments/{comment_id}`                              | Delete comment permanently       |
+| `comment_get_replies`   | GET    | `/{team_id}/comments/{comment_id}/children`                     | Get all replies to comment       |
+| `comment_update_reply`  | PATCH  | `/{team_id}/comments/{comment_id}/children/{child_comment_id}`  | Edit a reply                     |
+| `comment_delete_reply`  | DELETE | `/{team_id}/comments/{comment_id}/children/{child_comment_id}`  | Delete a reply                   |
 
 ### Notes
 
-- **Reply deletion** requires a separate endpoint. Deleting a parent comment removes all child replies.
 - Comments support status values: `resolved`, `open`, `orphaned`
+- Reply operations use child comment endpoints under the parent comment path
+- Deleting a parent comment also removes all child replies
 
 ## Search (1 tool)
 
