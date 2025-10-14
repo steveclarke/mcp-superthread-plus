@@ -11,7 +11,9 @@ import { SpaceResource } from "./spaces.js"
 import { BoardResource } from "./boards.js"
 import { CardResource } from "./cards.js"
 import { SearchResource } from "./search.js"
+import { PageResource } from "./pages.js"
 import { CommentResource } from "./comments.js"
+import { NoteResource } from "./notes.js"
 
 /**
  * Main SuperThread API client.
@@ -58,8 +60,14 @@ export class SuperThreadClient {
   /** Search operations */
   public search: SearchResource
 
+  /** Page operations */
+  public pages: PageResource
+
   /** Comment operations */
   public comments: CommentResource
+
+  /** Note operations */
+  public notes: NoteResource
 
   constructor(apiKey: string, baseUrl: string) {
     this.apiKey = apiKey
@@ -71,7 +79,9 @@ export class SuperThreadClient {
     this.boards = new BoardResource(this)
     this.cards = new CardResource(this)
     this.search = new SearchResource(this)
+    this.pages = new PageResource(this)
     this.comments = new CommentResource(this)
+    this.notes = new NoteResource(this)
   }
 
   /**
