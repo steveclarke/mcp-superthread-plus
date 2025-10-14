@@ -1,9 +1,9 @@
 /**
- * @fileoverview Search resource for SuperThread API.
+ * @fileoverview Search resource for Superthread API.
  * Provides search operations across multiple entity types.
  */
 
-import type { SuperThreadClient } from "./client.js"
+import type { SuperthreadClient } from "./client.js"
 
 /**
  * Search parameters for querying workspace entities
@@ -32,7 +32,7 @@ export interface SearchResult {
 }
 
 /**
- * Search response from SuperThread API
+ * Search response from Superthread API
  */
 export interface SearchResponse {
   cursor: string
@@ -47,7 +47,7 @@ export interface SearchResponse {
 }
 
 export class SearchResource {
-  constructor(private client: SuperThreadClient) {}
+  constructor(private client: SuperthreadClient) {}
 
   /**
    * Execute a search query across workspace entities.

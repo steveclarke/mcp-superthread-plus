@@ -1,12 +1,12 @@
 /**
- * @fileoverview Card resource for SuperThread API.
+ * @fileoverview Card resource for Superthread API.
  * Provides card operations.
  */
 
-import type { SuperThreadClient } from "./client.js"
+import type { SuperthreadClient } from "./client.js"
 
 /**
- * Card information from SuperThread API
+ * Card information from Superthread API
  */
 export interface Card {
   id: string
@@ -159,7 +159,7 @@ export interface DuplicateCardParams {
 }
 
 /**
- * Tag information from SuperThread API
+ * Tag information from Superthread API
  */
 export interface Tag {
   id: string
@@ -198,7 +198,7 @@ export interface AddTagsToCardParams {
 }
 
 /**
- * Checklist item from SuperThread API
+ * Checklist item from Superthread API
  */
 export interface ChecklistItem {
   id: string
@@ -212,7 +212,7 @@ export interface ChecklistItem {
 }
 
 /**
- * Checklist from SuperThread API
+ * Checklist from Superthread API
  */
 export interface Checklist {
   id: string
@@ -247,7 +247,7 @@ export interface UpdateChecklistItemResponse {
 }
 
 export class CardResource {
-  constructor(private client: SuperThreadClient) {}
+  constructor(private client: SuperthreadClient) {}
 
   /**
    * Creates a new card.
@@ -534,7 +534,7 @@ export class CardResource {
   /**
    * Adds a member to a card.
    *
-   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API.
+   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API.
    * It was discovered via browser network inspection and may change without notice.
    *
    * @param workspaceId - Workspace ID (maps to team_id in API)
@@ -562,7 +562,7 @@ export class CardResource {
   /**
    * Removes a member from a card.
    *
-   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API.
+   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API.
    * It was discovered via browser network inspection and may change without notice.
    *
    * @param workspaceId - Workspace ID (maps to team_id in API)
@@ -587,7 +587,7 @@ export class CardResource {
   /**
    * Creates a new checklist on a card.
    *
-   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API.
+   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API.
    * It was discovered via browser network inspection and may change without notice.
    *
    * @param workspaceId - Workspace ID (maps to team_id in API)
@@ -613,7 +613,7 @@ export class CardResource {
   /**
    * Adds an item to a checklist.
    *
-   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API.
+   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API.
    * It was discovered via browser network inspection and may change without notice.
    *
    * @param workspaceId - Workspace ID (maps to team_id in API)
@@ -644,7 +644,7 @@ export class CardResource {
   /**
    * Updates a checklist item (e.g., to check/uncheck it or update title).
    *
-   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API.
+   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API.
    * It was discovered via browser network inspection and may change without notice.
    *
    * @param workspaceId - Workspace ID (maps to team_id in API)
@@ -674,7 +674,7 @@ export class CardResource {
   /**
    * Deletes a checklist item.
    *
-   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API.
+   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API.
    * It was discovered via browser network inspection and may change without notice.
    *
    * @param workspaceId - Workspace ID (maps to team_id in API)
@@ -701,7 +701,7 @@ export class CardResource {
   /**
    * Updates a checklist (e.g., to change its title).
    *
-   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API.
+   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API.
    * It was discovered via browser network inspection and may change without notice.
    *
    * @param workspaceId - Workspace ID (maps to team_id in API)
@@ -732,7 +732,7 @@ export class CardResource {
   /**
    * Deletes an entire checklist from a card.
    *
-   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API.
+   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API.
    * It was discovered via browser network inspection and may change without notice.
    *
    * @param workspaceId - Workspace ID (maps to team_id in API)

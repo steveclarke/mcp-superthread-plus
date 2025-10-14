@@ -1,15 +1,15 @@
 /**
- * @fileoverview Project (Roadmap) resource for SuperThread API.
+ * @fileoverview Project (Roadmap) resource for Superthread API.
  * Provides roadmap project/epic operations.
  *
  * Note: UI "Projects" map to API "epics" (roadmap projects, not spaces).
  * Spaces use the /projects endpoint (confusing terminology!).
  */
 
-import type { SuperThreadClient } from "./client.js"
+import type { SuperthreadClient } from "./client.js"
 
 /**
- * Project (epic) information from SuperThread API
+ * Project (epic) information from Superthread API
  */
 export interface Project {
   id: string
@@ -67,7 +67,7 @@ export interface ProjectResponse {
 }
 
 export class ProjectResource {
-  constructor(private client: SuperThreadClient) {}
+  constructor(private client: SuperthreadClient) {}
 
   /**
    * Gets all roadmap projects (epics) in a workspace.
@@ -139,7 +139,7 @@ export class ProjectResource {
   /**
    * Links a card to a project (epic).
    *
-   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API.
+   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API.
    * It was discovered via browser network inspection and may change without notice.
    *
    * @param workspaceId - Workspace ID (maps to team_id in API)
@@ -163,7 +163,7 @@ export class ProjectResource {
   /**
    * Removes a linked card from a project (epic).
    *
-   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API.
+   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API.
    * It was discovered via browser network inspection and may change without notice.
    *
    * @param workspaceId - Workspace ID (maps to team_id in API)

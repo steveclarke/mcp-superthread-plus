@@ -1,10 +1,10 @@
-# MCP SuperThread Plus Server
+# MCP Superthread Plus Server
 
-An MCP server for SuperThread project management integration. Provides AI assistants with the ability to manage tasks, projects, documentation, and team collaboration through the SuperThread platform.
+An MCP server for Superthread project management integration. Provides AI assistants with the ability to manage tasks, projects, documentation, and team collaboration through the Superthread platform.
 
 ## Why?
 
-SuperThread is a powerful project management platform combining tasks, boards, documentation, and AI meeting notes. This MCP server enables AI assistants to:
+Superthread is a powerful project management platform combining tasks, boards, documentation, and AI meeting notes. This MCP server enables AI assistants to:
 
 - Create and manage tasks/cards with full workflow control
 - Organize work with boards, spaces, and roadmap projects
@@ -28,12 +28,14 @@ Perfect for teams using AI to streamline project setup, task creation from requi
 
 ## Installation
 
-Add to your MCP configuration file (e.g., `~/.cursor/mcp.json` for Cursor):
+### Public Installation (Coming Soon)
+
+Once published to NPM, you'll be able to install via `npx`:
 
 ```json
 {
   "mcpServers": {
-    "SuperThread": {
+    "Superthread": {
       "command": "npx",
       "args": ["-y", "mcp-superthread-plus"],
       "env": {
@@ -44,9 +46,30 @@ Add to your MCP configuration file (e.g., `~/.cursor/mcp.json` for Cursor):
 }
 ```
 
+### Team Distribution (Before NPM Publication)
+
+For distributing to team members who don't have development tools:
+
+1. **Create distribution package:**
+   ```bash
+   pnpm run pack:dist
+   ```
+   This creates `mcp-superthread-plus-X.X.X.tgz`
+
+2. **Share the tarball** with team members (via shared drive, email, etc.)
+
+3. **Team members install:**
+   ```bash
+   npm install -g ~/path/to/mcp-superthread-plus-0.1.0.tgz
+   ```
+
+4. **Configure MCP client** (see `DISTRIBUTION.md` for detailed instructions)
+
+For complete team distribution instructions, see **`DISTRIBUTION.md`**.
+
 ### Getting Your API Key
 
-**API Key**: Go to SuperThread → Account Settings → API → Create Personal Access Token
+**API Key**: Go to Superthread → Account Settings → API → Create Personal Access Token
 
 **Workspace IDs**: After setup, use the `get_my_account` tool to see all your workspaces and their IDs. You'll provide the workspace ID when calling specific tools.
 
@@ -54,10 +77,10 @@ Add to your MCP configuration file (e.g., `~/.cursor/mcp.json` for Cursor):
 
 All configuration is done via environment variables:
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `SUPERTHREAD_API_KEY` | ✅ Yes | - | Personal Access Token from SuperThread account |
-| `SUPERTHREAD_API_BASE_URL` | No | `https://api.superthread.com/v1` | API endpoint (only change for testing) |
+| Variable                   | Required | Default                          | Description                                    |
+| -------------------------- | -------- | -------------------------------- | ---------------------------------------------- |
+| `SUPERTHREAD_API_KEY`      | ✅ Yes    | -                                | Personal Access Token from Superthread account |
+| `SUPERTHREAD_API_BASE_URL` | No       | `https://api.superthread.com/v1` | API endpoint (only change for testing)         |
 
 **Note:** Workspace IDs are not configured here. Instead, they're provided as parameters when calling tools. Use `get_my_account` to discover your available workspaces.
 
@@ -80,7 +103,7 @@ See **`docs/tool-names.md`** for the complete list of 60 planned tools with thei
 
 ### Initial Setup - Discover Your Workspaces
 ```
-User: Get my SuperThread account info
+User: Get my Superthread account info
 AI: *calls get_my_account*
 → Your account: user@example.com
 → Workspaces available:
@@ -109,16 +132,16 @@ AI: Created 8 tasks:
 ...
 ```
 
-## SuperThread API Terminology
+## Superthread API Terminology
 
-SuperThread's API uses legacy terminology that differs from the UI. This server handles the mapping automatically:
+Superthread's API uses legacy terminology that differs from the UI. This server handles the mapping automatically:
 
-| UI Term | API Term | Used In |
-|---------|----------|---------|
-| Workspace | `team` | API paths as `{team_id}` |
-| Space | `project` | `/projects` endpoint |
-| Project (Roadmap) | `epic` | Epic operations |
-| Status/Column | `list` | Board lists |
+| UI Term           | API Term  | Used In                  |
+| ----------------- | --------- | ------------------------ |
+| Workspace         | `team`    | API paths as `{team_id}` |
+| Space             | `project` | `/projects` endpoint     |
+| Project (Roadmap) | `epic`    | Epic operations          |
+| Status/Column     | `list`    | Board lists              |
 
 You use modern UI terminology in all tools; the server handles translation internally.
 
@@ -157,7 +180,7 @@ Configure your MCP client to run from your local development directory:
 ```json
 {
   "mcpServers": {
-    "SuperThread": {
+    "Superthread": {
       "command": "node",
       "args": ["/absolute/path/to/mcp-superthread-plus/dist/index.js"],
       "env": {
@@ -181,8 +204,8 @@ See `docs/terminology-mapping.md` for the complete UI → API terminology mappin
 ## Requirements
 
 - **Node.js** 22+
-- **SuperThread account** with API access
-- **Personal Access Token** from SuperThread account settings
+- **Superthread account** with API access
+- **Personal Access Token** from Superthread account settings
 
 ## Contributing
 

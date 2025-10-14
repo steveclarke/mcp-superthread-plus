@@ -1,9 +1,9 @@
 /**
- * @fileoverview Pages API client for SuperThread.
+ * @fileoverview Pages API client for Superthread.
  * Handles page operations including creation, retrieval, and management.
  */
 
-import type { SuperThreadClient } from "./client.js"
+import type { SuperthreadClient } from "./client.js"
 
 /**
  * Page icon configuration
@@ -131,7 +131,7 @@ export interface Page {
  * Page API resource for managing pages.
  */
 export class PageResource {
-  constructor(private client: SuperThreadClient) {}
+  constructor(private client: SuperthreadClient) {}
 
   /**
    * Creates a new page in a workspace.

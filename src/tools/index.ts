@@ -1,5 +1,5 @@
 /**
- * @fileoverview Central tool registry for MCP SuperThread Plus.
+ * @fileoverview Central tool registry for MCP Superthread Plus.
  * Registers all available tools with the MCP server.
  */
 

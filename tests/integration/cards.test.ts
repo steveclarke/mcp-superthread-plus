@@ -1,6 +1,6 @@
 /**
  * @fileoverview Card operations integration tests
- * Tests card API operations with real SuperThread API
+ * Tests card API operations with real Superthread API
  *
  * Requires:
  * - SUPERTHREAD_API_KEY environment variable

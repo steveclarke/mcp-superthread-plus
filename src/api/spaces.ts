@@ -1,15 +1,15 @@
 /**
- * @fileoverview Space resource for SuperThread API.
+ * @fileoverview Space resource for Superthread API.
  * Provides space (organizational container) operations.
  *
  * Note: UI "Spaces" map to API "projects" endpoint.
  * Do not confuse with roadmap projects which use the /epics endpoint.
  */
 
-import type { SuperThreadClient } from "./client.js"
+import type { SuperthreadClient } from "./client.js"
 
 /**
- * Space (organizational container) information from SuperThread API
+ * Space (organizational container) information from Superthread API
  */
 /**
  * Parameters for creating a space
@@ -49,7 +49,7 @@ export interface AddSpaceMemberParams {
 }
 
 /**
- * Space (organizational container) information from SuperThread API
+ * Space (organizational container) information from Superthread API
  */
 export interface Space {
   id: string
@@ -79,7 +79,7 @@ export interface Space {
 }
 
 export class SpaceResource {
-  constructor(private client: SuperThreadClient) {}
+  constructor(private client: SuperthreadClient) {}
 
   /**
    * Gets all spaces (organizational containers) in a workspace.

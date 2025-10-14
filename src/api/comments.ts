@@ -1,9 +1,9 @@
 /**
- * @fileoverview Comment resource for SuperThread API.
+ * @fileoverview Comment resource for Superthread API.
  * Provides comment operations.
  */
 
-import type { SuperThreadClient } from "./client.js"
+import type { SuperthreadClient } from "./client.js"
 
 /**
  * Comment creation parameters
@@ -35,7 +35,7 @@ export interface ReplyToCommentParams {
 }
 
 /**
- * Comment information from SuperThread API
+ * Comment information from Superthread API
  */
 export interface Comment {
   id: string
@@ -82,7 +82,7 @@ export interface GetRepliesResponse {
 }
 
 export class CommentResource {
-  constructor(private client: SuperThreadClient) {}
+  constructor(private client: SuperthreadClient) {}
 
   /**
    * Creates a new comment on a card or page.

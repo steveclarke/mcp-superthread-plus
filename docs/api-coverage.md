@@ -1,6 +1,6 @@
 # API Coverage
 
-Complete list of all 66 planned tools, their SuperThread API endpoints, and implementation status.
+Complete list of all 66 planned tools, their Superthread API endpoints, and implementation status.
 
 ## Development Approach
 
@@ -12,7 +12,7 @@ We're implementing tools **incrementally** to establish solid patterns before sc
 
 ## Tool Organization
 
-Tools are organized into 9 categories matching SuperThread's domain model.
+Tools are organized into 9 categories matching Superthread's domain model.
 
 ## Coverage Summary
 
@@ -77,7 +77,7 @@ Tools are organized into 9 categories matching SuperThread's domain model.
 ### Notes
 
 - **Archive functionality** is handled by `card_update` with `archived: true/false` parameter (no separate tool needed)
-- ⚠️ **UNDOCUMENTED ENDPOINTS**: All checklist management tools (`card_create_checklist`, `card_add_checklist_item`, `card_update_checklist_item`, `card_delete_checklist_item`, `card_update_checklist`, `card_delete_checklist`) and card member assignment tools (`card_add_member`, `card_remove_member`) were discovered via browser network inspection and are NOT in SuperThread's official API documentation. These may change without notice.
+- ⚠️ **UNDOCUMENTED ENDPOINTS**: All checklist management tools (`card_create_checklist`, `card_add_checklist_item`, `card_update_checklist_item`, `card_delete_checklist_item`, `card_update_checklist`, `card_delete_checklist`) and card member assignment tools (`card_add_member`, `card_remove_member`) were discovered via browser network inspection and are NOT in Superthread's official API documentation. These may change without notice.
 - See "Known API Limitations" section below for constraint on updating `content`
 
 ## Projects/Roadmap (7 tools)
@@ -102,7 +102,7 @@ None - all endpoints implemented!
 
 - **Archive functionality** is handled by `project_update` with `archived: true/false` parameter (no separate tool needed)
 - **Project-card relationships** use dedicated epic endpoints (not the card relationship endpoints)
-- ⚠️ **UNDOCUMENTED ENDPOINTS**: `project_add_related` and `project_remove_related` were discovered via browser network inspection and are NOT in SuperThread's official API documentation. These may change without notice.
+- ⚠️ **UNDOCUMENTED ENDPOINTS**: `project_add_related` and `project_remove_related` were discovered via browser network inspection and are NOT in Superthread's official API documentation. These may change without notice.
 - See `docs/project-card-relationship.md` for details on why projects have separate relationship endpoints
 
 ## Boards (8 tools)
@@ -188,7 +188,7 @@ These will be added incrementally as we refine implementation patterns.
 ### Card Content Updates
 **Issue:** The `content` field cannot be updated via REST API endpoints.
 
-**Reason:** SuperThread uses [TipTap collaborative editor](https://newsletter.superthread.com/p/how-we-implemented-tiptap-editor) (built on ProseMirror) for all rich text content. Content changes are synced through a real-time collaboration protocol using operational transforms, not traditional REST API endpoints. Each card has a collaboration token (JWT) for connecting to the TipTap collaboration server.
+**Reason:** Superthread uses [TipTap collaborative editor](https://newsletter.superthread.com/p/how-we-implemented-tiptap-editor) (built on ProseMirror) for all rich text content. Content changes are synced through a real-time collaboration protocol using operational transforms, not traditional REST API endpoints. Each card has a collaboration token (JWT) for connecting to the TipTap collaboration server.
 
 **Technical Details:**
 - Content is edited via TipTap's collaborative editing protocol (WebSocket-based)
@@ -196,7 +196,7 @@ These will be added incrementally as we refine implementation patterns.
 - The collaboration token in card responses is used for real-time sync
 - Activity polling (`GET /{team_id}/activity?card_id={card_id}`) tracks changes after they're synced
 
-**Workaround:** Content can only be set during card creation via `card_create`. To update existing content, you must use the SuperThread UI. Programmatic content updates would require implementing the TipTap collaboration protocol, which is beyond the scope of a REST API client.
+**Workaround:** Content can only be set during card creation via `card_create`. To update existing content, you must use the Superthread UI. Programmatic content updates would require implementing the TipTap collaboration protocol, which is beyond the scope of a REST API client.
 
 **Status:** This is an architectural limitation, not a missing API endpoint. Network inspection confirmed no REST endpoint exists for content updates.
 
@@ -205,7 +205,7 @@ These will be added incrementally as we refine implementation patterns.
 - **Add member**: `POST /{team_id}/cards/{card_id}/members` with body `{"user_id": "...", "role": "member"}`
 - **Remove member**: `DELETE /{team_id}/cards/{card_id}/members/{user_id}`
 
-**Status:** ⚠️ These endpoints are UNDOCUMENTED in SuperThread's official API and were discovered by inspecting browser network traffic. They may change without notice.
+**Status:** ⚠️ These endpoints are UNDOCUMENTED in Superthread's official API and were discovered by inspecting browser network traffic. They may change without notice.
 
 **Tools:** ✅ `card_add_member` and `card_remove_member` have been implemented
 

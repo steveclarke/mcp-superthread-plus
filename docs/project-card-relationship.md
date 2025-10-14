@@ -2,7 +2,7 @@
 
 ## Summary
 
-Projects (Epics) in SuperThread have a dual nature:
+Projects (Epics) in Superthread have a dual nature:
 - They are treated **internally as cards** with card-like properties
 - But they require **separate API endpoints** for relationship management
 
@@ -52,7 +52,7 @@ This explicitly blocks using card-to-card relationship endpoints with epics.
 
 ## The Correct API Endpoints (DISCOVERED - UNDOCUMENTED!)
 
-These endpoints are **NOT in SuperThread's public API documentation** but were discovered by inspecting browser network traffic.
+These endpoints are **NOT in Superthread's public API documentation** but were discovered by inspecting browser network traffic.
 
 ### Add Related Card to Project
 ```
@@ -72,7 +72,7 @@ Response: (empty, 204 No Content or similar)
 
 ## Documentation Confusion
 
-The SuperThread documentation shows both:
+The Superthread documentation shows both:
 1. **Projects section**: "Remove related card" → But shows the cards endpoint
 2. **Cards section**: "Remove related card" → Same cards endpoint
 
@@ -100,7 +100,7 @@ These use the dedicated epic endpoints rather than the card relationship endpoin
 
 ## Why This Matters
 
-This design decision by SuperThread suggests:
+This design decision by Superthread suggests:
 1. **Epics are special cards** - They have elevated status in the hierarchy
 2. **Prevents circular references** - Cards can't create epic relationships via normal means
 3. **Maintains data model integrity** - Epic relationships are tracked separately
@@ -137,7 +137,7 @@ Both tools (`project_add_related` and `project_remove_related`) are fully functi
 
 ## Conclusion
 
-The card "Projects: Remove Related Card" on the SuperThread MCP board was indeed a separate feature from "Cards: Remove Related Card", despite the documentation confusion. Projects require dedicated endpoints for relationship management even though they share card-like properties internally.
+The card "Projects: Remove Related Card" on the Superthread MCP board was indeed a separate feature from "Cards: Remove Related Card", despite the documentation confusion. Projects require dedicated endpoints for relationship management even though they share card-like properties internally.
 
 **The real endpoints were undocumented** but discoverable through browser network inspection. The correct format uses the card ID in the URL path: `/{team_id}/epics/{epic_id}/cards/{card_id}` with no request body.
 

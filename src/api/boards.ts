@@ -1,12 +1,12 @@
 /**
- * @fileoverview Board resource for SuperThread API.
+ * @fileoverview Board resource for Superthread API.
  * Provides board and kanban operations.
  */
 
-import type { SuperThreadClient } from "./client.js"
+import type { SuperthreadClient } from "./client.js"
 
 /**
- * List information from SuperThread API
+ * List information from Superthread API
  */
 export interface List {
   id: string
@@ -85,7 +85,7 @@ export interface CreateBoardParams {
 }
 
 /**
- * Board information from SuperThread API
+ * Board information from Superthread API
  */
 export interface Board {
   id: string
@@ -114,7 +114,7 @@ export interface Board {
 }
 
 export class BoardResource {
-  constructor(private client: SuperThreadClient) {}
+  constructor(private client: SuperthreadClient) {}
 
   /**
    * Creates a new board in a workspace.

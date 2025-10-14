@@ -1,5 +1,5 @@
 /**
- * @fileoverview Generic utility functions for the MCP SuperThread Plus server.
+ * @fileoverview Generic utility functions for the MCP Superthread Plus server.
  * Provides helper functions for data formatting and common operations.
  */
 

@@ -1,23 +1,23 @@
-# SuperThread Terminology Mapping
+# Superthread Terminology Mapping
 
 ## Overview
 
-SuperThread's API uses legacy terminology that differs from the modern UI. This document provides the complete mapping and explains how our MCP server handles the translation.
+Superthread's API uses legacy terminology that differs from the modern UI. This document provides the complete mapping and explains how our MCP server handles the translation.
 
 ## Why This Matters
 
-When SuperThread evolved, they updated the UI terminology to be more intuitive, but the API retained legacy names for backward compatibility. This creates confusion when building integrations.
+When Superthread evolved, they updated the UI terminology to be more intuitive, but the API retained legacy names for backward compatibility. This creates confusion when building integrations.
 
 **Our Solution**: Use modern UI terms everywhere in our MCP server. The API client handles translation internally.
 
 ## Complete Terminology Mapping
 
-| Modern UI Term | Legacy API Term | Used In API As | Example |
-|----------------|-----------------|----------------|---------|
-| **Workspace** | `team` | Path parameter | `GET /{team_id}/cards` |
-| **Space** | `project` | Endpoint & parameter | `GET /{team_id}/projects/{project_id}` |
-| **Project** (Roadmap) | `epic` | Endpoint & parameter | `GET /{team_id}/epics/{epic_id}` |
-| **Status** or **Column** | `list` | Parameter | `list_id` in card creation |
+| Modern UI Term           | Legacy API Term | Used In API As       | Example                                |
+| ------------------------ | --------------- | -------------------- | -------------------------------------- |
+| **Workspace**            | `team`          | Path parameter       | `GET /{team_id}/cards`                 |
+| **Space**                | `project`       | Endpoint & parameter | `GET /{team_id}/projects/{project_id}` |
+| **Project** (Roadmap)    | `epic`          | Endpoint & parameter | `GET /{team_id}/epics/{epic_id}`       |
+| **Status** or **Column** | `list`          | Parameter            | `list_id` in card creation             |
 
 ## Detailed Mappings
 
@@ -31,7 +31,7 @@ When SuperThread evolved, they updated the UI terminology to be more intuitive, 
 // Tool parameter (what users see)
 workspace_id: z.string().describe("Workspace ID")
 
-// Internal API call (what SuperThread expects)
+// Internal API call (what Superthread expects)
 await client.request(`/${team_id}/cards`, ...)
 ```
 
@@ -182,9 +182,9 @@ class ProjectResource {
 
 ### Why Use UI Terminology?
 
-1. **User Experience**: AI and users interact with SuperThread UI
+1. **User Experience**: AI and users interact with Superthread UI
 2. **Consistency**: Matches what users see in the application
-3. **Future-Proof**: If SuperThread updates API, we only change one place
+3. **Future-Proof**: If Superthread updates API, we only change one place
 4. **Clarity**: "Space" and "Project" have distinct meanings in UI
 
 ### Why Not Just Use API Terms?
@@ -196,7 +196,7 @@ class ProjectResource {
 ### What About list_id vs status_id?
 
 We use `list_id` because:
-- SuperThread UI uses both "list" and "status" interchangeably
+- Superthread UI uses both "list" and "status" interchangeably
 - API exclusively uses `list_id`
 - Less translation needed
 - But we do describe it as "(status column)" for clarity
@@ -227,14 +227,14 @@ async createSpace(workspaceId: string, data: { name: string }) {
 
 Quick reference for developers:
 
-| When You See | Think Of It As | API Uses |
-|--------------|----------------|----------|
-| `workspace_id` | Organization | `{team_id}` in paths |
-| `space_id` | Team/Folder | `{project_id}` for `/projects` |
-| `project_id` | Epic/Initiative | `{epic_id}` for `/epics` |
-| `list_id` | Column/Status | `{list_id}` |
-| `board_id` | Board | `{board_id}` (same!) |
-| `card_id` | Task/Ticket | `{card_id}` (same!) |
+| When You See   | Think Of It As  | API Uses                       |
+| -------------- | --------------- | ------------------------------ |
+| `workspace_id` | Organization    | `{team_id}` in paths           |
+| `space_id`     | Team/Folder     | `{project_id}` for `/projects` |
+| `project_id`   | Epic/Initiative | `{epic_id}` for `/epics`       |
+| `list_id`      | Column/Status   | `{list_id}`                    |
+| `board_id`     | Board           | `{board_id}` (same!)           |
+| `card_id`      | Task/Ticket     | `{card_id}` (same!)            |
 
 ## Testing Terminology Mapping
 
@@ -248,7 +248,7 @@ When implementing API calls, verify:
 
 ## Future Updates
 
-If SuperThread updates their API terminology:
+If Superthread updates their API terminology:
 
 **Low Impact**: Change only happens in API client resource files  
 **No Impact**: Tools continue using UI terminology  

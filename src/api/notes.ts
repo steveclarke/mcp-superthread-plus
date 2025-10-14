@@ -1,9 +1,9 @@
 /**
- * @fileoverview Notes API client for SuperThread.
+ * @fileoverview Notes API client for Superthread.
  * Handles note operations including creation, retrieval, and deletion.
  */
 
-import type { SuperThreadClient } from "./client.js"
+import type { SuperthreadClient } from "./client.js"
 
 /**
  * Meeting participant
@@ -126,7 +126,7 @@ export interface Note {
  * Note API resource for managing notes.
  */
 export class NoteResource {
-  constructor(private client: SuperThreadClient) {}
+  constructor(private client: SuperthreadClient) {}
 
   /**
    * Creates a new note in a workspace.

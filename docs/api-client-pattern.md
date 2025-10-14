@@ -2,7 +2,7 @@
 
 ## Overview
 
-The MCP SuperThread Plus server uses a **composition-based API client architecture** to interact with the SuperThread REST API. This document explains the pattern and rationale.
+The MCP Superthread Plus server uses a **composition-based API client architecture** to interact with the Superthread REST API. This document explains the pattern and rationale.
 
 ## Architecture
 
@@ -27,7 +27,7 @@ The MCP SuperThread Plus server uses a **composition-based API client architectu
 ### Main Client Structure
 
 ```typescript
-export class SuperThreadClient {
+export class SuperthreadClient {
   private apiKey: string
   private baseUrl: string
   
@@ -55,7 +55,7 @@ export interface UserAccount {
 }
 
 export class UserResource {
-  constructor(private client: SuperThreadClient) {}
+  constructor(private client: SuperthreadClient) {}
   
   async getMyAccount(): Promise<UserAccount> {
     return await this.client.request<UserAccount>("/users/me", {
@@ -82,7 +82,7 @@ To add a new resource (e.g., `cards`):
 Create `src/api/cards.ts`:
 
 ```typescript
-import type { SuperThreadClient } from "./client.js"
+import type { SuperthreadClient } from "./client.js"
 
 export interface Card {
   id: string
@@ -91,7 +91,7 @@ export interface Card {
 }
 
 export class CardResource {
-  constructor(private client: SuperThreadClient) {}
+  constructor(private client: SuperthreadClient) {}
   
   async create(workspaceId: string, data: CreateCardData): Promise<Card> {
     return await this.client.request<Card>(
@@ -109,7 +109,7 @@ Update `src/api/client.ts`:
 ```typescript
 import { CardResource } from "./cards.js"
 
-export class SuperThreadClient {
+export class SuperthreadClient {
   public user: UserResource
   public cards: CardResource  // Add property
   

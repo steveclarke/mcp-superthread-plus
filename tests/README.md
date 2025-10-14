@@ -1,6 +1,6 @@
 # Tests
 
-Testing structure for MCP SuperThread Plus server.
+Testing structure for MCP Superthread Plus server.
 
 ## Directory Structure
 
@@ -61,12 +61,12 @@ describe('Configuration', () => {
 
 ## Integration Tests
 
-Integration tests use the real SuperThread API (requires test workspace).
+Integration tests use the real Superthread API (requires test workspace).
 
 **Location**: `tests/integration/`
 
 **Setup Required**:
-- Test SuperThread workspace
+- Test Superthread workspace
 - API key with full permissions
 - Environment variables set
 

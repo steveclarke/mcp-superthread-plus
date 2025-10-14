@@ -2,13 +2,13 @@
 
 ## Overview
 
-MCP SuperThread Plus is built with a clean separation of concerns, using a resource-based API client architecture that abstracts the SuperThread REST API.
+MCP Superthread Plus is built with a clean separation of concerns, using a resource-based API client architecture that abstracts the Superthread REST API.
 
 ## Key Design Decisions
 
 ### 1. API Abstraction Layer
 
-We wrap the SuperThread API in a dedicated abstraction layer for several critical reasons:
+We wrap the Superthread API in a dedicated abstraction layer for several critical reasons:
 
 **Benefits:**
 - **Single Source of Truth**: All API calls go through one place, making changes and debugging easier
@@ -29,7 +29,7 @@ We wrap the SuperThread API in a dedicated abstraction layer for several critica
 The API client is organized by resource type, mirroring the domain model:
 
 ```
-SuperThreadClient
+SuperthreadClient
 ├── cards: CardResource
 ├── boards: BoardResource
 ├── spaces: SpaceResource
@@ -60,24 +60,24 @@ const card = await client.cards.create(workspace_id, {
 
 ### 3. Modern UI Terminology
 
-All tools and client methods use modern SuperThread UI terminology:
+All tools and client methods use modern Superthread UI terminology:
 - `workspace_id` instead of `team_id`
 - `space_id` instead of `project_id` (for Spaces)
 - `project_id` for Roadmap projects (instead of `epic_id`)
 - `status_id` or `list_id` for board columns
 
-**Why:** Users and AI interact with the SuperThread UI, so tools should use familiar terms. The translation to legacy API terms happens transparently in the API layer.
+**Why:** Users and AI interact with the Superthread UI, so tools should use familiar terms. The translation to legacy API terms happens transparently in the API layer.
 
 See `terminology-mapping.md` for complete mappings.
 
 ## Client Architecture
 
-### SuperThreadClient Class
+### SuperthreadClient Class
 
 The main client class provides:
 
 ```typescript
-class SuperThreadClient {
+class SuperthreadClient {
   constructor(apiKey: string, baseUrl: string)
   
   // Core request method used by all resources
@@ -96,7 +96,7 @@ Each resource class follows this pattern:
 
 ```typescript
 class CardResource {
-  constructor(private client: SuperThreadClient) {}
+  constructor(private client: SuperthreadClient) {}
   
   async create(workspaceId: string, data: any): Promise<any> {
     return this.client.request(`/${workspaceId}/cards`, {
@@ -117,7 +117,7 @@ class CardResource {
 
 ## Error Handling Strategy
 
-### Centralized in SuperThreadClient
+### Centralized in SuperthreadClient
 
 ```typescript
 async request<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -136,7 +136,7 @@ async request<T>(path: string, options: RequestInit = {}): Promise<T> {
 - **Not Found** (404): Resource doesn't exist
 - **Validation Errors** (400): Invalid input data
 - **Rate Limiting** (429): Too many requests
-- **Server Errors** (500+): SuperThread API issues
+- **Server Errors** (500+): Superthread API issues
 
 ### Tool-Level Error Handling
 
@@ -150,7 +150,7 @@ Tools should:
 1. User provides `SUPERTHREAD_API_KEY` in environment variables
 2. `createClient()` reads from config
 3. Every API request includes `Authorization: Bearer {token}` header
-4. SuperThread API validates token
+4. Superthread API validates token
 5. Errors return 401 if invalid
 
 ## Configuration Loading
@@ -227,7 +227,7 @@ Consider adding response caching for:
 - Available tags
 
 ### Rate Limiting
-SuperThread may have rate limits. Consider:
+Superthread may have rate limits. Consider:
 - Request queue with throttling
 - Exponential backoff on 429 errors
 - Request batching where possible

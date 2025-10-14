@@ -1,12 +1,12 @@
 /**
- * @fileoverview User resource for SuperThread API.
+ * @fileoverview User resource for Superthread API.
  * Provides user and team member operations.
  */
 
-import type { SuperThreadClient } from "./client.js"
+import type { SuperthreadClient } from "./client.js"
 
 /**
- * User account information from SuperThread API
+ * User account information from Superthread API
  */
 export interface UserAccount {
   id: string
@@ -20,7 +20,7 @@ export interface UserAccount {
 }
 
 /**
- * Workspace member information from SuperThread API
+ * Workspace member information from Superthread API
  */
 export interface WorkspaceMember {
   id: string
@@ -30,7 +30,7 @@ export interface WorkspaceMember {
 }
 
 export class UserResource {
-  constructor(private client: SuperThreadClient) {}
+  constructor(private client: SuperthreadClient) {}
 
   /**
    * Gets the current user's account information.

@@ -1,6 +1,6 @@
 /**
- * @fileoverview SuperThread API client with resource-based organization.
- * Provides a clean abstraction over the SuperThread REST API with automatic
+ * @fileoverview Superthread API client with resource-based organization.
+ * Provides a clean abstraction over the Superthread REST API with automatic
  * terminology mapping from modern UI terms to legacy API terms.
  */
 
@@ -16,7 +16,7 @@ import { CommentResource } from "./comments.js"
 import { NoteResource } from "./notes.js"
 
 /**
- * Main SuperThread API client.
+ * Main Superthread API client.
  * Provides access to all resource endpoints through a clean interface.
  *
  * Uses the Resource-Based API Client Pattern to organize operations by domain:
@@ -38,7 +38,7 @@ import { NoteResource } from "./notes.js"
  * Note: Resources are organizational wrappers, not caches. Each method call
  * makes a fresh API request.
  */
-export class SuperThreadClient {
+export class SuperthreadClient {
   private apiKey: string
   private baseUrl: string
 
@@ -85,7 +85,7 @@ export class SuperThreadClient {
   }
 
   /**
-   * Makes a request to the SuperThread API.
+   * Makes a request to the Superthread API.
    * Handles authentication, error handling, and response parsing.
    *
    * @param path - API path (will be appended to baseUrl)
@@ -106,7 +106,7 @@ export class SuperThreadClient {
 
     if (!response.ok) {
       const errorText = await response.text()
-      throw new Error(`SuperThread API error (${response.status}): ${errorText}`)
+      throw new Error(`Superthread API error (${response.status}): ${errorText}`)
     }
 
     // Handle empty responses (204 No Content or empty body)
@@ -125,11 +125,11 @@ export class SuperThreadClient {
 }
 
 /**
- * Creates a SuperThread API client using configuration from environment variables.
- * @returns Configured SuperThreadClient instance
+ * Creates a Superthread API client using configuration from environment variables.
+ * @returns Configured SuperthreadClient instance
  * @throws {Error} If API key is not configured
  */
-export function createClient(): SuperThreadClient {
+export function createClient(): SuperthreadClient {
   if (!config.apiKey) {
     throw new Error(
       "SUPERTHREAD_API_KEY environment variable is required but not set. " +
@@ -137,5 +137,5 @@ export function createClient(): SuperThreadClient {
     )
   }
 
-  return new SuperThreadClient(config.apiKey, config.baseUrl)
+  return new SuperthreadClient(config.apiKey, config.baseUrl)
 }
