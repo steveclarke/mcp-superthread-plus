@@ -5,13 +5,13 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { z } from "zod"
-import { createClient } from "../api/client.js"
 import { formatMentions } from "../utils.js"
 import type {
   CreateCommentParams,
   UpdateCommentParams,
   ReplyToCommentParams,
 } from "../api/comments.js"
+import { createToolHandler, buildParams } from "./helpers.js"
 
 /**
  * Registers comment management tools with the MCP server.
@@ -40,52 +40,32 @@ export function registerCommentTools(server: McpServer) {
         context: z.string().optional().describe("Highlighted text context"),
       },
     },
-    async (args: {
-      workspace_id: string
-      content: string
-      card_id?: string
-      page_id?: string
-      schema?: number
-      context?: string
-    }) => {
-      try {
-        const client = createClient()
-
+    createToolHandler(
+      async (
+        client,
+        args: {
+          workspace_id: string
+          content: string
+          card_id?: string
+          page_id?: string
+          schema?: number
+          context?: string
+        }
+      ) => {
         // Process @mentions in content
         const processedContent = await formatMentions(args.content, args.workspace_id, client)
 
-        const params: CreateCommentParams = {
+        const params = buildParams<CreateCommentParams>({
           content: processedContent,
-        }
+          card_id: args.card_id,
+          page_id: args.page_id,
+          schema: args.schema,
+          context: args.context,
+        })
 
-        if (args.card_id) params.card_id = args.card_id
-        if (args.page_id) params.page_id = args.page_id
-        if (args.schema !== undefined) params.schema = args.schema
-        if (args.context) params.context = args.context
-
-        const result = await client.comments.create(args.workspace_id, params)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
+        return client.comments.create(args.workspace_id, params as CreateCommentParams)
       }
-    }
+    )
   )
 
   // comment_update - Update an existing comment
@@ -105,58 +85,45 @@ export function registerCommentTools(server: McpServer) {
           .describe(
             "Updated comment text (maximum 102400 characters). To mention users, use {{@Username}} syntax (e.g., {{@Steve Clarke}})."
           ),
-        schema: z.number().optional().describe("Schema version"),
-        context: z.string().optional().describe("Updated highlighted text context"),
         status: z.enum(["resolved", "open", "orphaned"]).optional().describe("Comment status"),
+        context: z.string().optional().describe("Updated highlighted text context"),
+        schema: z.number().optional().describe("Schema version"),
       },
     },
-    async (args: {
-      workspace_id: string
-      comment_id: string
-      content?: string
-      schema?: number
-      context?: string
-      status?: "resolved" | "open" | "orphaned"
-    }) => {
-      try {
-        const client = createClient()
-
-        const params: UpdateCommentParams = {}
-
+    createToolHandler(
+      async (
+        client,
+        args: {
+          workspace_id: string
+          comment_id: string
+          content?: string
+          status?: "resolved" | "open" | "orphaned"
+          context?: string
+          schema?: number
+        }
+      ) => {
         // Process @mentions in content if provided
-        if (args.content !== undefined) {
-          params.content = await formatMentions(args.content, args.workspace_id, client)
-        }
-        if (args.schema !== undefined) params.schema = args.schema
-        if (args.context !== undefined) params.context = args.context
-        if (args.status) params.status = args.status
+        const processedContent = args.content
+          ? await formatMentions(args.content, args.workspace_id, client)
+          : undefined
 
-        const result = await client.comments.update(args.workspace_id, args.comment_id, params)
+        const params = buildParams<UpdateCommentParams>({
+          content: processedContent,
+          status: args.status,
+          context: args.context,
+          schema: args.schema,
+        })
 
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
+        return client.comments.update(
+          args.workspace_id,
+          args.comment_id,
+          params as UpdateCommentParams
+        )
       }
-    }
+    )
   )
 
-  // comment_reply - Reply to an existing comment
+  // comment_reply - Create a reply to a comment
   server.registerTool(
     "comment_reply",
     {
@@ -175,50 +142,34 @@ export function registerCommentTools(server: McpServer) {
         schema: z.number().optional().describe("Schema version"),
       },
     },
-    async (args: {
-      workspace_id: string
-      comment_id: string
-      content: string
-      schema?: number
-    }) => {
-      try {
-        const client = createClient()
-
+    createToolHandler(
+      async (
+        client,
+        args: {
+          workspace_id: string
+          comment_id: string
+          content: string
+          schema?: number
+        }
+      ) => {
         // Process @mentions in content
         const processedContent = await formatMentions(args.content, args.workspace_id, client)
 
-        const params: ReplyToCommentParams = {
+        const params = buildParams<ReplyToCommentParams>({
           content: processedContent,
-        }
+          schema: args.schema,
+        })
 
-        if (args.schema !== undefined) params.schema = args.schema
-
-        const result = await client.comments.reply(args.workspace_id, args.comment_id, params)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
+        return client.comments.reply(
+          args.workspace_id,
+          args.comment_id,
+          params as ReplyToCommentParams
+        )
       }
-    }
+    )
   )
 
-  // comment_get - Get a specific comment
+  // comment_get - Get a single comment
   server.registerTool(
     "comment_get",
     {
@@ -230,32 +181,9 @@ export function registerCommentTools(server: McpServer) {
         comment_id: z.string().describe("Comment ID to retrieve"),
       },
     },
-    async (args: { workspace_id: string; comment_id: string }) => {
-      try {
-        const client = createClient()
-        const result = await client.comments.get(args.workspace_id, args.comment_id)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.comments.get(args.workspace_id, args.comment_id)
+    })
   )
 
   // comment_delete - Delete a comment
@@ -270,39 +198,16 @@ export function registerCommentTools(server: McpServer) {
         comment_id: z.string().describe("Comment ID to delete"),
       },
     },
-    async (args: { workspace_id: string; comment_id: string }) => {
-      try {
-        const client = createClient()
-        await client.comments.delete(args.workspace_id, args.comment_id)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Comment ${args.comment_id} successfully deleted`,
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.comments.delete(args.workspace_id, args.comment_id)
+    })
   )
 
-  // comment_get_replies - Get all replies to a comment
+  // comment_get_replies - Get comment replies
   server.registerTool(
     "comment_get_replies",
     {
-      title: "Get All Replies",
+      title: "Get Comment Replies",
       description:
         "Retrieves a list of comments (child comments or replies) associated with a parent comment. The response includes nested metadata and pagination details.",
       inputSchema: {
@@ -310,32 +215,9 @@ export function registerCommentTools(server: McpServer) {
         comment_id: z.string().describe("Parent comment ID to get replies from"),
       },
     },
-    async (args: { workspace_id: string; comment_id: string }) => {
-      try {
-        const client = createClient()
-        const result = await client.comments.getReplies(args.workspace_id, args.comment_id)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.comments.getReplies(args.workspace_id, args.comment_id)
+    })
   )
 
   // comment_update_reply - Update a reply
@@ -356,61 +238,44 @@ export function registerCommentTools(server: McpServer) {
           .describe(
             "Updated comment text (maximum 102400 characters). To mention users, use {{@Username}} syntax (e.g., {{@Steve Clarke}})."
           ),
-        schema: z.number().optional().describe("Schema version"),
-        context: z.string().optional().describe("Updated highlighted text context"),
         status: z.enum(["resolved", "open", "orphaned"]).optional().describe("Comment status"),
+        context: z.string().optional().describe("Updated highlighted text context"),
+        schema: z.number().optional().describe("Schema version"),
       },
     },
-    async (args: {
-      workspace_id: string
-      comment_id: string
-      child_comment_id: string
-      content?: string
-      schema?: number
-      context?: string
-      status?: "resolved" | "open" | "orphaned"
-    }) => {
-      try {
-        const client = createClient()
-
-        const params: UpdateCommentParams = {}
-
-        // Process @mentions in content if provided
-        if (args.content !== undefined) {
-          params.content = await formatMentions(args.content, args.workspace_id, client)
+    createToolHandler(
+      async (
+        client,
+        args: {
+          workspace_id: string
+          comment_id: string
+          child_comment_id: string
+          content?: string
+          status?: "resolved" | "open" | "orphaned"
+          context?: string
+          schema?: number
         }
-        if (args.schema !== undefined) params.schema = args.schema
-        if (args.context !== undefined) params.context = args.context
-        if (args.status) params.status = args.status
+      ) => {
+        // Process @mentions in content if provided
+        const processedContent = args.content
+          ? await formatMentions(args.content, args.workspace_id, client)
+          : undefined
 
-        const result = await client.comments.updateReply(
+        const params = buildParams<UpdateCommentParams>({
+          content: processedContent,
+          status: args.status,
+          context: args.context,
+          schema: args.schema,
+        })
+
+        return client.comments.updateReply(
           args.workspace_id,
           args.comment_id,
           args.child_comment_id,
-          params
+          params as UpdateCommentParams
         )
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
       }
-    }
+    )
   )
 
   // comment_delete_reply - Delete a reply
@@ -426,31 +291,8 @@ export function registerCommentTools(server: McpServer) {
         child_comment_id: z.string().describe("Child comment ID to delete"),
       },
     },
-    async (args: { workspace_id: string; comment_id: string; child_comment_id: string }) => {
-      try {
-        const client = createClient()
-        await client.comments.deleteReply(args.workspace_id, args.comment_id, args.child_comment_id)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Reply ${args.child_comment_id} successfully deleted`,
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.comments.deleteReply(args.workspace_id, args.comment_id, args.child_comment_id)
+    })
   )
 }

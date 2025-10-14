@@ -5,8 +5,8 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { z } from "zod"
-import { createClient } from "../api/client.js"
 import type { SearchParams } from "../api/search.js"
+import { createToolHandler, buildParams } from "./helpers.js"
 
 /**
  * Registers search tools with the MCP server.
@@ -42,54 +42,34 @@ export function registerSearchTools(server: McpServer) {
         cursor: z.string().optional().describe("Pagination cursor for retrieving more results"),
       },
     },
-    async (args: {
-      workspace_id: string
-      q: string
-      field?: "title" | "content"
-      types?: string[]
-      statuses?: string[]
-      project_id?: string
-      archived?: boolean
-      grouped?: boolean
-      cursor?: string
-    }) => {
-      try {
-        const client = createClient()
-
-        const params: SearchParams = {
+    createToolHandler(
+      async (
+        client,
+        args: {
+          workspace_id: string
+          q: string
+          field?: "title" | "content"
+          types?: string[]
+          statuses?: string[]
+          project_id?: string
+          archived?: boolean
+          grouped?: boolean
+          cursor?: string
+        }
+      ) => {
+        const params = buildParams<SearchParams>({
           q: args.q,
-        }
+          field: args.field,
+          types: args.types,
+          statuses: args.statuses,
+          project_id: args.project_id,
+          archived: args.archived,
+          grouped: args.grouped,
+          cursor: args.cursor,
+        })
 
-        if (args.field) params.field = args.field
-        if (args.types) params.types = args.types
-        if (args.statuses) params.statuses = args.statuses
-        if (args.project_id) params.project_id = args.project_id
-        if (args.archived !== undefined) params.archived = args.archived
-        if (args.grouped !== undefined) params.grouped = args.grouped
-        if (args.cursor) params.cursor = args.cursor
-
-        const result = await client.search.search(args.workspace_id, params)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
+        return client.search.search(args.workspace_id, params as SearchParams)
       }
-    }
+    )
   )
 }

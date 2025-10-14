@@ -5,7 +5,7 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { z } from "zod"
-import { createClient } from "../api/client.js"
+import { createToolHandler } from "./helpers.js"
 
 /**
  * Registers space (organizational container) management tools with the MCP server.
@@ -24,32 +24,9 @@ export function registerSpaceTools(server: McpServer) {
         workspace_id: z.string().describe("Workspace ID to get spaces from"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-        const spaces = await client.spaces.list(args.workspace_id)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(spaces, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.spaces.list(args.workspace_id)
+    })
   )
 
   // space_get - Get single space details
@@ -64,32 +41,9 @@ export function registerSpaceTools(server: McpServer) {
         space_id: z.string().describe("Space ID to retrieve"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-        const space = await client.spaces.get(args.workspace_id, args.space_id)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(space, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.spaces.get(args.workspace_id, args.space_id)
+    })
   )
 
   // space_create - Create new space
@@ -114,36 +68,13 @@ export function registerSpaceTools(server: McpServer) {
           .describe("Space icon"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-        const space = await client.spaces.create(args.workspace_id, {
-          title: args.title,
-          description: args.description,
-          icon: args.icon,
-        })
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(space, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.spaces.create(args.workspace_id, {
+        title: args.title,
+        description: args.description,
+        icon: args.icon,
+      })
+    })
   )
 
   // space_update - Update space properties
@@ -170,37 +101,14 @@ export function registerSpaceTools(server: McpServer) {
         archived: z.boolean().optional().describe("Archive or unarchive the space"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-        const space = await client.spaces.update(args.workspace_id, args.space_id, {
-          title: args.title,
-          description: args.description,
-          icon: args.icon,
-          archived: args.archived,
-        })
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(space, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.spaces.update(args.workspace_id, args.space_id, {
+        title: args.title,
+        description: args.description,
+        icon: args.icon,
+        archived: args.archived,
+      })
+    })
   )
 
   // space_add_member - Add member to space
@@ -216,35 +124,12 @@ export function registerSpaceTools(server: McpServer) {
         role: z.string().optional().describe("Member role (e.g., 'member', 'admin')"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-        const result = await client.spaces.addMember(args.workspace_id, args.space_id, {
-          user_id: args.user_id,
-          role: args.role,
-        })
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.spaces.addMember(args.workspace_id, args.space_id, {
+        user_id: args.user_id,
+        role: args.role,
+      })
+    })
   )
 
   // space_remove_member - Remove member from space
@@ -259,36 +144,9 @@ export function registerSpaceTools(server: McpServer) {
         member_id: z.string().describe("Member ID to remove"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-        const result = await client.spaces.removeMember(
-          args.workspace_id,
-          args.space_id,
-          args.member_id
-        )
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.spaces.removeMember(args.workspace_id, args.space_id, args.member_id)
+    })
   )
 
   // space_delete - Delete space permanently
@@ -303,31 +161,8 @@ export function registerSpaceTools(server: McpServer) {
         space_id: z.string().describe("Space ID to delete"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-        const result = await client.spaces.delete(args.workspace_id, args.space_id)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.spaces.delete(args.workspace_id, args.space_id)
+    })
   )
 }

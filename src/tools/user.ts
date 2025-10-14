@@ -5,7 +5,7 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { z } from "zod"
-import { createClient } from "../api/client.js"
+import { createToolHandler } from "./helpers.js"
 
 /**
  * Registers user and workspace member management tools with the MCP server.
@@ -22,32 +22,9 @@ export function registerUserTools(server: McpServer) {
         "Get the current user's account information including workspace/team memberships",
       inputSchema: {},
     },
-    async () => {
-      try {
-        const client = createClient()
-        const account = await client.user.getMyAccount()
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(account, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client) => {
+      return client.user.getMyAccount()
+    })
   )
 
   // user_get_members - List workspace members
@@ -60,31 +37,8 @@ export function registerUserTools(server: McpServer) {
         workspace_id: z.string().describe("Workspace ID to get members from"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-        const members = await client.user.getMembers(args.workspace_id)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(members, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.user.getMembers(args.workspace_id)
+    })
   )
 }

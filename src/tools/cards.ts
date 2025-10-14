@@ -5,7 +5,6 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { z } from "zod"
-import { createClient } from "../api/client.js"
 import type {
   CreateCardParams,
   UpdateCardParams,
@@ -13,6 +12,7 @@ import type {
   AddRelatedCardParams,
   AddTagsToCardParams,
 } from "../api/cards.js"
+import { createToolHandler, buildParams } from "./helpers.js"
 
 /**
  * Registers card management tools with the MCP server.
@@ -44,51 +44,25 @@ export function registerCardTools(server: McpServer) {
         owner_id: z.string().optional().describe("Card owner user ID"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
+    createToolHandler(async (client, args) => {
+      const params = buildParams<CreateCardParams>({
+        title: args.title,
+        list_id: args.list_id,
+        board_id: args.board_id,
+        sprint_id: args.sprint_id,
+        content: args.content,
+        project_id: args.project_id,
+        start_date: args.start_date,
+        due_date: args.due_date,
+        priority: args.priority,
+        estimate: args.estimate,
+        parent_card_id: args.parent_card_id,
+        epic_id: args.epic_id,
+        owner_id: args.owner_id,
+      })
 
-        // Build params object
-        const params: CreateCardParams = {
-          title: args.title,
-          list_id: args.list_id,
-        }
-
-        if (args.board_id) params.board_id = args.board_id
-        if (args.sprint_id) params.sprint_id = args.sprint_id
-        if (args.content) params.content = args.content
-        if (args.project_id) params.project_id = args.project_id
-        if (args.start_date) params.start_date = args.start_date
-        if (args.due_date) params.due_date = args.due_date
-        if (args.priority !== undefined) params.priority = args.priority
-        if (args.estimate !== undefined) params.estimate = args.estimate
-        if (args.parent_card_id) params.parent_card_id = args.parent_card_id
-        if (args.epic_id) params.epic_id = args.epic_id
-        if (args.owner_id) params.owner_id = args.owner_id
-
-        const card = await client.cards.create(args.workspace_id, params)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(card, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+      return client.cards.create(args.workspace_id, params as CreateCardParams)
+    })
   )
 
   // card_update - Update an existing card
@@ -116,50 +90,25 @@ export function registerCardTools(server: McpServer) {
         archived: z.boolean().optional().describe("Archive (true) or unarchive (false) the card"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
+    createToolHandler(async (client, args) => {
+      const params = buildParams<UpdateCardParams>({
+        title: args.title,
+        board_id: args.board_id,
+        list_id: args.list_id,
+        project_id: args.project_id,
+        epic_id: args.epic_id,
+        sprint_id: args.sprint_id,
+        owner_id: args.owner_id,
+        start_date: args.start_date,
+        due_date: args.due_date,
+        position: args.position,
+        priority: args.priority,
+        estimate: args.estimate,
+        archived: args.archived,
+      })
 
-        // Build params object with only provided fields
-        const params: UpdateCardParams = {}
-
-        if (args.title !== undefined) params.title = args.title
-        if (args.board_id !== undefined) params.board_id = args.board_id
-        if (args.list_id !== undefined) params.list_id = args.list_id
-        if (args.project_id !== undefined) params.project_id = args.project_id
-        if (args.epic_id !== undefined) params.epic_id = args.epic_id
-        if (args.sprint_id !== undefined) params.sprint_id = args.sprint_id
-        if (args.owner_id !== undefined) params.owner_id = args.owner_id
-        if (args.start_date !== undefined) params.start_date = args.start_date
-        if (args.due_date !== undefined) params.due_date = args.due_date
-        if (args.position !== undefined) params.position = args.position
-        if (args.priority !== undefined) params.priority = args.priority
-        if (args.estimate !== undefined) params.estimate = args.estimate
-        if (args.archived !== undefined) params.archived = args.archived
-
-        const card = await client.cards.update(args.workspace_id, args.card_id, params)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(card, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+      return client.cards.update(args.workspace_id, args.card_id, params as UpdateCardParams)
+    })
   )
 
   // card_get - Get single card details
@@ -174,32 +123,9 @@ export function registerCardTools(server: McpServer) {
         card_id: z.string().describe("Card ID to retrieve"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-        const card = await client.cards.get(args.workspace_id, args.card_id)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(card, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.cards.get(args.workspace_id, args.card_id)
+    })
   )
 
   // card_get_assigned - Get cards assigned to a user
@@ -239,54 +165,29 @@ export function registerCardTools(server: McpServer) {
         tags: z.array(z.string()).optional().describe("Filter by tag names"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
+    createToolHandler(async (client, args) => {
+      const params = buildParams<GetAssignedCardsParams>({
+        user_id: args.user_id,
+        project_id: args.project_id,
+        board_id: args.board_id,
+        list_id: args.list_id,
+        sprint_id: args.sprint_id,
+        parent_card_id: args.parent_card_id,
+        archived: args.archived,
+        bookmarked: args.bookmarked,
+        start_date_min: args.start_date_min,
+        start_date_max: args.start_date_max,
+        due_date_min: args.due_date_min,
+        due_date_max: args.due_date_max,
+        completed_date_min: args.completed_date_min,
+        completed_date_max: args.completed_date_max,
+        priority: args.priority,
+        statuses: args.statuses,
+        tags: args.tags,
+      })
 
-        const params: GetAssignedCardsParams = {
-          user_id: args.user_id,
-        }
-
-        if (args.project_id) params.project_id = args.project_id
-        if (args.board_id) params.board_id = args.board_id
-        if (args.list_id) params.list_id = args.list_id
-        if (args.sprint_id) params.sprint_id = args.sprint_id
-        if (args.parent_card_id) params.parent_card_id = args.parent_card_id
-        if (args.archived !== undefined) params.archived = args.archived
-        if (args.bookmarked !== undefined) params.bookmarked = args.bookmarked
-        if (args.start_date_min) params.start_date_min = args.start_date_min
-        if (args.start_date_max) params.start_date_max = args.start_date_max
-        if (args.due_date_min) params.due_date_min = args.due_date_min
-        if (args.due_date_max) params.due_date_max = args.due_date_max
-        if (args.completed_date_min) params.completed_date_min = args.completed_date_min
-        if (args.completed_date_max) params.completed_date_max = args.completed_date_max
-        if (args.priority !== undefined) params.priority = args.priority
-        if (args.statuses) params.statuses = args.statuses
-        if (args.tags) params.tags = args.tags
-
-        const cards = await client.cards.getAssigned(args.workspace_id, params)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(cards, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+      return client.cards.getAssigned(args.workspace_id, params as GetAssignedCardsParams)
+    })
   )
 
   // card_add_related - Link two cards with a relationship
@@ -305,38 +206,14 @@ export function registerCardTools(server: McpServer) {
           .describe("Type of relationship between cards"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-
-        const params: AddRelatedCardParams = {
-          card_id: args.related_card_id,
-          linked_card_type: args.relation_type,
-        }
-
-        const result = await client.cards.addRelated(args.workspace_id, args.card_id, params)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
+    createToolHandler(async (client, args) => {
+      const params: AddRelatedCardParams = {
+        card_id: args.related_card_id,
+        linked_card_type: args.relation_type,
       }
-    }
+
+      return client.cards.addRelated(args.workspace_id, args.card_id, params)
+    })
   )
 
   // card_remove_related - Remove a relationship between linked cards
@@ -352,37 +229,9 @@ export function registerCardTools(server: McpServer) {
         linked_card_id: z.string().describe("Linked card ID to remove"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-
-        const result = await client.cards.removeRelated(
-          args.workspace_id,
-          args.card_id,
-          args.linked_card_id
-        )
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.cards.removeRelated(args.workspace_id, args.card_id, args.linked_card_id)
+    })
   )
 
   // card_duplicate - Duplicate an existing card
@@ -397,32 +246,9 @@ export function registerCardTools(server: McpServer) {
         card_id: z.string().describe("Card ID to duplicate"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-        const duplicatedCard = await client.cards.duplicate(args.workspace_id, args.card_id)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(duplicatedCard, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.cards.duplicate(args.workspace_id, args.card_id)
+    })
   )
 
   // card_delete - Permanently delete a card
@@ -437,32 +263,9 @@ export function registerCardTools(server: McpServer) {
         card_id: z.string().describe("Card ID to delete"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-        const result = await client.cards.delete(args.workspace_id, args.card_id)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.cards.delete(args.workspace_id, args.card_id)
+    })
   )
 
   // card_get_tags - Get tags for workspace or project
@@ -478,40 +281,17 @@ export function registerCardTools(server: McpServer) {
         all: z.boolean().optional().describe("Return all tags in workspace"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
+    createToolHandler(async (client, args) => {
+      const params = buildParams<{ project_id?: string; all?: boolean }>({
+        project_id: args.project_id,
+        all: args.all,
+      })
 
-        const params: { project_id?: string; all?: boolean } = {}
-        if (args.project_id) params.project_id = args.project_id
-        if (args.all !== undefined) params.all = args.all
-
-        const result = await client.cards.getTags(
-          args.workspace_id,
-          Object.keys(params).length > 0 ? params : undefined
-        )
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+      return client.cards.getTags(
+        args.workspace_id,
+        Object.keys(params).length > 0 ? params : undefined
+      )
+    })
   )
 
   // card_add_tags - Add tags to a card
@@ -528,38 +308,19 @@ export function registerCardTools(server: McpServer) {
         ids: z.array(z.string()).optional().describe("Array of tag IDs to add"),
       },
     },
-    async (args: { workspace_id: string; card_id: string; id?: string; ids?: string[] }) => {
-      try {
-        const client = createClient()
+    createToolHandler(
+      async (
+        client,
+        args: { workspace_id: string; card_id: string; id?: string; ids?: string[] }
+      ) => {
+        const params = buildParams<AddTagsToCardParams>({
+          id: args.id,
+          ids: args.ids,
+        })
 
-        // Build params object
-        const params: AddTagsToCardParams = {}
-        if (args.id) params.id = args.id
-        if (args.ids) params.ids = args.ids
-
-        const result = await client.cards.addTags(args.workspace_id, args.card_id, params)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
+        return client.cards.addTags(args.workspace_id, args.card_id, params as AddTagsToCardParams)
       }
-    }
+    )
   )
 
   // card_remove_tag - Remove a tag from a card
@@ -574,32 +335,11 @@ export function registerCardTools(server: McpServer) {
         tag_id: z.string().describe("Tag ID to remove"),
       },
     },
-    async (args: { workspace_id: string; card_id: string; tag_id: string }) => {
-      try {
-        const client = createClient()
-        const result = await client.cards.removeTag(args.workspace_id, args.card_id, args.tag_id)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
+    createToolHandler(
+      async (client, args: { workspace_id: string; card_id: string; tag_id: string }) => {
+        return client.cards.removeTag(args.workspace_id, args.card_id, args.tag_id)
       }
-    }
+    )
   )
 
   // card_add_member - Add member to card
@@ -616,36 +356,19 @@ export function registerCardTools(server: McpServer) {
         role: z.string().optional().describe("Member role (defaults to 'member')"),
       },
     },
-    async (args: { workspace_id: string; card_id: string; user_id: string; role?: string }) => {
-      try {
-        const client = createClient()
-        const result = await client.cards.addMember(
+    createToolHandler(
+      async (
+        client,
+        args: { workspace_id: string; card_id: string; user_id: string; role?: string }
+      ) => {
+        return client.cards.addMember(
           args.workspace_id,
           args.card_id,
           args.user_id,
           args.role || "member"
         )
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
       }
-    }
+    )
   )
 
   // card_remove_member - Remove member from card
@@ -661,35 +384,11 @@ export function registerCardTools(server: McpServer) {
         user_id: z.string().describe("User ID to remove"),
       },
     },
-    async (args: { workspace_id: string; card_id: string; user_id: string }) => {
-      try {
-        const client = createClient()
-        const result = await client.cards.removeMember(
-          args.workspace_id,
-          args.card_id,
-          args.user_id
-        )
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
+    createToolHandler(
+      async (client, args: { workspace_id: string; card_id: string; user_id: string }) => {
+        return client.cards.removeMember(args.workspace_id, args.card_id, args.user_id)
       }
-    }
+    )
   )
 
   // card_create_checklist - Create checklist on card
@@ -705,31 +404,11 @@ export function registerCardTools(server: McpServer) {
         title: z.string().describe("Checklist title"),
       },
     },
-    async (args: { workspace_id: string; card_id: string; title: string }) => {
-      try {
-        const client = createClient()
-        const result: Awaited<ReturnType<typeof client.cards.createChecklist>> =
-          await client.cards.createChecklist(args.workspace_id, args.card_id, args.title)
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${error instanceof Error ? error.message : String(error)}`,
-            },
-          ],
-          isError: true,
-        }
+    createToolHandler(
+      async (client, args: { workspace_id: string; card_id: string; title: string }) => {
+        return client.cards.createChecklist(args.workspace_id, args.card_id, args.title)
       }
-    }
+    )
   )
 
   // card_add_checklist_item - Add item to checklist
@@ -746,41 +425,24 @@ export function registerCardTools(server: McpServer) {
         title: z.string().describe("Item title (can include HTML like '<p>text</p>')"),
       },
     },
-    async (args: {
-      workspace_id: string
-      card_id: string
-      checklist_id: string
-      title: string
-    }) => {
-      try {
-        const client = createClient()
-        const result: Awaited<ReturnType<typeof client.cards.addChecklistItem>> =
-          await client.cards.addChecklistItem(
-            args.workspace_id,
-            args.card_id,
-            args.checklist_id,
-            args.title
-          )
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
+    createToolHandler(
+      async (
+        client,
+        args: {
+          workspace_id: string
+          card_id: string
+          checklist_id: string
+          title: string
         }
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${error instanceof Error ? error.message : String(error)}`,
-            },
-          ],
-          isError: true,
-        }
+      ) => {
+        return client.cards.addChecklistItem(
+          args.workspace_id,
+          args.card_id,
+          args.checklist_id,
+          args.title
+        )
       }
-    }
+    )
   )
 
   // card_update_checklist_item - Update checklist item
@@ -799,48 +461,32 @@ export function registerCardTools(server: McpServer) {
         title: z.string().optional().describe("Update item title (can include HTML)"),
       },
     },
-    async (args: {
-      workspace_id: string
-      card_id: string
-      checklist_id: string
-      item_id: string
-      checked?: boolean
-      title?: string
-    }) => {
-      try {
-        const client = createClient()
-        const updates: { checked?: boolean; title?: string } = {}
-        if (args.checked !== undefined) updates.checked = args.checked
-        if (args.title !== undefined) updates.title = args.title
+    createToolHandler(
+      async (
+        client,
+        args: {
+          workspace_id: string
+          card_id: string
+          checklist_id: string
+          item_id: string
+          checked?: boolean
+          title?: string
+        }
+      ) => {
+        const updates = buildParams<{ checked?: boolean; title?: string }>({
+          checked: args.checked,
+          title: args.title,
+        })
 
-        const result: Awaited<ReturnType<typeof client.cards.updateChecklistItem>> =
-          await client.cards.updateChecklistItem(
-            args.workspace_id,
-            args.card_id,
-            args.checklist_id,
-            args.item_id,
-            updates
-          )
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${error instanceof Error ? error.message : String(error)}`,
-            },
-          ],
-          isError: true,
-        }
+        return client.cards.updateChecklistItem(
+          args.workspace_id,
+          args.card_id,
+          args.checklist_id,
+          args.item_id,
+          updates
+        )
       }
-    }
+    )
   )
 
   // card_delete_checklist_item - Delete checklist item
@@ -857,41 +503,24 @@ export function registerCardTools(server: McpServer) {
         item_id: z.string().describe("Item ID to delete"),
       },
     },
-    async (args: {
-      workspace_id: string
-      card_id: string
-      checklist_id: string
-      item_id: string
-    }) => {
-      try {
-        const client = createClient()
-        const result: Awaited<ReturnType<typeof client.cards.deleteChecklistItem>> =
-          await client.cards.deleteChecklistItem(
-            args.workspace_id,
-            args.card_id,
-            args.checklist_id,
-            args.item_id
-          )
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
+    createToolHandler(
+      async (
+        client,
+        args: {
+          workspace_id: string
+          card_id: string
+          checklist_id: string
+          item_id: string
         }
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${error instanceof Error ? error.message : String(error)}`,
-            },
-          ],
-          isError: true,
-        }
+      ) => {
+        return client.cards.deleteChecklistItem(
+          args.workspace_id,
+          args.card_id,
+          args.checklist_id,
+          args.item_id
+        )
       }
-    }
+    )
   )
 
   // card_update_checklist - Update checklist title
@@ -908,41 +537,24 @@ export function registerCardTools(server: McpServer) {
         title: z.string().describe("New checklist title"),
       },
     },
-    async (args: {
-      workspace_id: string
-      card_id: string
-      checklist_id: string
-      title: string
-    }) => {
-      try {
-        const client = createClient()
-        const result: Awaited<ReturnType<typeof client.cards.updateChecklist>> =
-          await client.cards.updateChecklist(
-            args.workspace_id,
-            args.card_id,
-            args.checklist_id,
-            args.title
-          )
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
+    createToolHandler(
+      async (
+        client,
+        args: {
+          workspace_id: string
+          card_id: string
+          checklist_id: string
+          title: string
         }
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${error instanceof Error ? error.message : String(error)}`,
-            },
-          ],
-          isError: true,
-        }
+      ) => {
+        return client.cards.updateChecklist(
+          args.workspace_id,
+          args.card_id,
+          args.checklist_id,
+          args.title
+        )
       }
-    }
+    )
   )
 
   // card_delete_checklist - Delete checklist
@@ -958,30 +570,10 @@ export function registerCardTools(server: McpServer) {
         checklist_id: z.string().describe("Checklist ID to delete"),
       },
     },
-    async (args: { workspace_id: string; card_id: string; checklist_id: string }) => {
-      try {
-        const client = createClient()
-        const result: Awaited<ReturnType<typeof client.cards.deleteChecklist>> =
-          await client.cards.deleteChecklist(args.workspace_id, args.card_id, args.checklist_id)
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${error instanceof Error ? error.message : String(error)}`,
-            },
-          ],
-          isError: true,
-        }
+    createToolHandler(
+      async (client, args: { workspace_id: string; card_id: string; checklist_id: string }) => {
+        return client.cards.deleteChecklist(args.workspace_id, args.card_id, args.checklist_id)
       }
-    }
+    )
   )
 }

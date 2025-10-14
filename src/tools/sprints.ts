@@ -5,7 +5,7 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { z } from "zod"
-import { createClient } from "../api/client.js"
+import { createToolHandler } from "./helpers.js"
 
 /**
  * Registers sprint management tools with the MCP server.
@@ -25,32 +25,9 @@ export function registerSprintTools(server: McpServer) {
         space_id: z.string().describe("Space ID (project_id) to get sprints from"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-        const sprints = await client.sprints.list(args.workspace_id, args.space_id)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(sprints, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.sprints.list(args.workspace_id, args.space_id)
+    })
   )
 
   // sprint_get - Get single sprint with list details
@@ -66,31 +43,8 @@ export function registerSprintTools(server: McpServer) {
         space_id: z.string().describe("Space ID (project_id) - required for sprint lookup"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-        const sprint = await client.sprints.get(args.workspace_id, args.sprint_id, args.space_id)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(sprint, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.sprints.get(args.workspace_id, args.sprint_id, args.space_id)
+    })
   )
 }

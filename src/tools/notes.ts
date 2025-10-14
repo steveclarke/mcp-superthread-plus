@@ -5,8 +5,8 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { z } from "zod"
-import { createClient } from "../api/client.js"
 import type { CreateNoteParams } from "../api/notes.js"
+import { createToolHandler, buildParams } from "./helpers.js"
 
 /**
  * Registers note management tools with the MCP server.
@@ -82,47 +82,21 @@ export function registerNoteTools(server: McpServer): void {
           .describe("Google Calendar event details"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
+    createToolHandler(async (client, args) => {
+      const params = buildParams<CreateNoteParams>({
+        title: args.title,
+        transcript: args.transcript,
+        transcripts: args.transcripts,
+        user_notes: args.user_notes,
+        is_public: args.is_public,
+        attendees: args.attendees,
+        metadata_date: args.metadata_date,
+        metadata_time: args.metadata_time,
+        google_calendar_event: args.google_calendar_event,
+      })
 
-        const params: CreateNoteParams = {
-          title: args.title,
-        }
-
-        if (args.transcript !== undefined) params.transcript = args.transcript
-        if (args.transcripts !== undefined) params.transcripts = args.transcripts
-        if (args.user_notes !== undefined) params.user_notes = args.user_notes
-        if (args.is_public !== undefined) params.is_public = args.is_public
-        if (args.attendees !== undefined) params.attendees = args.attendees
-        if (args.metadata_date !== undefined) params.metadata_date = args.metadata_date
-        if (args.metadata_time !== undefined) params.metadata_time = args.metadata_time
-        if (args.google_calendar_event !== undefined)
-          params.google_calendar_event = args.google_calendar_event
-
-        const note = await client.notes.create(args.workspace_id, params)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(note, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+      return client.notes.create(args.workspace_id, params as CreateNoteParams)
+    })
   )
 
   // note_get - Get a specific note
@@ -136,32 +110,9 @@ export function registerNoteTools(server: McpServer): void {
         note_id: z.string().describe("Note ID to retrieve"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-        const note = await client.notes.get(args.workspace_id, args.note_id)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(note, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.notes.get(args.workspace_id, args.note_id)
+    })
   )
 
   // note_get_all - Get all notes
@@ -174,32 +125,9 @@ export function registerNoteTools(server: McpServer): void {
         workspace_id: z.string().describe("Workspace ID"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-        const notes = await client.notes.list(args.workspace_id)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(notes, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.notes.list(args.workspace_id)
+    })
   )
 
   // note_delete - Delete a note
@@ -213,31 +141,8 @@ export function registerNoteTools(server: McpServer): void {
         note_id: z.string().describe("Note ID to delete"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-        const result = await client.notes.delete(args.workspace_id, args.note_id)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.notes.delete(args.workspace_id, args.note_id)
+    })
   )
 }

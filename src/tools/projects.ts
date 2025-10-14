@@ -5,8 +5,8 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { z } from "zod"
-import { createClient } from "../api/client.js"
 import type { CreateProjectParams, UpdateProjectParams } from "../api/projects.js"
+import { createToolHandler, buildParams } from "./helpers.js"
 
 /**
  * Registers project (roadmap) management tools with the MCP server.
@@ -26,32 +26,9 @@ export function registerProjectTools(server: McpServer) {
         workspace_id: z.string().describe("Workspace ID to get projects from"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-        const projects = await client.projects.list(args.workspace_id)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(projects, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.projects.list(args.workspace_id)
+    })
   )
 
   // project_get - Get single project details
@@ -66,32 +43,9 @@ export function registerProjectTools(server: McpServer) {
         project_id: z.string().describe("Project ID (epic) to retrieve"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-        const project = await client.projects.get(args.workspace_id, args.project_id)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(project, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.projects.get(args.workspace_id, args.project_id)
+    })
   )
 
   // project_create - Create a new project
@@ -113,55 +67,35 @@ export function registerProjectTools(server: McpServer) {
         priority: z.number().optional().describe("Priority level"),
       },
     },
-    async (args: {
-      workspace_id: string
-      title: string
-      list_id: string
-      content?: string
-      schema?: number
-      start_date?: number
-      due_date?: number
-      owner_id?: string
-      priority?: number
-    }) => {
-      try {
-        const client = createClient()
-
-        const params: CreateProjectParams = {
+    createToolHandler(
+      async (
+        client,
+        args: {
+          workspace_id: string
+          title: string
+          list_id: string
+          content?: string
+          schema?: number
+          start_date?: number
+          due_date?: number
+          owner_id?: string
+          priority?: number
+        }
+      ) => {
+        const params = buildParams<CreateProjectParams>({
           title: args.title,
           list_id: args.list_id,
-        }
+          content: args.content,
+          schema: args.schema,
+          start_date: args.start_date,
+          due_date: args.due_date,
+          owner_id: args.owner_id,
+          priority: args.priority,
+        })
 
-        if (args.content) params.content = args.content
-        if (args.schema !== undefined) params.schema = args.schema
-        if (args.start_date) params.start_date = args.start_date
-        if (args.due_date) params.due_date = args.due_date
-        if (args.owner_id) params.owner_id = args.owner_id
-        if (args.priority !== undefined) params.priority = args.priority
-
-        const result = await client.projects.create(args.workspace_id, params)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
+        return client.projects.create(args.workspace_id, params as CreateProjectParams)
       }
-    }
+    )
   )
 
   // project_update - Update a project
@@ -184,55 +118,40 @@ export function registerProjectTools(server: McpServer) {
         archived: z.boolean().optional().describe("Archive status"),
       },
     },
-    async (args: {
-      workspace_id: string
-      project_id: string
-      title?: string
-      list_id?: string
-      owner_id?: string
-      start_date?: number
-      due_date?: number
-      position?: number
-      priority?: number
-      archived?: boolean
-    }) => {
-      try {
-        const client = createClient()
-
-        const params: UpdateProjectParams = {}
-
-        if (args.title) params.title = args.title
-        if (args.list_id) params.list_id = args.list_id
-        if (args.owner_id) params.owner_id = args.owner_id
-        if (args.start_date) params.start_date = args.start_date
-        if (args.due_date) params.due_date = args.due_date
-        if (args.position !== undefined) params.position = args.position
-        if (args.priority !== undefined) params.priority = args.priority
-        if (args.archived !== undefined) params.archived = args.archived
-
-        const result = await client.projects.update(args.workspace_id, args.project_id, params)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
+    createToolHandler(
+      async (
+        client,
+        args: {
+          workspace_id: string
+          project_id: string
+          title?: string
+          list_id?: string
+          owner_id?: string
+          start_date?: number
+          due_date?: number
+          position?: number
+          priority?: number
+          archived?: boolean
         }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
+      ) => {
+        const params = buildParams<UpdateProjectParams>({
+          title: args.title,
+          list_id: args.list_id,
+          owner_id: args.owner_id,
+          start_date: args.start_date,
+          due_date: args.due_date,
+          position: args.position,
+          priority: args.priority,
+          archived: args.archived,
+        })
+
+        return client.projects.update(
+          args.workspace_id,
+          args.project_id,
+          params as UpdateProjectParams
+        )
       }
-    }
+    )
   )
 
   // project_delete - Delete a project
@@ -247,33 +166,9 @@ export function registerProjectTools(server: McpServer) {
         project_id: z.string().describe("Project ID (epic) to delete"),
       },
     },
-    async (args: { workspace_id: string; project_id: string }) => {
-      try {
-        const client = createClient()
-
-        const result = await client.projects.delete(args.workspace_id, args.project_id)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args: { workspace_id: string; project_id: string }) => {
+      return client.projects.delete(args.workspace_id, args.project_id)
+    })
   )
 
   // project_add_related - Link a card to a project
@@ -289,37 +184,11 @@ export function registerProjectTools(server: McpServer) {
         card_id: z.string().describe("Card ID to link to the project"),
       },
     },
-    async (args: { workspace_id: string; project_id: string; card_id: string }) => {
-      try {
-        const client = createClient()
-
-        const result = await client.projects.addRelatedCard(
-          args.workspace_id,
-          args.project_id,
-          args.card_id
-        )
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
+    createToolHandler(
+      async (client, args: { workspace_id: string; project_id: string; card_id: string }) => {
+        return client.projects.addRelatedCard(args.workspace_id, args.project_id, args.card_id)
       }
-    }
+    )
   )
 
   // project_remove_related - Remove a linked card from a project
@@ -335,36 +204,10 @@ export function registerProjectTools(server: McpServer) {
         card_id: z.string().describe("Card ID to unlink from the project"),
       },
     },
-    async (args: { workspace_id: string; project_id: string; card_id: string }) => {
-      try {
-        const client = createClient()
-
-        const result = await client.projects.removeRelatedCard(
-          args.workspace_id,
-          args.project_id,
-          args.card_id
-        )
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
+    createToolHandler(
+      async (client, args: { workspace_id: string; project_id: string; card_id: string }) => {
+        return client.projects.removeRelatedCard(args.workspace_id, args.project_id, args.card_id)
       }
-    }
+    )
   )
 }

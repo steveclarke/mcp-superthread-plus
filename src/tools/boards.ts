@@ -5,13 +5,13 @@
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { z } from "zod"
-import { createClient } from "../api/client.js"
 import type {
   CreateBoardParams,
   CreateListParams,
   UpdateBoardParams,
   UpdateListParams,
 } from "../api/boards.js"
+import { createToolHandler, buildParams } from "./helpers.js"
 
 /**
  * Registers board management tools with the MCP server.
@@ -36,44 +36,18 @@ export function registerBoardTools(server: McpServer) {
         layout: z.string().optional().describe("Board layout (defaults to 'board')"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
+    createToolHandler(async (client, args) => {
+      const params = buildParams<CreateBoardParams>({
+        project_id: args.project_id,
+        title: args.title,
+        content: args.content,
+        icon: args.icon,
+        color: args.color,
+        layout: args.layout,
+      })
 
-        // Build params object
-        const params: CreateBoardParams = {
-          project_id: args.project_id,
-          title: args.title,
-        }
-
-        if (args.content) params.content = args.content
-        if (args.icon) params.icon = args.icon
-        if (args.color) params.color = args.color
-        if (args.layout) params.layout = args.layout
-
-        const board = await client.boards.create(args.workspace_id, params)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(board, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+      return client.boards.create(args.workspace_id, params as CreateBoardParams)
+    })
   )
 
   // board_create_list - Create a new list on a board
@@ -96,44 +70,18 @@ export function registerBoardTools(server: McpServer) {
           .describe("List behavior (e.g., 'backlog', 'started', 'completed', 'cancelled')"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
+    createToolHandler(async (client, args) => {
+      const params = buildParams<CreateListParams>({
+        board_id: args.board_id,
+        title: args.title,
+        content: args.content,
+        icon: args.icon,
+        color: args.color,
+        behavior: args.behavior,
+      })
 
-        // Build params object
-        const params: CreateListParams = {
-          board_id: args.board_id,
-          title: args.title,
-        }
-
-        if (args.content) params.content = args.content
-        if (args.icon) params.icon = args.icon
-        if (args.color) params.color = args.color
-        if (args.behavior) params.behavior = args.behavior
-
-        const list = await client.boards.createList(args.workspace_id, params)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(list, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+      return client.boards.createList(args.workspace_id, params as CreateListParams)
+    })
   )
 
   // board_get_all - List all boards in workspace
@@ -153,39 +101,20 @@ export function registerBoardTools(server: McpServer) {
           .describe("Optional: Include archived boards (default: false)"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-        const options: { project_id: string; bookmarked?: boolean; archived?: boolean } = {
+    createToolHandler(async (client, args) => {
+      const options = buildParams<{ project_id: string; bookmarked?: boolean; archived?: boolean }>(
+        {
           project_id: args.space_id,
+          bookmarked: args.bookmarked,
+          archived: args.archived,
         }
+      )
 
-        if (args.bookmarked !== undefined) options.bookmarked = args.bookmarked
-        if (args.archived !== undefined) options.archived = args.archived
-
-        const boards = await client.boards.list(args.workspace_id, options)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(boards, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+      return client.boards.list(
+        args.workspace_id,
+        options as { project_id: string; bookmarked?: boolean; archived?: boolean }
+      )
+    })
   )
 
   // board_get - Get single board details
@@ -200,32 +129,9 @@ export function registerBoardTools(server: McpServer) {
         board_id: z.string().describe("Board ID to retrieve"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-        const board = await client.boards.get(args.workspace_id, args.board_id)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(board, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.boards.get(args.workspace_id, args.board_id)
+    })
   )
 
   // board_update - Update board properties
@@ -245,40 +151,17 @@ export function registerBoardTools(server: McpServer) {
         archived: z.boolean().optional().describe("Archive or unarchive the board"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
+    createToolHandler(async (client, args) => {
+      const params = buildParams<UpdateBoardParams>({
+        title: args.title,
+        content: args.content,
+        icon: args.icon,
+        color: args.color,
+        archived: args.archived,
+      })
 
-        const params: UpdateBoardParams = {}
-        if (args.title !== undefined) params.title = args.title
-        if (args.content !== undefined) params.content = args.content
-        if (args.icon !== undefined) params.icon = args.icon
-        if (args.color !== undefined) params.color = args.color
-        if (args.archived !== undefined) params.archived = args.archived
-
-        const board = await client.boards.update(args.workspace_id, args.board_id, params)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(board, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+      return client.boards.update(args.workspace_id, args.board_id, params as UpdateBoardParams)
+    })
   )
 
   // board_update_list - Update list properties
@@ -301,40 +184,17 @@ export function registerBoardTools(server: McpServer) {
           .describe("New behavior (e.g., 'backlog', 'started', 'completed', 'cancelled')"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
+    createToolHandler(async (client, args) => {
+      const params = buildParams<UpdateListParams>({
+        title: args.title,
+        content: args.content,
+        icon: args.icon,
+        color: args.color,
+        behavior: args.behavior,
+      })
 
-        const params: UpdateListParams = {}
-        if (args.title !== undefined) params.title = args.title
-        if (args.content !== undefined) params.content = args.content
-        if (args.icon !== undefined) params.icon = args.icon
-        if (args.color !== undefined) params.color = args.color
-        if (args.behavior !== undefined) params.behavior = args.behavior
-
-        const list = await client.boards.updateList(args.workspace_id, args.list_id, params)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(list, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+      return client.boards.updateList(args.workspace_id, args.list_id, params as UpdateListParams)
+    })
   )
 
   // board_duplicate - Duplicate board
@@ -351,40 +211,18 @@ export function registerBoardTools(server: McpServer) {
         project_id: z.string().optional().describe("Project/Space ID for the duplicated board"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-        const params: { title?: string; project_id?: string } = {}
-        if (args.title) params.title = args.title
-        if (args.project_id) params.project_id = args.project_id
+    createToolHandler(async (client, args) => {
+      const params = buildParams<{ title?: string; project_id?: string }>({
+        title: args.title,
+        project_id: args.project_id,
+      })
 
-        const board = await client.boards.duplicate(
-          args.workspace_id,
-          args.board_id,
-          Object.keys(params).length > 0 ? params : undefined
-        )
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(board, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+      return client.boards.duplicate(
+        args.workspace_id,
+        args.board_id,
+        Object.keys(params).length > 0 ? params : undefined
+      )
+    })
   )
 
   // board_delete - Delete board permanently
@@ -399,31 +237,8 @@ export function registerBoardTools(server: McpServer) {
         board_id: z.string().describe("Board ID to delete"),
       },
     },
-    async (args) => {
-      try {
-        const client = createClient()
-        const result = await client.boards.delete(args.workspace_id, args.board_id)
-
-        return {
-          content: [
-            {
-              type: "text",
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        }
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error)
-        return {
-          content: [
-            {
-              type: "text",
-              text: `Error: ${errorMessage}`,
-            },
-          ],
-          isError: true,
-        }
-      }
-    }
+    createToolHandler(async (client, args) => {
+      return client.boards.delete(args.workspace_id, args.board_id)
+    })
   )
 }
