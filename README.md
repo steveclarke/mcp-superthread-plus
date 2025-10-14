@@ -1,6 +1,8 @@
 # MCP Superthread Plus Server
 
-An MCP server for Superthread project management integration. Provides AI assistants with the ability to manage tasks, projects, documentation, and team collaboration through the Superthread platform.
+An unofficial, community-maintained MCP server for Superthread project management integration. Provides AI assistants with the ability to manage tasks, projects, documentation, and team collaboration through the Superthread platform.
+
+> **Note:** This is an independent project and is not officially affiliated with or endorsed by Superthread.
 
 ## Why?
 
@@ -22,7 +24,7 @@ Perfect for teams using AI to streamline project setup, task creation from requi
 - 🗺️ **Roadmap Projects** - Plan and track large initiatives (epics)
 - 📝 **Documentation** - Create and maintain pages/wikis with full content management
 - 💬 **Comments & Collaboration** - Thread discussions on cards and pages with @mentions
-- 🎯 **AI Meeting Notes** - Manage transcribed meeting notes
+- 🎯 **Meeting Notes** - Manage meeting notes and transcriptions
 - 🔍 **Global Search** - Find anything across your workspace
 - ✅ **Checklists** - Add and manage task checklists on cards
 
@@ -82,7 +84,7 @@ This server provides comprehensive Superthread integration across all major cate
 - 📊 **Boards** (8 tools) - Organize work with boards and customizable status columns
 - 📝 **Pages** (7 tools) - Create and maintain documentation with full content management
 - 💬 **Comments** (8 tools) - Threaded discussions on cards and pages with @mention support
-- 🎯 **Notes** (4 tools) - Manage AI-transcribed meeting notes
+- 🎯 **Notes** (4 tools) - Manage meeting notes and transcriptions
 - 🏃 **Sprints** (2 tools) - Agile sprint planning and management
 - 🗂️ **Spaces** (2 tools) - Organizational containers for projects
 - 👥 **Users** (2 tools) - Member and account management
@@ -176,7 +178,7 @@ This server provides comprehensive Superthread integration across all major cate
 
 | Tool           | Description             |
 | -------------- | ----------------------- |
-| `note_create`  | Create AI meeting note  |
+| `note_create`  | Create meeting note     |
 | `note_get`     | Get note details        |
 | `note_get_all` | List all notes          |
 | `note_delete`  | Delete note permanently |

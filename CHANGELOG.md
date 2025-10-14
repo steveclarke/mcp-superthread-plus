@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 ## [0.1.0] - 2025-10-14
 
 ### Added
-- Initial pre-release of MCP Superthread Plus
+- Initial pre-release of unofficial, community-maintained MCP Superthread Plus server
 - 50+ tools for comprehensive Superthread API integration
 - Card management (create, update, tags, checklists, relationships)
 - Board and list management
