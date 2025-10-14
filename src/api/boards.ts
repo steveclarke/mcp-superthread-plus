@@ -38,6 +38,28 @@ export interface CreateListParams {
 }
 
 /**
+ * Parameters for updating a list
+ */
+export interface UpdateListParams {
+  title?: string
+  content?: string
+  icon?: string
+  color?: string
+  behavior?: string
+}
+
+/**
+ * Parameters for updating a board
+ */
+export interface UpdateBoardParams {
+  title?: string
+  content?: string
+  icon?: string
+  color?: string
+  archived?: boolean
+}
+
+/**
  * Parameters for creating a new board
  */
 export interface CreateBoardParams {
@@ -168,5 +190,72 @@ export class BoardResource {
       body: JSON.stringify(params),
     })
     return response.list
+  }
+
+  /**
+   * Updates an existing board.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param boardId - Board ID to update
+   * @param params - Board update parameters
+   * @returns Updated board
+   */
+  async update(workspaceId: string, boardId: string, params: UpdateBoardParams): Promise<Board> {
+    const response = await this.client.request<{ board: Board }>(
+      `/${workspaceId}/boards/${boardId}`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(params),
+      }
+    )
+    return response.board
+  }
+
+  /**
+   * Updates an existing list.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param listId - List ID to update
+   * @param params - List update parameters
+   * @returns Updated list
+   */
+  async updateList(workspaceId: string, listId: string, params: UpdateListParams): Promise<List> {
+    const response = await this.client.request<{ list: List }>(`/${workspaceId}/lists/${listId}`, {
+      method: "PATCH",
+      body: JSON.stringify(params),
+    })
+    return response.list
+  }
+
+  /**
+   * Duplicates a board.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param boardId - Board ID to duplicate
+   * @param params - Optional title and project_id for the copy
+   * @returns Duplicated board
+   */
+  async duplicate(
+    workspaceId: string,
+    boardId: string,
+    params?: { title?: string; project_id?: string }
+  ): Promise<Board> {
+    const response = await this.client.request<{ board: Board }>(
+      `/${workspaceId}/boards/${boardId}/copy`,
+      {
+        method: "POST",
+        body: params ? JSON.stringify(params) : undefined,
+      }
+    )
+    return response.board
+  }
+
+  /**
+   * Deletes a board permanently.
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param boardId - Board ID to delete
+   * @returns Success response
+   */
+  async delete(workspaceId: string, boardId: string): Promise<{ success: boolean }> {
+    return await this.client.request<{ success: boolean }>(`/${workspaceId}/boards/${boardId}`, {
+      method: "DELETE",
+    })
   }
 }

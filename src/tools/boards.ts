@@ -6,7 +6,12 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { z } from "zod"
 import { createClient } from "../api/client.js"
-import type { CreateBoardParams, CreateListParams } from "../api/boards.js"
+import type {
+  CreateBoardParams,
+  CreateListParams,
+  UpdateBoardParams,
+  UpdateListParams,
+} from "../api/boards.js"
 
 /**
  * Registers board management tools with the MCP server.
@@ -205,6 +210,205 @@ export function registerBoardTools(server: McpServer) {
             {
               type: "text",
               text: JSON.stringify(board, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${errorMessage}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
+
+  // board_update - Update board properties
+  server.registerTool(
+    "board_update",
+    {
+      title: "Update Board",
+      description:
+        "Update properties of an existing board. Can modify title, description, icon, color, or archive status.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        board_id: z.string().describe("Board ID to update"),
+        title: z.string().optional().describe("New board title"),
+        content: z.string().optional().describe("New board description/content"),
+        icon: z.string().optional().describe("New icon name"),
+        color: z.string().optional().describe("New color"),
+        archived: z.boolean().optional().describe("Archive or unarchive the board"),
+      },
+    },
+    async (args) => {
+      try {
+        const client = createClient()
+
+        const params: UpdateBoardParams = {}
+        if (args.title !== undefined) params.title = args.title
+        if (args.content !== undefined) params.content = args.content
+        if (args.icon !== undefined) params.icon = args.icon
+        if (args.color !== undefined) params.color = args.color
+        if (args.archived !== undefined) params.archived = args.archived
+
+        const board = await client.boards.update(args.workspace_id, args.board_id, params)
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(board, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${errorMessage}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
+
+  // board_update_list - Update list properties
+  server.registerTool(
+    "board_update_list",
+    {
+      title: "Update List",
+      description:
+        "Update properties of an existing list (column/status). Can modify title, description, icon, color, or behavior.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        list_id: z.string().describe("List ID to update"),
+        title: z.string().optional().describe("New list title"),
+        content: z.string().optional().describe("New list description/content"),
+        icon: z.string().optional().describe("New icon name"),
+        color: z.string().optional().describe("New color"),
+        behavior: z
+          .string()
+          .optional()
+          .describe("New behavior (e.g., 'backlog', 'started', 'completed', 'cancelled')"),
+      },
+    },
+    async (args) => {
+      try {
+        const client = createClient()
+
+        const params: UpdateListParams = {}
+        if (args.title !== undefined) params.title = args.title
+        if (args.content !== undefined) params.content = args.content
+        if (args.icon !== undefined) params.icon = args.icon
+        if (args.color !== undefined) params.color = args.color
+        if (args.behavior !== undefined) params.behavior = args.behavior
+
+        const list = await client.boards.updateList(args.workspace_id, args.list_id, params)
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(list, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${errorMessage}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
+
+  // board_duplicate - Duplicate board
+  server.registerTool(
+    "board_duplicate",
+    {
+      title: "Duplicate Board",
+      description:
+        "Clone an existing board with all its lists and structure. Cards are not duplicated.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        board_id: z.string().describe("Board ID to duplicate"),
+        title: z.string().optional().describe("Title for the duplicated board"),
+        project_id: z.string().optional().describe("Project/Space ID for the duplicated board"),
+      },
+    },
+    async (args) => {
+      try {
+        const client = createClient()
+        const params: { title?: string; project_id?: string } = {}
+        if (args.title) params.title = args.title
+        if (args.project_id) params.project_id = args.project_id
+
+        const board = await client.boards.duplicate(
+          args.workspace_id,
+          args.board_id,
+          Object.keys(params).length > 0 ? params : undefined
+        )
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(board, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${errorMessage}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
+
+  // board_delete - Delete board permanently
+  server.registerTool(
+    "board_delete",
+    {
+      title: "Delete Board",
+      description:
+        "Permanently delete a board. This action cannot be undone. All lists and cards within the board will be deleted.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        board_id: z.string().describe("Board ID to delete"),
+      },
+    },
+    async (args) => {
+      try {
+        const client = createClient()
+        const result = await client.boards.delete(args.workspace_id, args.board_id)
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
             },
           ],
         }
