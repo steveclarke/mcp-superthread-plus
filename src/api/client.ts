@@ -10,6 +10,7 @@ import { ProjectResource } from "./projects.js"
 import { SpaceResource } from "./spaces.js"
 import { BoardResource } from "./boards.js"
 import { CardResource } from "./cards.js"
+import { SearchResource } from "./search.js"
 
 /**
  * Main SuperThread API client.
@@ -21,6 +22,7 @@ import { CardResource } from "./cards.js"
  * - `client.spaces.*` - Space (organizational container) operations
  * - `client.boards.*` - Board and kanban operations
  * - `client.cards.*` - Card operations
+ * - `client.search.*` - Search operations
  * - etc.
  *
  * This pattern provides:
@@ -51,6 +53,9 @@ export class SuperThreadClient {
   /** Card operations */
   public cards: CardResource
 
+  /** Search operations */
+  public search: SearchResource
+
   constructor(apiKey: string, baseUrl: string) {
     this.apiKey = apiKey
     this.baseUrl = baseUrl
@@ -60,6 +65,7 @@ export class SuperThreadClient {
     this.spaces = new SpaceResource(this)
     this.boards = new BoardResource(this)
     this.cards = new CardResource(this)
+    this.search = new SearchResource(this)
   }
 
   /**

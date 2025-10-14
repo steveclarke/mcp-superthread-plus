@@ -9,6 +9,7 @@ import { registerProjectTools } from "./projects.js"
 import { registerSpaceTools } from "./spaces.js"
 import { registerBoardTools } from "./boards.js"
 import { registerCardTools } from "./cards.js"
+import { registerSearchTools } from "./search.js"
 
 /**
  * Registers all tools with the MCP server.
@@ -21,4 +22,5 @@ export function registerAllTools(server: McpServer): void {
   registerSpaceTools(server)
   registerBoardTools(server)
   registerCardTools(server)
+  registerSearchTools(server)
 }
