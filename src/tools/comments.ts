@@ -6,6 +6,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { z } from "zod"
 import { createClient } from "../api/client.js"
+import { formatMentions } from "../utils.js"
 import type {
   CreateCommentParams,
   UpdateCommentParams,
@@ -24,13 +25,15 @@ export function registerCommentTools(server: McpServer) {
     {
       title: "Create Comment",
       description:
-        "Adds a new comment to a specified card or page. The content field is required, with optional fields for context, page_id, or card_id.",
+        "Adds a new comment to a specified card or page. Supports @mentions - use {{@Username}} syntax to tag workspace members (names must match exactly). The content field is required, with optional fields for context, page_id, or card_id.",
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         content: z
           .string()
           .max(102400)
-          .describe("Comment text (required, maximum 102400 characters)"),
+          .describe(
+            "Comment text (required, maximum 102400 characters). To mention users, use {{@Username}} syntax (e.g., {{@Steve Clarke}})."
+          ),
         card_id: z.string().optional().describe("Card ID to attach comment to"),
         page_id: z.string().optional().describe("Page ID to attach comment to"),
         schema: z.number().optional().describe("Schema version (defaults to 1)"),
@@ -48,8 +51,11 @@ export function registerCommentTools(server: McpServer) {
       try {
         const client = createClient()
 
+        // Process @mentions in content
+        const processedContent = await formatMentions(args.content, args.workspace_id, client)
+
         const params: CreateCommentParams = {
-          content: args.content,
+          content: processedContent,
         }
 
         if (args.card_id) params.card_id = args.card_id
@@ -88,7 +94,7 @@ export function registerCommentTools(server: McpServer) {
     {
       title: "Edit Comment",
       description:
-        "Modifies the fields of an existing comment. Only the original author can modify comments. The request body should specify the fields to update, such as content, status, or context. Omitted fields will remain unchanged. The status field accepts the following values: resolved, open, orphaned.",
+        "Modifies the fields of an existing comment. Supports @mentions - use {{@Username}} syntax to tag workspace members (names must match exactly). Only the original author can modify comments. The request body should specify the fields to update, such as content, status, or context. Omitted fields will remain unchanged. The status field accepts the following values: resolved, open, orphaned.",
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         comment_id: z.string().describe("Comment ID to update"),
@@ -96,7 +102,9 @@ export function registerCommentTools(server: McpServer) {
           .string()
           .max(102400)
           .optional()
-          .describe("Updated comment text (maximum 102400 characters)"),
+          .describe(
+            "Updated comment text (maximum 102400 characters). To mention users, use {{@Username}} syntax (e.g., {{@Steve Clarke}})."
+          ),
         schema: z.number().optional().describe("Schema version"),
         context: z.string().optional().describe("Updated highlighted text context"),
         status: z.enum(["resolved", "open", "orphaned"]).optional().describe("Comment status"),
@@ -115,7 +123,10 @@ export function registerCommentTools(server: McpServer) {
 
         const params: UpdateCommentParams = {}
 
-        if (args.content !== undefined) params.content = args.content
+        // Process @mentions in content if provided
+        if (args.content !== undefined) {
+          params.content = await formatMentions(args.content, args.workspace_id, client)
+        }
         if (args.schema !== undefined) params.schema = args.schema
         if (args.context !== undefined) params.context = args.context
         if (args.status) params.status = args.status
@@ -151,14 +162,16 @@ export function registerCommentTools(server: McpServer) {
     {
       title: "Reply to Comment",
       description:
-        "Creates a new child comment (reply) under the parent comment specified by comment_id. The request body must include the content field and can optionally include additional metadata such as schema. The child comment can also be referred to as a reply or a thread.",
+        "Creates a new child comment (reply) under the parent comment specified by comment_id. Supports @mentions - use {{@Username}} syntax to tag workspace members (names must match exactly). The request body must include the content field and can optionally include additional metadata such as schema. The child comment can also be referred to as a reply or a thread.",
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         comment_id: z.string().describe("Parent comment ID to reply to"),
         content: z
           .string()
           .max(102400)
-          .describe("Reply text (required, maximum 102400 characters)"),
+          .describe(
+            "Reply text (required, maximum 102400 characters). To mention users, use {{@Username}} syntax (e.g., {{@Steve Clarke}})."
+          ),
         schema: z.number().optional().describe("Schema version"),
       },
     },
@@ -171,8 +184,11 @@ export function registerCommentTools(server: McpServer) {
       try {
         const client = createClient()
 
+        // Process @mentions in content
+        const processedContent = await formatMentions(args.content, args.workspace_id, client)
+
         const params: ReplyToCommentParams = {
-          content: args.content,
+          content: processedContent,
         }
 
         if (args.schema !== undefined) params.schema = args.schema
@@ -328,7 +344,7 @@ export function registerCommentTools(server: McpServer) {
     {
       title: "Edit Reply",
       description:
-        "Modifies a specific child comment (reply). Only the original author can modify their reply. The request body should specify the fields to update, such as content, status, or context.",
+        "Modifies a specific child comment (reply). Supports @mentions - use {{@Username}} syntax to tag workspace members (names must match exactly). Only the original author can modify their reply. The request body should specify the fields to update, such as content, status, or context.",
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         comment_id: z.string().describe("Parent comment ID"),
@@ -337,7 +353,9 @@ export function registerCommentTools(server: McpServer) {
           .string()
           .max(102400)
           .optional()
-          .describe("Updated comment text (maximum 102400 characters)"),
+          .describe(
+            "Updated comment text (maximum 102400 characters). To mention users, use {{@Username}} syntax (e.g., {{@Steve Clarke}})."
+          ),
         schema: z.number().optional().describe("Schema version"),
         context: z.string().optional().describe("Updated highlighted text context"),
         status: z.enum(["resolved", "open", "orphaned"]).optional().describe("Comment status"),
@@ -357,7 +375,10 @@ export function registerCommentTools(server: McpServer) {
 
         const params: UpdateCommentParams = {}
 
-        if (args.content !== undefined) params.content = args.content
+        // Process @mentions in content if provided
+        if (args.content !== undefined) {
+          params.content = await formatMentions(args.content, args.workspace_id, client)
+        }
         if (args.schema !== undefined) params.schema = args.schema
         if (args.context !== undefined) params.context = args.context
         if (args.status) params.status = args.status
