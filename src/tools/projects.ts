@@ -275,4 +275,96 @@ export function registerProjectTools(server: McpServer) {
       }
     }
   )
+
+  // project_add_related - Link a card to a project
+  server.registerTool(
+    "project_add_related",
+    {
+      title: "Add Related Card to Project",
+      description:
+        "Link a card to a roadmap project (epic). Use this to associate cards with high-level initiatives.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        project_id: z.string().describe("Project ID (epic) to link card to"),
+        card_id: z.string().describe("Card ID to link to the project"),
+      },
+    },
+    async (args: { workspace_id: string; project_id: string; card_id: string }) => {
+      try {
+        const client = createClient()
+
+        const result = await client.projects.addRelatedCard(
+          args.workspace_id,
+          args.project_id,
+          args.card_id
+        )
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${errorMessage}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
+
+  // project_remove_related - Remove a linked card from a project
+  server.registerTool(
+    "project_remove_related",
+    {
+      title: "Remove Related Card from Project",
+      description:
+        "Remove a card link from a roadmap project (epic). This removes the relationship but does not delete the card.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        project_id: z.string().describe("Project ID (epic) to unlink card from"),
+        card_id: z.string().describe("Card ID to unlink from the project"),
+      },
+    },
+    async (args: { workspace_id: string; project_id: string; card_id: string }) => {
+      try {
+        const client = createClient()
+
+        const result = await client.projects.removeRelatedCard(
+          args.workspace_id,
+          args.project_id,
+          args.card_id
+        )
+
+        return {
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Error: ${errorMessage}`,
+            },
+          ],
+          isError: true,
+        }
+      }
+    }
+  )
 }

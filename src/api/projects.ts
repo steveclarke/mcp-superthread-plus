@@ -135,4 +135,52 @@ export class ProjectResource {
       method: "DELETE",
     })
   }
+
+  /**
+   * Links a card to a project (epic).
+   *
+   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API.
+   * It was discovered via browser network inspection and may change without notice.
+   *
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param projectId - Project ID (maps to epic_id in API)
+   * @param cardId - Card ID to link to the project
+   * @returns Success response
+   */
+  async addRelatedCard(
+    workspaceId: string,
+    projectId: string,
+    cardId: string
+  ): Promise<{ success: boolean }> {
+    return await this.client.request<{ success: boolean }>(
+      `/${workspaceId}/epics/${projectId}/cards/${cardId}`,
+      {
+        method: "POST",
+      }
+    )
+  }
+
+  /**
+   * Removes a linked card from a project (epic).
+   *
+   * ⚠️ WARNING: This endpoint is UNDOCUMENTED in SuperThread's public API.
+   * It was discovered via browser network inspection and may change without notice.
+   *
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param projectId - Project ID (maps to epic_id in API)
+   * @param cardId - Card ID to unlink from the project
+   * @returns Success response
+   */
+  async removeRelatedCard(
+    workspaceId: string,
+    projectId: string,
+    cardId: string
+  ): Promise<{ success: boolean }> {
+    return await this.client.request<{ success: boolean }>(
+      `/${workspaceId}/epics/${projectId}/cards/${cardId}`,
+      {
+        method: "DELETE",
+      }
+    )
+  }
 }
