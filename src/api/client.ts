@@ -87,7 +87,18 @@ export class SuperThreadClient {
       throw new Error(`SuperThread API error (${response.status}): ${errorText}`)
     }
 
-    return (await response.json()) as T
+    // Handle empty responses (204 No Content or empty body)
+    const contentLength = response.headers.get("content-length")
+    if (response.status === 204 || contentLength === "0") {
+      return { success: true } as T
+    }
+
+    const text = await response.text()
+    if (!text || text.trim() === "") {
+      return { success: true } as T
+    }
+
+    return JSON.parse(text) as T
   }
 }
 

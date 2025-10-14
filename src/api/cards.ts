@@ -138,11 +138,23 @@ export interface GetAssignedCardsParams {
 }
 
 /**
- * Parameters for adding a related card
+ * Parameters for adding a related card (linking cards)
  */
 export interface AddRelatedCardParams {
-  related_card_id: string
-  relation_type: "blocks" | "blocked_by" | "relates_to" | "duplicates" | "duplicated_by"
+  card_id: string
+  linked_card_type: "blocks" | "blocked_by" | "related" | "duplicates"
+}
+
+/**
+ * Parameters for duplicating a card
+ * If not provided, the card will be duplicated to its current location
+ */
+export interface DuplicateCardParams {
+  project_id?: string
+  board_id?: string
+  list_id?: string
+  sprint_id?: string
+  title?: string
 }
 
 export class CardResource {
@@ -198,18 +210,67 @@ export class CardResource {
 
   /**
    * Gets cards assigned to a user with optional filtering.
+   * Uses the views/preview API endpoint with card filtering.
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param params - Filter parameters (user_id required, others optional)
    * @returns List of cards assigned to the user
    */
   async getAssigned(workspaceId: string, params: GetAssignedCardsParams): Promise<Card[]> {
-    const response = await this.client.request<{ cards: Card[] }>(
-      `/${workspaceId}/cards/assigned`,
-      {
-        method: "POST",
-        body: JSON.stringify(params),
+    // Build the views/preview request body
+    const requestBody: {
+      type: string
+      card_filters: {
+        is_archived?: boolean
+        include?: {
+          members: string[]
+          boards?: string[]
+          lists?: string[]
+          projects?: string[]
+          statuses?: string[]
+          tags?: string[]
+          priority?: number[]
+          owners?: string[]
+        }
+        start_date?: { before?: string; after?: string }
+        due_date?: { before?: string; after?: string }
+        completed_date?: { before?: string; after?: string }
       }
-    )
+    } = {
+      type: "card",
+      card_filters: {
+        include: {
+          members: [params.user_id],
+        },
+      },
+    }
+
+    // Add optional filters
+    if (params.archived !== undefined) {
+      requestBody.card_filters.is_archived = params.archived
+    }
+    if (params.board_id) {
+      requestBody.card_filters.include!.boards = [params.board_id]
+    }
+    if (params.list_id) {
+      requestBody.card_filters.include!.lists = [params.list_id]
+    }
+    if (params.project_id) {
+      requestBody.card_filters.include!.projects = [params.project_id]
+    }
+    if (params.statuses) {
+      requestBody.card_filters.include!.statuses = params.statuses
+    }
+    if (params.tags) {
+      requestBody.card_filters.include!.tags = params.tags
+    }
+    if (params.priority !== undefined) {
+      requestBody.card_filters.include!.priority = [params.priority]
+    }
+
+    const response = await this.client.request<{ cards: Card[] }>(`/${workspaceId}/views/preview`, {
+      method: "POST",
+      body: JSON.stringify(requestBody),
+    })
     return response.cards || []
   }
 
@@ -217,35 +278,55 @@ export class CardResource {
    * Links two cards with a relationship.
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param cardId - Source card ID
-   * @param params - Related card parameters (related_card_id and relation_type)
-   * @returns Updated card details
+   * @param params - Linked card parameters (card_id and linked_card_type)
+   * @returns Linked card details
    */
   async addRelated(
     workspaceId: string,
     cardId: string,
     params: AddRelatedCardParams
-  ): Promise<Card> {
-    const response = await this.client.request<{ card: Card }>(
-      `/${workspaceId}/cards/${cardId}/related`,
+  ): Promise<{ linked_card: Card }> {
+    const response = await this.client.request<{ linked_card: Card }>(
+      `/${workspaceId}/cards/${cardId}/linked_cards`,
       {
         method: "POST",
         body: JSON.stringify(params),
       }
     )
-    return response.card
+    return response
   }
 
   /**
    * Duplicates an existing card.
+   * If params are not provided, automatically duplicates to the same location.
    * @param workspaceId - Workspace ID (maps to team_id in API)
    * @param cardId - Card ID to duplicate
+   * @param params - Optional parameters for where to duplicate the card
    * @returns The newly created duplicate card
    */
-  async duplicate(workspaceId: string, cardId: string): Promise<Card> {
+  async duplicate(
+    workspaceId: string,
+    cardId: string,
+    params?: DuplicateCardParams
+  ): Promise<Card> {
+    let body = params || {}
+
+    // If no params provided, get the card details to duplicate to same location
+    if (!params || !params.project_id) {
+      const card = await this.get(workspaceId, cardId)
+      body = {
+        project_id: card.project_id || params?.project_id,
+        board_id: params?.board_id || card.board_id,
+        list_id: params?.list_id || card.list_id,
+        ...params,
+      }
+    }
+
     const response = await this.client.request<{ card: Card }>(
-      `/${workspaceId}/cards/${cardId}/duplicate`,
+      `/${workspaceId}/cards/${cardId}/copy`,
       {
         method: "POST",
+        body: JSON.stringify(body),
       }
     )
     return response.card

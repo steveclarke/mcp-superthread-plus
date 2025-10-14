@@ -292,13 +292,13 @@ export function registerCardTools(server: McpServer) {
     {
       title: "Add Related Card",
       description:
-        'Link two cards with a relationship. Types: "blocks", "blocked_by", "relates_to", "duplicates", "duplicated_by".',
+        'Link two cards with a relationship. Types: "blocks", "blocked_by", "related", "duplicates".',
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         card_id: z.string().describe("Source card ID"),
         related_card_id: z.string().describe("Related card ID to link"),
         relation_type: z
-          .enum(["blocks", "blocked_by", "relates_to", "duplicates", "duplicated_by"])
+          .enum(["blocks", "blocked_by", "related", "duplicates"])
           .describe("Type of relationship between cards"),
       },
     },
@@ -307,17 +307,17 @@ export function registerCardTools(server: McpServer) {
         const client = createClient()
 
         const params: AddRelatedCardParams = {
-          related_card_id: args.related_card_id,
-          relation_type: args.relation_type,
+          card_id: args.related_card_id,
+          linked_card_type: args.relation_type,
         }
 
-        const card = await client.cards.addRelated(args.workspace_id, args.card_id, params)
+        const result = await client.cards.addRelated(args.workspace_id, args.card_id, params)
 
         return {
           content: [
             {
               type: "text",
-              text: JSON.stringify(card, null, 2),
+              text: JSON.stringify(result, null, 2),
             },
           ],
         }
