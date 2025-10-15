@@ -8,6 +8,8 @@ All notable changes to this project will be documented in this file.
 - Tag management tools: `tag_create`, `tag_update`, and `tag_delete`
 - Support for creating, updating, and deleting tags in workspaces
 - Tags can be associated with specific projects/spaces
+- Selective tool enabling by domain via `SUPERTHREAD_ENABLED_TOOLS` environment variable
+- Support for enabling only specific tool domains (e.g., `cards,boards`) to reduce tool clutter
 
 ### Changed
 - Extended API client with `TagResource` class for tag operations

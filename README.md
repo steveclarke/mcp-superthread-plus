@@ -60,22 +60,49 @@ Add to your MCP settings file (e.g., Claude Desktop config):
 
 All configuration is done via environment variables:
 
-| Variable                   | Required | Default                          | Description                                    |
-| -------------------------- | -------- | -------------------------------- | ---------------------------------------------- |
-| `SUPERTHREAD_API_KEY`      | ✅ Yes    | -                                | Personal Access Token from Superthread account |
-| `SUPERTHREAD_API_BASE_URL` | No       | `https://api.superthread.com/v1` | API endpoint (only change for testing)         |
+| Variable                    | Required | Default                          | Description                                                                                                                                                                                                                    |
+| --------------------------- | -------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `SUPERTHREAD_API_KEY`       | ✅ Yes    | -                                | Personal Access Token from Superthread account                                                                                                                                                                                 |
+| `SUPERTHREAD_API_BASE_URL`  | No       | `https://api.superthread.com/v1` | API endpoint (only change for testing)                                                                                                                                                                                         |
+| `SUPERTHREAD_ENABLED_TOOLS` | No       | (all enabled)                    | Comma-separated list of tool domains to enable. **If not set or empty, ALL tools are enabled.** Available domains: `users`, `cards`, `boards`, `projects`, `spaces`, `sprints`, `pages`, `comments`, `notes`, `tags`, `search` |
 
-### Discovering Your Workspace IDs
+### Selective Tool Enabling
 
-Workspace IDs are provided as parameters when calling tools. After setup, use the `user_get_my_account` tool to discover your available workspaces:
+By default, **all tool domains are enabled** when `SUPERTHREAD_ENABLED_TOOLS` is not set. This ensures backward compatibility and full functionality out of the box.
 
+To reduce tool clutter in your AI client, you can explicitly specify which domains to enable. **Only the domains you list will be enabled** - all others will be disabled.
+
+**Enable only cards and boards:**
+```json
+{
+  "mcpServers": {
+    "superthread": {
+      "command": "npx",
+      "args": ["-y", "mcp-superthread-plus"],
+      "env": {
+        "SUPERTHREAD_API_KEY": "your-api-key-here",
+        "SUPERTHREAD_ENABLED_TOOLS": "cards,boards"
+      }
+    }
+  }
+}
 ```
-User: Get my Superthread account info
-AI: Your account: user@example.com
-    Workspaces available:
-    - Main Team (ID: t4k7Wa2e)
-    - Side Project (ID: t9x3Ym5p)
+
+**Enable most tools except notes and tags:**
+```json
+{
+  "env": {
+    "SUPERTHREAD_API_KEY": "your-api-key-here",
+    "SUPERTHREAD_ENABLED_TOOLS": "users,cards,boards,projects,spaces,sprints,pages,comments,search"
+  }
+}
 ```
+
+**Important:**
+- **Not set or empty** = All domains enabled (full functionality)
+- **Set to specific domains** = Only those domains enabled, all others disabled
+- This is backward compatible - existing configs without this setting will continue to work with all tools enabled
+
 
 ## Available Tools
 

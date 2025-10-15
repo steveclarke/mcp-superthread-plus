@@ -7,6 +7,36 @@ import validator from "validator"
 import type { SuperthreadClient } from "./api/client.js"
 
 /**
+ * Parse a delimited string into an array of strings.
+ * Automatically trims whitespace and filters out empty strings.
+ *
+ * @param value - String to parse (can be undefined)
+ * @param delimiter - Delimiter to split on (string or regex)
+ * @param transform - Optional transform function to apply to each item (e.g., toLowerCase)
+ * @returns Array of parsed strings, or empty array if value is undefined
+ *
+ * @example
+ * parseDelimitedString('foo:bar:baz', ':') // ['foo', 'bar', 'baz']
+ * parseDelimitedString('Foo, Bar, Baz', ',', s => s.toLowerCase()) // ['foo', 'bar', 'baz']
+ * parseDelimitedString('opt1 opt2  opt3', /\s+/) // ['opt1', 'opt2', 'opt3']
+ */
+export function parseDelimitedString(
+  value: string | undefined,
+  delimiter: string | RegExp,
+  transform?: (item: string) => string
+): string[] {
+  if (!value) {
+    return []
+  }
+
+  return value
+    .split(delimiter)
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0)
+    .map((item) => (transform ? transform(item) : item))
+}
+
+/**
  * Error thrown when an ID fails validation.
  */
 export class PathValidationError extends Error {
