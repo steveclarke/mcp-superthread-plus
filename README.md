@@ -6,27 +6,19 @@ An unofficial, community-maintained MCP server for Superthread project managemen
 
 ## Why?
 
-Superthread is a powerful project management platform combining tasks, boards, documentation, and AI meeting notes. This MCP server enables AI assistants to:
-
-- Create and manage tasks/cards with full workflow control
-- Organize work with boards, spaces, and roadmap projects
-- Maintain documentation with pages and wikis
-- Facilitate collaboration through comments and discussions
-- Search across all project entities
-- Configure entire workspaces programmatically
+Superthread is a powerful project management platform. This MCP server enables AI assistants to manage cards, boards, documentation, and more through natural conversation.
 
 Perfect for teams using AI to streamline project setup, task creation from requirements, and workspace automation.
 
 ## Features
 
-- 📋 **Task Management** - Create, update, assign, and track cards with relationships and tags
+- 📋 **Card Management** - Create and manage cards with full workflow control (tags, checklists, relationships, assignments)
 - 📊 **Boards & Spaces** - Organize work with customizable boards and organizational spaces
 - 🗺️ **Roadmap Projects** - Plan and track large initiatives (epics)
-- 📝 **Documentation** - Create and maintain pages/wikis with full content management
-- 💬 **Comments & Collaboration** - Thread discussions on cards and pages with @mentions
+- 📝 **Documentation** - Create and maintain pages
+- 💬 **Collaboration** - Thread discussions on cards and pages with comments
+- 🔍 **Search** - Find anything across all entities
 - 🎯 **Meeting Notes** - Manage meeting notes and transcriptions
-- 🔍 **Global Search** - Find anything across your workspace
-- ✅ **Checklists** - Add and manage task checklists on cards
 
 ## Installation
 
@@ -50,8 +42,8 @@ Add to your MCP settings file (e.g., Claude Desktop config):
 
 ### Getting Your API Key
 
-1. Log into Superthread → Settings → API
-2. Create Personal Access Token
+1. Log into Superthread → Settings & Preferences → Account → API Access
+2. Create token
 3. Add to your MCP config above
 
 ## Configuration
@@ -77,21 +69,6 @@ AI: Your account: user@example.com
 
 ## Available Tools
 
-This server provides comprehensive Superthread integration across all major categories:
-
-- 📋 **Cards** (19 tools) - Create, update, assign, and track tasks with relationships, tags, and checklists
-- 🗺️ **Projects** (7 tools) - Manage roadmap initiatives and link cards to epics
-- 📊 **Boards** (8 tools) - Organize work with boards and customizable status columns
-- 📝 **Pages** (7 tools) - Create and maintain documentation with full content management
-- 💬 **Comments** (8 tools) - Threaded discussions on cards and pages with @mention support
-- 🎯 **Notes** (4 tools) - Manage meeting notes and transcriptions
-- 🏃 **Sprints** (2 tools) - Agile sprint planning and management
-- 🗂️ **Spaces** (2 tools) - Organizational containers for projects
-- 👥 **Users** (2 tools) - Member and account management
-- 🔍 **Search** (1 tool) - Global search across all entities
-
-### Complete Tool Reference
-
 #### Users & Workspace Management
 
 | Tool                  | Description                                             |
@@ -112,7 +89,7 @@ This server provides comprehensive Superthread integration across all major cate
 | `card_add_related`           | Link cards with relationships (blocks, related, duplicates)   |
 | `card_remove_related`        | Remove card relationship                                      |
 | `card_get_tags`              | List all available tags in workspace                          |
-| `card_add_tags`              | Add tags to a card                                            |
+| `card_add_tags`              | Add existing tags to a card (tags must already exist)         |
 | `card_remove_tag`            | Remove tag from card                                          |
 | `card_add_member`            | Assign member to card                                         |
 | `card_remove_member`         | Remove member from card                                       |
@@ -196,15 +173,13 @@ This server provides comprehensive Superthread integration across all major cate
 | `comment_update_reply` | Edit a reply                     |
 | `comment_delete_reply` | Delete a reply                   |
 
-**Note:** All comment tools support @mentions using `{{@Username}}` syntax (e.g., `{{@John Doe}}`). Names are automatically converted to proper mention tags.
+**Note:** Comment tools support @mentions - you can ask the AI to mention team members by name in comments.
 
 #### Search
 
 | Tool         | Description                                  |
 | ------------ | -------------------------------------------- |
 | `search_get` | Search across boards, cards, pages, and more |
-
-For detailed API endpoints and implementation details, see [`docs/contributing/API-REFERENCE.md`](docs/contributing/API-REFERENCE.md).
 
 ## Usage Examples
 
@@ -215,8 +190,8 @@ User: Get my Superthread account info
 AI: *calls user_get_my_account*
 → Your account: user@example.com
 → Workspaces available:
-  - Main Team (ID: t4k7Wa2e)
-  - Side Project (ID: t9x3Ym5p)
+  - Main Team 
+  - Side Project
 ```
 
 ### Create Workspace Structure
@@ -258,7 +233,7 @@ AI: *creates checklist with items*
 ### Collaborate with Comments
 
 ```
-User: Comment on card 456: "{{@Sarah Chen}}, can you review the API changes?"
+User: Comment on card 456 and mention Sarah Chen: "Can you review the API changes?"
 AI: *creates comment with mention*
 ✓ Added comment with mention to @Sarah Chen
 ```
@@ -328,15 +303,12 @@ This server uses a composition-based API client architecture with resource class
 
 ## Contributing
 
-Contributions welcome! We're building this incrementally with a focus on quality.
+Contributions welcome! We're focused on comprehensive API coverage with full read/write capabilities.
 
 **Areas for contribution:**
-- Additional tools for remaining endpoints
 - Enhanced response filtering and formatting
 - Performance optimizations
 - Documentation improvements
-
-See [`docs/contributing/`](docs/contributing/) for architectural details and implementation patterns.
 
 ## License
 
