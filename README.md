@@ -1,14 +1,6 @@
 # MCP Superthread Plus Server
 
-An unofficial, community-maintained MCP server for Superthread project management integration. Provides AI assistants with the ability to manage tasks, projects, documentation, and team collaboration through the Superthread platform.
-
-> **Note:** This is an independent project and is not officially affiliated with or endorsed by Superthread.
-
-## Why?
-
-Superthread is a powerful project management platform. This MCP server enables AI assistants to manage cards, boards, documentation, and more through natural conversation.
-
-Perfect for teams using AI to streamline project setup, task creation from requirements, and workspace automation.
+A community-maintained MCP server for [Superthread](https://superthread.com), a powerful project management platform. This server enables AI assistants to manage cards, boards, documentation, and more through natural conversation—perfect for teams using AI to streamline project setup, task creation from requirements, and workspace automation.
 
 ## Features
 
@@ -19,6 +11,24 @@ Perfect for teams using AI to streamline project setup, task creation from requi
 - 💬 **Collaboration** - Thread discussions on cards and pages with comments
 - 🔍 **Search** - Find anything across all entities
 - 🎯 **Meeting Notes** - Manage meeting notes and transcriptions
+
+## ⚠️ Important: Pre-Release Software
+
+**This is very much a work in progress.** Please read this carefully before using:
+
+- **Interim Solution:** Superthread has an [official MCP server](https://api.superthread.com/mcp) which they're actively developing. Our goal is to provide a more complete toolset with full read/write API access until their official server expands. We are **not** trying to replace their official server—we're confident they're building it out—we just wanted more comprehensive functionality now. This is something to use in the meantime.
+
+- **Not Production-Ready:** This server is not yet at version 1.0 and should be used with caution. It may never reach version 1.0 as Superthread continues to expand their official MCP server.
+
+- **Unofficial & Independent:** This is a community project and is not officially affiliated with or endorsed by Superthread.
+
+- **Direct API Passthrough:** This server makes direct API calls to the Superthread API and returns all data exactly as received. We do not perform any caching, data reduction, or transformation. This means responses can be large and may impact performance.
+
+- **Use at Your Own Risk:** While we've taken reasonable security precautions, this is experimental software. Test thoroughly in non-critical environments before relying on it for important workflows.
+
+- **Limited Support:** This is a community project maintained in spare time. Issues and pull requests are welcome.
+
+**Bottom line:** If you need something stable and production-ready, wait for Superthread's official solution. If you need functionality now and understand the risks, this server aims to help bridge the gap.
 
 ## Installation
 
@@ -102,11 +112,11 @@ AI: Your account: user@example.com
 
 #### Tag Management
 
-| Tool         | Description                                           |
-| ------------ | ----------------------------------------------------- |
-| `tag_create` | Create new tag with name and color                    |
-| `tag_update` | Update tag properties (name, color)                   |
-| `tag_delete` | Delete tag permanently (removes from all cards)       |
+| Tool         | Description                                     |
+| ------------ | ----------------------------------------------- |
+| `tag_create` | Create new tag with name and color              |
+| `tag_update` | Update tag properties (name, color)             |
+| `tag_delete` | Delete tag permanently (removes from all cards) |
 
 **Note:** Tag management tools use undocumented API endpoints discovered via browser network inspection.
 
