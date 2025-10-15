@@ -347,8 +347,7 @@ export function registerCardTools(server: McpServer) {
     "card_add_member",
     {
       title: "Add Member to Card",
-      description:
-        "Add a member to a card. ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API and may change without notice.",
+      description: "Add a member to a card.",
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         card_id: z.string().describe("Card ID to add member to"),
@@ -376,8 +375,7 @@ export function registerCardTools(server: McpServer) {
     "card_remove_member",
     {
       title: "Remove Member from Card",
-      description:
-        "Remove a member from a card. ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API and may change without notice.",
+      description: "Remove a member from a card.",
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         card_id: z.string().describe("Card ID to remove member from"),
@@ -396,8 +394,7 @@ export function registerCardTools(server: McpServer) {
     "card_create_checklist",
     {
       title: "Create Checklist on Card",
-      description:
-        "Create a new checklist on a card. ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API and may change without notice.",
+      description: "Create a new checklist on a card.",
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         card_id: z.string().describe("Card ID to add checklist to"),
@@ -416,8 +413,7 @@ export function registerCardTools(server: McpServer) {
     "card_add_checklist_item",
     {
       title: "Add Item to Checklist",
-      description:
-        "Add an item to a card's checklist. Item title can include HTML formatting. ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API and may change without notice.",
+      description: "Add an item to a card's checklist. Item title can include HTML formatting.",
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         card_id: z.string().describe("Card ID containing the checklist"),
@@ -450,8 +446,7 @@ export function registerCardTools(server: McpServer) {
     "card_update_checklist_item",
     {
       title: "Update Checklist Item",
-      description:
-        "Update a checklist item's checked status or title. ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API and may change without notice.",
+      description: "Update a checklist item's checked status or title.",
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         card_id: z.string().describe("Card ID containing the checklist"),
@@ -494,8 +489,7 @@ export function registerCardTools(server: McpServer) {
     "card_delete_checklist_item",
     {
       title: "Delete Checklist Item",
-      description:
-        "Permanently delete a checklist item. ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API and may change without notice.",
+      description: "Permanently delete a checklist item.",
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         card_id: z.string().describe("Card ID containing the checklist"),
@@ -528,8 +522,7 @@ export function registerCardTools(server: McpServer) {
     "card_update_checklist",
     {
       title: "Update Checklist",
-      description:
-        "Update a checklist's title. ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API and may change without notice.",
+      description: "Update a checklist's title.",
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         card_id: z.string().describe("Card ID containing the checklist"),
@@ -562,8 +555,7 @@ export function registerCardTools(server: McpServer) {
     "card_delete_checklist",
     {
       title: "Delete Checklist",
-      description:
-        "Permanently delete an entire checklist from a card. ⚠️ WARNING: This endpoint is UNDOCUMENTED in Superthread's public API and may change without notice.",
+      description: "Permanently delete an entire checklist from a card.",
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         card_id: z.string().describe("Card ID containing the checklist"),

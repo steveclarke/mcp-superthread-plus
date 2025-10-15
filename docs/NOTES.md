@@ -113,7 +113,7 @@ The `project_id` query parameter is required for `sprint_get`.
 Projects (epics) in Superthread have a dual nature:
 
 **They are cards internally**:
-- JWT collaboration tokens show `"resource_type": "card"`
+- API responses indicate `"resource_type": "card"`
 - Projects have card properties: `list_id`, `status`, `tags`, `members`
 - They can have `linked_cards` and `child_cards`
 
@@ -128,7 +128,7 @@ This design suggests epics have elevated status in the hierarchy, treated as spe
 
 All comment tools support @mentions for tagging workspace members:
 
-**Syntax**: Use `{{@Username}}` template syntax (e.g., `{{@Elliott Butt}}`)
+**Syntax**: Use `{{@Username}}` template syntax (e.g., `{{@ Sarah Chen}}`)
 
 **Processing**:
 1. System scans content for `{{@Username}}` patterns
@@ -142,17 +142,6 @@ All comment tools support @mentions for tagging workspace members:
 
 **Example**:
 ```
-Input:  "Hey {{@Elliott Butt}}, can you review this?"
+Input:  "Hey {{@Sarah Chen}}, can you review this?"
 Output: "<p>Hey <user-mention data-type=\"mention\" user-id=\"uT2hPbnu\" ...></user-mention>, can you review this?</p>"
 ```
-
-## Testing Reference
-
-Successfully tested endpoints (2025-01-14):
-
-**Project-Card Relationships**:
-- ✅ Removed card 293 from project 214: `DELETE /t4k7Wa2e/epics/214/cards/293`
-- ✅ Added card 293 to project 214: `POST /t4k7Wa2e/epics/214/cards/293`
-
-Both operations correctly updated the card's `epic` field and project's `child_cards` array.
-
