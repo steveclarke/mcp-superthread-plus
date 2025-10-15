@@ -1,6 +1,6 @@
 # First Release Guide
 
-This guide covers the initial v1.0.0 release of `mcp-superthread-plus` to npm. Good news: you can use `np` for your first release!
+This guide covers the initial v0.1.0 pre-release of `mcp-superthread-plus` to npm. Good news: you can use `np` for your first release!
 
 ## Can I Use np for First Release?
 
@@ -19,15 +19,15 @@ Complete these tasks before running `pnpm release`:
 
 - [ ] **README.md** - Review and ensure it's complete and accurate
   - Installation instructions are clear
-  - All 58 tools are documented
+  - All 50+ tools are documented
   - Examples are helpful
   - Links work
-- [ ] **CHANGELOG.md** - Add v1.0.0 entry with:
+- [ ] **CHANGELOG.md** - Add v0.1.0 entry with:
   - Release date
   - Major features list
-  - Note that this is the initial release
+  - Note that this is the initial pre-release
 - [ ] **package.json** - Verify metadata:
-  - `version` is set to `0.1.0` (np will bump it to 1.0.0)
+  - `version` is set to `0.1.0` (np will publish as 0.1.0)
   - `description` is accurate
   - `keywords` are comprehensive
   - `repository` URL is correct
@@ -90,11 +90,11 @@ This shows you exactly what will happen. Review the output carefully.
 
 ### Step 2: Choose Your Version
 
-For the first release, you'll want to go from `0.1.0` to `1.0.0`:
+For the first pre-release, you'll publish `0.1.0` as-is:
 
-When `np` prompts you, select: **major** (0.1.0 → 1.0.0)
+When `np` prompts you, select: **patch** (keeps 0.1.0)
 
-Alternatively, use: **custom** and type `1.0.0`
+Or use the `--no-version-bump` flag to skip the version bump prompt
 
 ### Step 3: Execute Release
 
@@ -103,7 +103,7 @@ pnpm release
 ```
 
 Then:
-1. Select version bump: **major** or **custom** → `1.0.0`
+1. Select version bump: **skip** or keep as `0.1.0`
 2. Confirm when prompted
 3. Wait for all steps to complete:
    - ✅ Tests run
@@ -118,9 +118,9 @@ Then:
 For your first release, `np` will:
 1. Run your test suite
 2. Build the dist files
-3. Update `package.json` to v1.0.0
-4. Create git commit: "1.0.0"
-5. Create git tag: `v1.0.0`
+3. Keep `package.json` at v0.1.0
+4. Create git commit: "0.1.0"
+5. Create git tag: `v0.1.0`
 6. Publish to npm with `--access public` (for first-time publish)
 7. Push commit and tag to GitHub
 8. Create GitHub release with link to npm
@@ -132,10 +132,10 @@ For your first release, `np` will:
 - [ ] **Check npm**: Visit https://www.npmjs.com/package/mcp-superthread-plus
   - Package should appear within 1-2 minutes
   - Verify README renders correctly
-  - Check version is 1.0.0
+  - Check version is 0.1.0
   
 - [ ] **Check GitHub**: Visit https://github.com/steveclarke/mcp-superthread-plus/releases
-  - Release v1.0.0 should exist
+  - Release v0.1.0 should exist
   - Tag should be present
   
 - [ ] **Test installation**: In a fresh environment:
@@ -185,7 +185,7 @@ Commit or stash all changes:
 ```bash
 git status
 git add .
-git commit -m "Prepare for v1.0.0 release"
+git commit -m "Prepare for v0.1.0 release"
 ```
 
 ### "Tests failed"
