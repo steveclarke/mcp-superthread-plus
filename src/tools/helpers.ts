@@ -20,6 +20,11 @@ export interface ToolResponse {
 /**
  * Wraps a tool handler with standard error handling, client creation, and response formatting.
  *
+ * This handler transparently returns the full JSON API response to the LLM without filtering
+ * or transformation. This approach allows the LLM to see all available data and intelligently
+ * decide which fields are relevant to the user's query, rather than us pre-filtering and
+ * potentially losing useful context.
+ *
  * @param handler - The handler function that receives the API client and arguments
  * @returns A wrapped handler with consistent error handling and response formatting
  *
