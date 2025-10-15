@@ -1,6 +1,6 @@
 {
   "name": "mcp-superthread-plus",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Unofficial community-maintained MCP server for Superthread project management integration. Provides AI assistants with the ability to manage tasks, projects, and documentation.",
   "author": "Stephen Clarke",
   "license": "MIT",
