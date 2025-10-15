@@ -100,6 +100,16 @@ AI: Your account: user@example.com
 | `card_update_checklist`      | Update checklist title                                        |
 | `card_delete_checklist`      | Delete entire checklist from card                             |
 
+#### Tag Management
+
+| Tool         | Description                                           |
+| ------------ | ----------------------------------------------------- |
+| `tag_create` | Create new tag with name and color                    |
+| `tag_update` | Update tag properties (name, color)                   |
+| `tag_delete` | Delete tag permanently (removes from all cards)       |
+
+**Note:** Tag management tools use undocumented API endpoints discovered via browser network inspection.
+
 #### Project Management (Roadmap)
 
 | Tool                     | Description                       |

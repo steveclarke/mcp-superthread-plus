@@ -16,6 +16,7 @@ import { PageResource } from "./pages.js"
 import { CommentResource } from "./comments.js"
 import { NoteResource } from "./notes.js"
 import { SprintResource } from "./sprints.js"
+import { TagResource } from "./tags.js"
 
 /**
  * Main Superthread API client.
@@ -30,6 +31,7 @@ import { SprintResource } from "./sprints.js"
  * - `client.sprints.*` - Sprint operations
  * - `client.search.*` - Search operations
  * - `client.comments.*` - Comment operations
+ * - `client.tags.*` - Tag operations
  * - etc.
  *
  * This pattern provides:
@@ -75,6 +77,9 @@ export class SuperthreadClient {
   /** Sprint operations */
   public sprints: SprintResource
 
+  /** Tag operations */
+  public tags: TagResource
+
   constructor(apiKey: string, baseUrl: string) {
     this.apiKey = apiKey
     this.baseUrl = baseUrl
@@ -89,6 +94,7 @@ export class SuperthreadClient {
     this.comments = new CommentResource(this)
     this.notes = new NoteResource(this)
     this.sprints = new SprintResource(this)
+    this.tags = new TagResource(this)
   }
 
   /**

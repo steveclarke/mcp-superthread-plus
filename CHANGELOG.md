@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+- Tag management tools: `tag_create`, `tag_update`, and `tag_delete`
+- Support for creating, updating, and deleting tags in workspaces
+- Tags can be associated with specific projects/spaces
+
+### Changed
+- Extended API client with `TagResource` class for tag operations
+
 ## [0.1.0] - 2025-10-14
 
 ### Added
