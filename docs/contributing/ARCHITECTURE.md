@@ -217,8 +217,10 @@ export class SuperthreadClient {
 Create `src/tools/pages.ts`:
 
 ```typescript
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js"
 import { z } from "zod"
-import type { McpServer } from "../server.js"
+import { createToolHandler, buildParams } from "./helpers.js"
+import type { CreatePageData } from "../api/pages.js"
 
 export function registerPageTools(server: McpServer) {
   server.registerTool(
@@ -233,15 +235,15 @@ export function registerPageTools(server: McpServer) {
         space_id: z.string().describe("Space ID to create page in")
       }
     },
-    async (args) => {
-      const { createClient } = await import("../api/client.js")
-      const client = createClient()
-      return await client.pages.create(args.workspace_id, {
+    createToolHandler(async (client, args) => {
+      const params = buildParams<CreatePageData>({
         title: args.title,
         content: args.content,
-        project_id: args.space_id  // Terminology mapping
+        project_id: args.space_id  // Terminology mapping: space_id → project_id
       })
-    }
+      
+      return await client.pages.create(args.workspace_id, params as CreatePageData)
+    })
   )
 }
 ```
@@ -367,7 +369,6 @@ Tools should:
 // config.ts
 export const config: Config = {
   apiKey: process.env.SUPERTHREAD_API_KEY || '',
-  workspaceId: process.env.SUPERTHREAD_WORKSPACE_ID || '',
   baseUrl: process.env.SUPERTHREAD_API_BASE_URL || 'https://api.superthread.com/v1'
 }
 ```
@@ -378,11 +379,15 @@ Configuration is:
 - Validated when creating client
 - Environment-based (no config files)
 
+**Note:** Workspace IDs are not stored in configuration. They are provided as parameters when calling tools, allowing users to interact with multiple workspaces dynamically.
+
 ## Tool Registration Pattern
 
-All tools follow this consistent pattern:
+All tools follow this consistent pattern using helper utilities:
 
 ```typescript
+import { createToolHandler, buildParams } from "./helpers.js"
+
 export function registerXxxTools(server: McpServer) {
   server.registerTool(
     "tool_name",
@@ -390,19 +395,37 @@ export function registerXxxTools(server: McpServer) {
       title: "Tool Title",
       description: "What the tool does",
       inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
         param: z.string().describe("Parameter description")
       }
     },
-    async (args) => {
-      const client = createClient()
+    createToolHandler(async (client, args) => {
       return await client.resource.method(args.workspace_id, args)
-    }
+    })
   )
 }
 ```
 
+**Helper Utilities:**
+
+The `createToolHandler` wrapper provides:
+- Automatic client creation
+- Consistent error handling
+- Standardized response formatting (JSON stringification)
+- Error response with `isError: true` flag
+
+The `buildParams` helper filters undefined values for clean parameter objects:
+```typescript
+const params = buildParams<CreateCardParams>({
+  title: args.title,       // always included
+  board_id: args.board_id, // only if defined
+})
+```
+
 **Benefits:**
 - Consistent structure across all tools
+- Reduced boilerplate code
+- Centralized error handling
 - Clear separation: tools handle MCP, client handles API
 - Easy to test each layer independently
 
