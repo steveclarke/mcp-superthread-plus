@@ -143,5 +143,5 @@ All comment tools support @mentions for tagging workspace members:
 **Example**:
 ```
 Input:  "Hey {{@Sarah Chen}}, can you review this?"
-Output: "<p>Hey <user-mention data-type=\"mention\" user-id=\"uT2hPbnu\" ...></user-mention>, can you review this?</p>"
+Output: "Hey <user-mention data-type=\"mention\" user-id=\"uT2hPbnu\" ...></user-mention>, can you review this?"
 ```

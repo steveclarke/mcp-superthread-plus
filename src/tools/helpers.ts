@@ -71,19 +71,29 @@ export function createToolHandler<TArgs, TResult>(
 }
 
 /**
- * Filters undefined values from an object to build clean parameter objects.
- * This is useful for conditionally including parameters without explicit if statements.
+ * Removes undefined fields from an object before sending to the API.
+ *
+ * WHY THIS IS NEEDED:
+ * - Superthread's API treats "field not present" differently than "field is null/undefined"
+ * - Omitting a field = "don't change this" (for updates) or "use default" (for creates)
+ * - Sending null/undefined = might clear the field or cause API errors
+ * - This ensures we only send fields that were explicitly provided by the user
+ *
+ * Without this, optional parameters would be sent as null/undefined in the API request,
+ * potentially causing unintended side effects or API rejections.
  *
  * @param args - Object with potentially undefined values
- * @returns Object with undefined values removed
+ * @returns Object with only the defined fields (undefined values removed)
  *
  * @example
  * ```typescript
+ * // Input: { title: "My Card", board_id: undefined, sprint_id: undefined }
  * const params = buildParams<CreateCardParams>({
- *   title: args.title,           // always included
- *   board_id: args.board_id,     // only if defined
- *   sprint_id: args.sprint_id,   // only if defined
+ *   title: args.title,           // "My Card" - included
+ *   board_id: args.board_id,     // undefined - omitted
+ *   sprint_id: args.sprint_id,   // undefined - omitted
  * })
+ * // Output: { title: "My Card" } ✅ Clean API payload with only provided fields
  * ```
  */
 export function buildParams<T>(args: Partial<T>): Partial<T> {

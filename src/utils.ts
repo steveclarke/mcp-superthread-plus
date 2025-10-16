@@ -47,11 +47,24 @@ export class PathValidationError extends Error {
 }
 
 /**
+ * Escapes HTML special characters for safe use in HTML attributes.
+ * Uses validator.escape() to prevent XSS attacks in constructed HTML.
+ *
+ * @param value - String value to escape
+ * @returns HTML-escaped string safe for attribute values
+ *
+ * @example
+ * escapeHtmlAttribute('John "Evil" Doe') // Returns: 'John &quot;Evil&quot; Doe'
+ */
+function escapeHtmlAttribute(value: string): string {
+  return validator.escape(value)
+}
+
+/**
  * Sanitizes an ID to only allow alphanumeric, hyphen, and underscore.
  * Strips any other characters and validates the result is non-empty.
  *
- * Uses validator.whitelist() from the validator package - a proven,
- * battle-tested function with millions of weekly downloads.
+ * Uses validator.whitelist() from the validator package.
  *
  * This prevents path traversal attacks by:
  * 1. Stripping encoded sequences like %2e%2e, %2f, etc.
@@ -78,6 +91,7 @@ export function safeId(name: string, value: string): string {
   const trimmed = validator.trim(value)
   const cleaned = validator.whitelist(trimmed, "a-zA-Z0-9_-")
 
+  // Ensure at least one valid character remains after sanitization
   if (!validator.isLength(cleaned, { min: 1 })) {
     throw new PathValidationError(
       `${name} must contain only letters, numbers, hyphen, or underscore`
@@ -89,8 +103,26 @@ export function safeId(name: string, value: string): string {
 
 /**
  * Converts {{@mentions}} in content to SuperThread's HTML user-mention tags.
- * Uses template syntax {{@Name}} to unambiguously identify mention boundaries.
- * Non-matching names are left as plain text (graceful degradation).
+ *
+ * WHY WE NEED THIS:
+ * Superthread allows user names with spaces, punctuation, and titles (e.g., "@John A. J. Smith the 3rd, Esq.").
+ * This makes it nearly impossible to reliably parse mentions with traditional @mention syntax because:
+ * - Where does the mention end? After the first word? The whole phrase?
+ * - How do we handle commas, periods, and other punctuation that might be part of the name or sentence?
+ *
+ * Our solution: Invent a template syntax {{@Name}} with clear delimiters that:
+ * 1. Allows LLMs to pass inline mentions unambiguously in natural text
+ * 2. Makes parsing trivial with clear boundaries ({{ and }})
+ * 3. Handles any valid Superthread name, regardless of complexity
+ *
+ * HOW IT WORKS:
+ * 1. Fetch all workspace members to build a name-to-ID mapping
+ * 2. Find all {{@Name}} patterns in the content (can be multiple mentions)
+ * 3. Look up each name (case-insensitive) to find the matching user ID
+ * 4. Replace {{@Name}} with Superthread's HTML <user-mention> tag format (includes user ID)
+ * 5. HTML-escape attribute values to prevent XSS attacks (defense in depth)
+ * 6. Non-matching names gracefully degrade to plain text (the template stays visible)
+ * 7. To output literal {{@Name}} text, escape it with backslash: \{{@Name}}
  *
  * @param content - Comment content that may contain {{@Name}} patterns
  * @param workspaceId - Workspace ID to fetch members from
@@ -98,26 +130,32 @@ export function safeId(name: string, value: string): string {
  * @returns Content with {{@mentions}} converted to HTML tags
  *
  * @example
- * // Input: "Hey {{@Steve Clarke}}, check this out!"
- * // Output: "<p>Hey <user-mention data-type=\"mention\" user-id=\"u123\" ...></user-mention>, check this out!</p>"
+ * // Input: "Hey {{@Steve Clarke}}, can you review {{@John Smith}}'s work?"
+ * // Output: "Hey <user-mention data-type=\"mention\" user-id=\"u123\" ...></user-mention>,
+ * //          can you review <user-mention data-type=\"mention\" user-id=\"u456\" ...></user-mention>'s work?"
+ *
+ * @example
+ * // Escaping: "Use \{{@Username}} syntax to mention users"
+ * // Output: "Use {{@Username}} syntax to mention users"
  */
 export async function formatMentions(
   content: string,
   workspaceId: string,
   client: SuperthreadClient
 ): Promise<string> {
-  // If content is empty or doesn't contain {{@, return as-is wrapped in <p> tags
+  // If content is empty or doesn't contain {{@, return as-is
   if (!content || !content.includes("{{@")) {
-    return content.startsWith("<") ? content : `<p>${content}</p>`
+    return content
   }
 
-  // Fetch workspace members
+  // Fetch workspace members to build name-to-ID mapping for mention conversion
+  // This allows us to look up user IDs from display names in {{@Name}} patterns
   let membersResponse
   try {
     membersResponse = await client.user.getMembers(workspaceId)
   } catch {
-    // If we can't fetch members, return content as-is
-    return content.startsWith("<") ? content : `<p>${content}</p>`
+    // If we can't fetch members, return content as-is without processing mentions
+    return content
   }
 
   // Extract members array from response (API returns { members: [...] })
@@ -134,6 +172,10 @@ export async function formatMentions(
     })
   }
 
+  // First pass: Replace escaped sequences with placeholder to protect them
+  // \{{@Name}} becomes ___ESCAPED_MENTION_{{@Name}}___
+  let processedContent = content.replace(/\\(\{\{@[^}]+\}\})/g, "___ESCAPED_MENTION_$1___")
+
   // Pattern to match {{@Name}} - simple and unambiguous
   // Matches anything between {{@ and }} delimiters
   const mentionPattern = /\{\{@([^}]+)\}\}/g
@@ -141,24 +183,27 @@ export async function formatMentions(
   // Get current Unix timestamp for mention-time attribute
   const mentionTime = Math.floor(Date.now() / 1000)
 
-  // Replace {{@mentions}} with HTML tags
-  let processedContent = content.replace(mentionPattern, (match: string, name: string) => {
+  // Second pass: Replace {{@mentions}} with HTML tags
+  processedContent = processedContent.replace(mentionPattern, (match: string, name: string) => {
     const trimmedName = name.trim()
     const memberInfo = memberMap.get(trimmedName.toLowerCase())
 
     if (memberInfo) {
       // Found a matching member - convert to HTML mention tag
-      return `<user-mention data-type="mention" user-id="${memberInfo.id}" mention-time="${mentionTime}" user-value="${memberInfo.name}" denotation-char="@"></user-mention>`
+      // Escape attribute values to prevent XSS (defense in depth)
+      // Protects against malicious API data AND future code changes that might pass through user input
+      const safeUserId = escapeHtmlAttribute(memberInfo.id)
+      const safeUserValue = escapeHtmlAttribute(memberInfo.name)
+      return `<user-mention data-type="mention" user-id="${safeUserId}" mention-time="${mentionTime}" user-value="${safeUserValue}" denotation-char="@"></user-mention>`
     }
 
     // No match found - leave the template syntax as plain text
     return match
   })
 
-  // Wrap in <p> tags if not already HTML
-  if (!processedContent.startsWith("<")) {
-    processedContent = `<p>${processedContent}</p>`
-  }
+  // Third pass: Restore escaped sequences as literal text
+  // ___ESCAPED_MENTION_{{@Name}}___ becomes {{@Name}}
+  processedContent = processedContent.replace(/___ESCAPED_MENTION_(\{\{@[^}]+\}\})___/g, "$1")
 
   return processedContent
 }
