@@ -171,6 +171,7 @@ To reduce tool clutter in your AI client, you can explicitly specify which domai
 | `board_delete`      | Delete board permanently               |
 | `board_create_list` | Create status column/list on board     |
 | `board_update_list` | Update list/column properties          |
+| `board_delete_list` | Delete list/column permanently         |
 
 #### Sprint Management
 

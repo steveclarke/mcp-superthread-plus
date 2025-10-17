@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.2.1] - 2025-10-17
+
+### Added
+- Board list deletion tool
+  - New tool: `board_delete_list` for permanently deleting lists/columns from boards
+
 ## [0.2.0] - 2025-10-15
 
 ### Added
@@ -34,5 +40,6 @@ All notable changes to this project will be documented in this file.
 - Card content updates not supported via REST API
 - Some endpoints are undocumented and may change
 
+[0.2.1]: https://github.com/steveclarke/mcp-superthread-plus/releases/tag/v0.2.1
 [0.2.0]: https://github.com/steveclarke/mcp-superthread-plus/releases/tag/v0.2.0
 [0.1.0]: https://github.com/steveclarke/mcp-superthread-plus/releases/tag/v0.1.0

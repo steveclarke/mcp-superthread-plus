@@ -242,4 +242,22 @@ export class BoardResource {
       method: "DELETE",
     })
   }
+
+  /**
+   * Deletes a list permanently.
+   * API: DELETE /:workspace/lists/:list
+   *
+   * @param workspaceId - Workspace ID (maps to team_id in API)
+   * @param listId - List ID to delete
+   * @returns API response (passed through to LLM)
+   */
+  async deleteList(workspaceId: string, listId: string): Promise<unknown> {
+    const path = urlcat("/:workspace/lists/:list", {
+      workspace: safeId("workspaceId", workspaceId),
+      list: safeId("listId", listId),
+    })
+    return await this.client.request(path, {
+      method: "DELETE",
+    })
+  }
 }

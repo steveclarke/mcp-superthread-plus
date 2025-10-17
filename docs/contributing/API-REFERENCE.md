@@ -4,7 +4,7 @@ Complete reference for all MCP tools, implementation status, API endpoints, and 
 
 ## Implementation Status
 
-Complete list of all 71 planned tools and their implementation status.
+Complete list of all 72 planned tools and their implementation status.
 
 | Category           | Total Tools | Implemented | Read-Only | Write  | Status              |
 | ------------------ | ----------- | ----------- | --------- | ------ | ------------------- |
@@ -12,14 +12,14 @@ Complete list of all 71 planned tools and their implementation status.
 | Cards              | 19          | 19          | 3         | 16     | 100% ✅              |
 | Tags               | 3           | 3           | 0         | 3      | 100% ✅              |
 | Projects (Roadmap) | 7           | 7           | 2         | 5      | 100% ✅              |
-| Boards             | 8           | 8           | 2         | 6      | 100% ✅              |
+| Boards             | 9           | 9           | 2         | 7      | 100% ✅              |
 | Sprints            | 2           | 2           | 2         | 0      | 100% ✅              |
 | Spaces             | 7           | 2           | 2         | 0      | 29% ✅               |
 | Pages              | 7           | 7           | 2         | 5      | 100% ✅              |
 | Notes              | 4           | 4           | 2         | 2      | 100% ✅              |
 | Comments           | 8           | 8           | 2         | 6      | 100% ✅              |
 | Search             | 1           | 1           | 1         | 0      | 100% ✅              |
-| **Total**          | **71**      | **61**      | **20**    | **41** | **86% implemented** |
+| **Total**          | **72**      | **62**      | **20**    | **42** | **86% implemented** |
 
 **Legend:** ✅ Partial | 🚧 In Progress | ⏸️ Planned
 
@@ -88,11 +88,11 @@ All tool names use Superthread's UI terminology (not legacy API terms):
 
 #### Implemented ✅
 
-| Tool         | Method | Endpoint                       | Description                                    |
-| ------------ | ------ | ------------------------------ | ---------------------------------------------- |
-| `tag_create` | POST   | `/{team_id}/tags`              | Create new tag with name and color ⚠️ UNDOCUMENTED |
-| `tag_update` | PATCH  | `/{team_id}/tags/{tag_id}`     | Update tag properties (name, color) ⚠️ UNDOCUMENTED |
-| `tag_delete` | DELETE | `/{team_id}/tags/{tag_id}`     | Delete tag permanently ⚠️ UNDOCUMENTED             |
+| Tool         | Method | Endpoint                   | Description                                        |
+| ------------ | ------ | -------------------------- | -------------------------------------------------- |
+| `tag_create` | POST   | `/{team_id}/tags`          | Create new tag with name and color ⚠️ UNDOCUMENTED  |
+| `tag_update` | PATCH  | `/{team_id}/tags/{tag_id}` | Update tag properties (name, color) ⚠️ UNDOCUMENTED |
+| `tag_delete` | DELETE | `/{team_id}/tags/{tag_id}` | Delete tag permanently ⚠️ UNDOCUMENTED              |
 
 #### Notes
 
@@ -123,7 +123,7 @@ All tool names use Superthread's UI terminology (not legacy API terms):
 - ⚠️ **UNDOCUMENTED ENDPOINTS**: `project_add_related` and `project_remove_related` were discovered via browser network inspection and are NOT in Superthread's official API documentation. These may change without notice.
 - See [`NOTES.md`](../NOTES.md) for details on why projects have separate relationship endpoints
 
-### Boards (8 tools)
+### Boards (9 tools)
 
 #### Implemented ✅
 
@@ -135,6 +135,7 @@ All tool names use Superthread's UI terminology (not legacy API terms):
 | `board_create_list` | POST   | `/{team_id}/lists`                       | Create list/column on board |
 | `board_update`      | PATCH  | `/{team_id}/boards/{board_id}`           | Update board properties     |
 | `board_update_list` | PATCH  | `/{team_id}/lists/{list_id}`             | Update list/column          |
+| `board_delete_list` | DELETE | `/{team_id}/lists/{list_id}`             | Delete list/column          |
 | `board_duplicate`   | POST   | `/{team_id}/boards/{board_id}/duplicate` | Clone board                 |
 | `board_delete`      | DELETE | `/{team_id}/boards/{board_id}`           | Delete board                |
 

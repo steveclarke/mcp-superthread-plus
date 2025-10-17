@@ -241,4 +241,21 @@ export function registerBoardTools(server: McpServer) {
       return client.boards.delete(args.workspace_id, args.board_id)
     })
   )
+
+  // board_delete_list - Delete list permanently
+  server.registerTool(
+    "board_delete_list",
+    {
+      title: "Delete List",
+      description:
+        "Permanently delete a list from a board. This action cannot be undone. All cards within the list will be moved or deleted depending on board configuration.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        list_id: z.string().describe("List ID to delete"),
+      },
+    },
+    createToolHandler(async (client, args) => {
+      return client.boards.deleteList(args.workspace_id, args.list_id)
+    })
+  )
 }
