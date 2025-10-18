@@ -4,12 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.0] - 2025-01-19
+
 ### Added
 - Smart card positioning with `SUPERTHREAD_LISTS_ADD_TO_TOP` configuration
   - Automatically position cards at top of configured lists (e.g., "Done", "Completed")
   - Supports wildcard patterns (e.g., "Done,Complet*,*finished,*archive*")
+  - Supports backslash-escaped commas for list names containing commas
   - Works for both `card_create` and `card_update` operations
   - Explicit position parameter always takes precedence (LLM can override)
+  - Performance optimized: skips API calls when feature is not configured
+
+### Improved
+- Sprint tool descriptions now clarify when `sprint_get` is optional vs required
+  - Reduces unnecessary API calls by LLMs
+  - `card_create` can work directly with `sprint_id` without fetching sprint details first
 
 ## [0.2.2] - 2025-01-19
 
@@ -60,6 +69,8 @@ All notable changes to this project will be documented in this file.
 - Card content updates not supported via REST API
 - Some endpoints are undocumented and may change
 
+[0.3.0]: https://github.com/steveclarke/mcp-superthread-plus/releases/tag/v0.3.0
+[0.2.2]: https://github.com/steveclarke/mcp-superthread-plus/releases/tag/v0.2.2
 [0.2.1]: https://github.com/steveclarke/mcp-superthread-plus/releases/tag/v0.2.1
 [0.2.0]: https://github.com/steveclarke/mcp-superthread-plus/releases/tag/v0.2.0
 [0.1.0]: https://github.com/steveclarke/mcp-superthread-plus/releases/tag/v0.1.0
