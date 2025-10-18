@@ -15,6 +15,8 @@ export interface Config {
   baseUrl: string
   /** Set of enabled tool domains. Empty set means all domains are enabled. */
   enabledTools: Set<string>
+  /** List name patterns for lists that should add cards to top (position 0). Supports wildcards. */
+  listsAddToTop: string[]
 }
 
 /**
@@ -52,6 +54,12 @@ const enabledToolsList = parseDelimitedString(process.env.SUPERTHREAD_ENABLED_TO
   s.toLowerCase()
 )
 
+// Parse lists that should add cards to top from environment variable
+// Supports wildcards (*) and backslash-escaped commas (\,) for list names containing commas
+const listsAddToTop = parseDelimitedString(process.env.SUPERTHREAD_LISTS_ADD_TO_TOP, ",").filter(
+  (pattern) => pattern.length > 0
+) // Remove empty patterns from malformed config
+
 /**
  * Global configuration object loaded from environment variables.
  *
@@ -60,9 +68,13 @@ const enabledToolsList = parseDelimitedString(process.env.SUPERTHREAD_ENABLED_TO
  * - SUPERTHREAD_API_BASE_URL: API base URL (optional, defaults to https://api.superthread.com/v1)
  * - SUPERTHREAD_ENABLED_TOOLS: Comma-separated list of tool domains to enable (optional, defaults to all)
  *   Available domains: users, cards, boards, projects, spaces, sprints, pages, comments, notes, tags, search
+ * - SUPERTHREAD_LISTS_ADD_TO_TOP: Comma-separated list of list name patterns for smart positioning (optional)
+ *   Cards moved/created in matching lists are positioned at top (position 0). Supports wildcards (*).
+ *   Example: "Done,Completed,Finish*" - Escape commas in list names with backslash: "Tasks\, Urgent"
  */
 export const config: Config = {
   apiKey: process.env.SUPERTHREAD_API_KEY || DEFAULT_API_KEY,
   baseUrl: process.env.SUPERTHREAD_API_BASE_URL || DEFAULT_BASE_URL,
   enabledTools: new Set(enabledToolsList),
+  listsAddToTop,
 }

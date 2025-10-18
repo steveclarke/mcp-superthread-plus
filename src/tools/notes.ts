@@ -14,7 +14,10 @@ import { createToolHandler, buildParams } from "./helpers.js"
  * @param server - The McpServer instance to register tools with
  */
 export function registerNoteTools(server: McpServer): void {
-  // note_create - Create new note
+  // ============================================================================
+  // TOOL: note_create
+  // Create a new meeting note
+  // ============================================================================
   server.registerTool(
     "note_create",
     {
@@ -99,7 +102,10 @@ export function registerNoteTools(server: McpServer): void {
     })
   )
 
-  // note_get - Get a specific note
+  // ============================================================================
+  // TOOL: note_get
+  // Get detailed information about a specific note
+  // ============================================================================
   server.registerTool(
     "note_get",
     {
@@ -115,7 +121,10 @@ export function registerNoteTools(server: McpServer): void {
     })
   )
 
-  // note_get_all - Get all notes
+  // ============================================================================
+  // TOOL: note_get_all
+  // List all notes in a workspace
+  // ============================================================================
   server.registerTool(
     "note_get_all",
     {
@@ -130,7 +139,10 @@ export function registerNoteTools(server: McpServer): void {
     })
   )
 
-  // note_delete - Delete a note
+  // ============================================================================
+  // TOOL: note_delete
+  // Permanently delete a note (cannot be undone)
+  // ============================================================================
   server.registerTool(
     "note_delete",
     {

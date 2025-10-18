@@ -13,7 +13,8 @@ import type {
   AddTagsToCardParams,
 } from "../api/cards.js"
 import { createToolHandler, buildParams } from "./helpers.js"
-import { formatMentions } from "../utils.js"
+import { formatMentions, shouldPositionAtTop, getListTitle } from "../utils.js"
+import { config } from "../config.js"
 
 /**
  * Registers card management tools with the MCP server.
@@ -21,7 +22,10 @@ import { formatMentions } from "../utils.js"
  * @param server - The McpServer instance to register tools with
  */
 export function registerCardTools(server: McpServer) {
-  // card_create - Create a new card
+  // ============================================================================
+  // TOOL: card_create
+  // Create a new card in a list on a board or sprint
+  // ============================================================================
   server.registerTool(
     "card_create",
     {
@@ -38,6 +42,7 @@ export function registerCardTools(server: McpServer) {
         project_id: z.string().optional().describe("Project/Space ID"),
         start_date: z.number().optional().describe("Start date as Unix timestamp in seconds"),
         due_date: z.number().optional().describe("Due date as Unix timestamp in seconds"),
+        position: z.number().optional().describe("Card position in list (0 = top)"),
         priority: z.number().optional().describe("Priority level"),
         estimate: z.number().optional().describe("Time estimate"),
         parent_card_id: z.string().optional().describe("Parent card ID for creating subtasks"),
@@ -46,6 +51,23 @@ export function registerCardTools(server: McpServer) {
       },
     },
     createToolHandler(async (client, args) => {
+      // SMART POSITIONING IMPLEMENTATION:
+      // SuperThread API does NOT support 'position' during card creation, only during update.
+      // Therefore we: 1) Create card (goes to bottom), 2) Immediately update with position.
+      // This creates a small race condition window (unavoidable due to API limitation).
+      // Performance: Skips list title fetch when feature is not configured.
+
+      let listTitle: string | undefined
+      if (config.listsAddToTop.length > 0) {
+        listTitle = await getListTitle(client, args.workspace_id, args.list_id, {
+          board_id: args.board_id,
+          sprint_id: args.sprint_id,
+          project_id: args.project_id,
+        })
+      }
+
+      const position = shouldPositionAtTop(listTitle, args.position)
+
       const params = buildParams<CreateCardParams>({
         title: args.title,
         list_id: args.list_id,
@@ -62,11 +84,22 @@ export function registerCardTools(server: McpServer) {
         owner_id: args.owner_id,
       })
 
-      return client.cards.create(args.workspace_id, params as CreateCardParams)
+      const result = (await client.cards.create(args.workspace_id, params as CreateCardParams)) as {
+        card: { id: string }
+      }
+
+      if (position !== undefined) {
+        await client.cards.update(args.workspace_id, result.card.id, { position })
+      }
+
+      return result
     })
   )
 
-  // card_update - Update an existing card
+  // ============================================================================
+  // TOOL: card_update
+  // Update an existing card's attributes
+  // ============================================================================
   server.registerTool(
     "card_update",
     {
@@ -92,6 +125,19 @@ export function registerCardTools(server: McpServer) {
       },
     },
     createToolHandler(async (client, args) => {
+      // Skip fetch if smart positioning is not configured (performance optimization)
+      let listTitle: string | undefined
+      if (args.list_id && config.listsAddToTop.length > 0) {
+        listTitle = await getListTitle(client, args.workspace_id, args.list_id, {
+          board_id: args.board_id,
+          sprint_id: args.sprint_id,
+          project_id: args.project_id,
+          card_id: args.card_id,
+        })
+      }
+
+      const position = shouldPositionAtTop(listTitle, args.position)
+
       const params = buildParams<UpdateCardParams>({
         title: args.title,
         board_id: args.board_id,
@@ -102,7 +148,7 @@ export function registerCardTools(server: McpServer) {
         owner_id: args.owner_id,
         start_date: args.start_date,
         due_date: args.due_date,
-        position: args.position,
+        position,
         priority: args.priority,
         estimate: args.estimate,
         archived: args.archived,
@@ -112,7 +158,10 @@ export function registerCardTools(server: McpServer) {
     })
   )
 
-  // card_get - Get single card details
+  // ============================================================================
+  // TOOL: card_get
+  // Get detailed information about a specific card
+  // ============================================================================
   server.registerTool(
     "card_get",
     {
@@ -129,7 +178,10 @@ export function registerCardTools(server: McpServer) {
     })
   )
 
-  // card_get_assigned - Get cards assigned to a user
+  // ============================================================================
+  // TOOL: card_get_assigned
+  // Retrieve cards assigned to a specific user with filtering
+  // ============================================================================
   server.registerTool(
     "card_get_assigned",
     {
@@ -191,7 +243,10 @@ export function registerCardTools(server: McpServer) {
     })
   )
 
-  // card_add_related - Link two cards with a relationship
+  // ============================================================================
+  // TOOL: card_add_related
+  // Link two cards with a relationship (blocks, blocked_by, related, duplicates)
+  // ============================================================================
   server.registerTool(
     "card_add_related",
     {
@@ -217,7 +272,10 @@ export function registerCardTools(server: McpServer) {
     })
   )
 
-  // card_remove_related - Remove a relationship between linked cards
+  // ============================================================================
+  // TOOL: card_remove_related
+  // Remove a relationship between linked cards
+  // ============================================================================
   server.registerTool(
     "card_remove_related",
     {
@@ -235,7 +293,10 @@ export function registerCardTools(server: McpServer) {
     })
   )
 
-  // card_duplicate - Duplicate an existing card
+  // ============================================================================
+  // TOOL: card_duplicate
+  // Clone an existing card with all its properties
+  // ============================================================================
   server.registerTool(
     "card_duplicate",
     {
@@ -252,7 +313,10 @@ export function registerCardTools(server: McpServer) {
     })
   )
 
-  // card_delete - Permanently delete a card
+  // ============================================================================
+  // TOOL: card_delete
+  // Permanently delete a card (cannot be undone)
+  // ============================================================================
   server.registerTool(
     "card_delete",
     {
@@ -269,7 +333,10 @@ export function registerCardTools(server: McpServer) {
     })
   )
 
-  // card_get_tags - Get tags for workspace or project
+  // ============================================================================
+  // TOOL: card_get_tags
+  // Get all tags available in workspace or project
+  // ============================================================================
   server.registerTool(
     "card_get_tags",
     {
@@ -295,7 +362,10 @@ export function registerCardTools(server: McpServer) {
     })
   )
 
-  // card_add_tags - Add tags to a card
+  // ============================================================================
+  // TOOL: card_add_tags
+  // Add one or more existing tags to a card
+  // ============================================================================
   server.registerTool(
     "card_add_tags",
     {
@@ -324,7 +394,10 @@ export function registerCardTools(server: McpServer) {
     )
   )
 
-  // card_remove_tag - Remove a tag from a card
+  // ============================================================================
+  // TOOL: card_remove_tag
+  // Remove a specific tag from a card
+  // ============================================================================
   server.registerTool(
     "card_remove_tag",
     {
@@ -343,7 +416,10 @@ export function registerCardTools(server: McpServer) {
     )
   )
 
-  // card_add_member - Add member to card
+  // ============================================================================
+  // TOOL: card_add_member
+  // Assign a member to a card
+  // ============================================================================
   server.registerTool(
     "card_add_member",
     {
@@ -371,7 +447,10 @@ export function registerCardTools(server: McpServer) {
     )
   )
 
-  // card_remove_member - Remove member from card
+  // ============================================================================
+  // TOOL: card_remove_member
+  // Remove a member assignment from a card
+  // ============================================================================
   server.registerTool(
     "card_remove_member",
     {
@@ -390,7 +469,10 @@ export function registerCardTools(server: McpServer) {
     )
   )
 
-  // card_create_checklist - Create checklist on card
+  // ============================================================================
+  // TOOL: card_create_checklist
+  // Create a new checklist on a card
+  // ============================================================================
   server.registerTool(
     "card_create_checklist",
     {
@@ -409,7 +491,10 @@ export function registerCardTools(server: McpServer) {
     )
   )
 
-  // card_add_checklist_item - Add item to checklist
+  // ============================================================================
+  // TOOL: card_add_checklist_item
+  // Add an item to an existing checklist
+  // ============================================================================
   server.registerTool(
     "card_add_checklist_item",
     {
@@ -450,7 +535,10 @@ export function registerCardTools(server: McpServer) {
     )
   )
 
-  // card_update_checklist_item - Update checklist item
+  // ============================================================================
+  // TOOL: card_update_checklist_item
+  // Update checklist item (check/uncheck, edit text)
+  // ============================================================================
   server.registerTool(
     "card_update_checklist_item",
     {
@@ -504,7 +592,10 @@ export function registerCardTools(server: McpServer) {
     )
   )
 
-  // card_delete_checklist_item - Delete checklist item
+  // ============================================================================
+  // TOOL: card_delete_checklist_item
+  // Delete a checklist item permanently
+  // ============================================================================
   server.registerTool(
     "card_delete_checklist_item",
     {
@@ -537,7 +628,10 @@ export function registerCardTools(server: McpServer) {
     )
   )
 
-  // card_update_checklist - Update checklist title
+  // ============================================================================
+  // TOOL: card_update_checklist
+  // Update a checklist's title
+  // ============================================================================
   server.registerTool(
     "card_update_checklist",
     {
@@ -570,7 +664,10 @@ export function registerCardTools(server: McpServer) {
     )
   )
 
-  // card_delete_checklist - Delete checklist
+  // ============================================================================
+  // TOOL: card_delete_checklist
+  // Delete an entire checklist from a card
+  // ============================================================================
   server.registerTool(
     "card_delete_checklist",
     {

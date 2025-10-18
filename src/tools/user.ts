@@ -13,7 +13,10 @@ import { createToolHandler } from "./helpers.js"
  * @param server - The McpServer instance to register tools with
  */
 export function registerUserTools(server: McpServer) {
-  // user_get_my_account - Get current user information
+  // ============================================================================
+  // TOOL: user_get_my_account
+  // Get current user account information
+  // ============================================================================
   server.registerTool(
     "user_get_my_account",
     {
@@ -27,7 +30,10 @@ export function registerUserTools(server: McpServer) {
     })
   )
 
-  // user_get_members - List workspace members
+  // ============================================================================
+  // TOOL: user_get_members
+  // List all members of a workspace
+  // ============================================================================
   server.registerTool(
     "user_get_members",
     {

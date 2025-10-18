@@ -14,7 +14,10 @@ import { createToolHandler, buildParams } from "./helpers.js"
  * @param server - The McpServer instance to register tools with
  */
 export function registerSearchTools(server: McpServer) {
-  // search_get - Execute search query
+  // ============================================================================
+  // TOOL: search_get
+  // Execute a search query across workspace entities
+  // ============================================================================
   server.registerTool(
     "search_get",
     {

@@ -19,7 +19,10 @@ import { createToolHandler, buildParams } from "./helpers.js"
  * @param server - The McpServer instance to register tools with
  */
 export function registerBoardTools(server: McpServer) {
-  // board_create - Create a new board
+  // ============================================================================
+  // TOOL: board_create
+  // Create a new board in a workspace
+  // ============================================================================
   server.registerTool(
     "board_create",
     {
@@ -50,7 +53,10 @@ export function registerBoardTools(server: McpServer) {
     })
   )
 
-  // board_create_list - Create a new list on a board
+  // ============================================================================
+  // TOOL: board_create_list
+  // Create a new list (column/status) on a board
+  // ============================================================================
   server.registerTool(
     "board_create_list",
     {
@@ -84,7 +90,10 @@ export function registerBoardTools(server: McpServer) {
     })
   )
 
-  // board_get_all - List all boards in workspace
+  // ============================================================================
+  // TOOL: board_get_all
+  // List all boards in a workspace/space
+  // ============================================================================
   server.registerTool(
     "board_get_all",
     {
@@ -117,7 +126,10 @@ export function registerBoardTools(server: McpServer) {
     })
   )
 
-  // board_get - Get single board details
+  // ============================================================================
+  // TOOL: board_get
+  // Get detailed information about a specific board
+  // ============================================================================
   server.registerTool(
     "board_get",
     {
@@ -134,7 +146,10 @@ export function registerBoardTools(server: McpServer) {
     })
   )
 
-  // board_update - Update board properties
+  // ============================================================================
+  // TOOL: board_update
+  // Update an existing board's properties
+  // ============================================================================
   server.registerTool(
     "board_update",
     {
@@ -164,7 +179,10 @@ export function registerBoardTools(server: McpServer) {
     })
   )
 
-  // board_update_list - Update list properties
+  // ============================================================================
+  // TOOL: board_update_list
+  // Update properties of an existing list/column
+  // ============================================================================
   server.registerTool(
     "board_update_list",
     {
@@ -197,7 +215,10 @@ export function registerBoardTools(server: McpServer) {
     })
   )
 
-  // board_duplicate - Duplicate board
+  // ============================================================================
+  // TOOL: board_duplicate
+  // Clone an existing board with all its lists
+  // ============================================================================
   server.registerTool(
     "board_duplicate",
     {
@@ -225,7 +246,10 @@ export function registerBoardTools(server: McpServer) {
     })
   )
 
-  // board_delete - Delete board permanently
+  // ============================================================================
+  // TOOL: board_delete
+  // Permanently delete a board (cannot be undone)
+  // ============================================================================
   server.registerTool(
     "board_delete",
     {
@@ -242,7 +266,10 @@ export function registerBoardTools(server: McpServer) {
     })
   )
 
-  // board_delete_list - Delete list permanently
+  // ============================================================================
+  // TOOL: board_delete_list
+  // Permanently delete a list/column from a board
+  // ============================================================================
   server.registerTool(
     "board_delete_list",
     {

@@ -2,6 +2,44 @@
 
 A community-maintained MCP server for [Superthread](https://superthread.com), a powerful project management platform. This server enables AI assistants to manage cards, boards, documentation, and more through natural conversation—perfect for teams using AI to streamline project setup, task creation from requirements, and workspace automation.
 
+## Table of Contents
+
+- [MCP Superthread Plus Server](#mcp-superthread-plus-server)
+  - [Table of Contents](#table-of-contents)
+  - [Features](#features)
+  - [⚠️ Important: Pre-Release Software](#️-important-pre-release-software)
+  - [Installation](#installation)
+    - [Getting Your API Key](#getting-your-api-key)
+  - [Configuration](#configuration)
+    - [Selective Tool Enabling](#selective-tool-enabling)
+    - [Smart Card Positioning](#smart-card-positioning)
+  - [Available Tools](#available-tools)
+      - [Users \& Workspace Management](#users--workspace-management)
+      - [Card Management](#card-management)
+      - [Tag Management](#tag-management)
+      - [Project Management (Roadmap)](#project-management-roadmap)
+      - [Board Management](#board-management)
+      - [Sprint Management](#sprint-management)
+      - [Space Management](#space-management)
+      - [Page Management](#page-management)
+      - [Note Management](#note-management)
+      - [Comments \& Collaboration](#comments--collaboration)
+      - [Search](#search)
+  - [Usage Examples](#usage-examples)
+    - [Initial Setup - Discover Your Workspaces](#initial-setup---discover-your-workspaces)
+    - [Create Workspace Structure](#create-workspace-structure)
+    - [Task Creation from Requirements](#task-creation-from-requirements)
+    - [Manage Cards with Checklists](#manage-cards-with-checklists)
+    - [Collaborate with Comments](#collaborate-with-comments)
+  - [Requirements](#requirements)
+  - [Development](#development)
+    - [Setup](#setup)
+    - [Commands](#commands)
+    - [Running Locally](#running-locally)
+    - [Architecture](#architecture)
+  - [Contributing](#contributing)
+  - [License](#license)
+
 ## Features
 
 - 📋 **Card Management** - Create and manage cards with full workflow control (tags, checklists, relationships, assignments)
@@ -60,11 +98,12 @@ Add to your MCP settings file (e.g., Claude Desktop config):
 
 All configuration is done via environment variables:
 
-| Variable                    | Required | Default                          | Description                                                                                                                                                                                                                    |
-| --------------------------- | -------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `SUPERTHREAD_API_KEY`       | ✅ Yes    | -                                | Personal Access Token from Superthread account                                                                                                                                                                                 |
-| `SUPERTHREAD_API_BASE_URL`  | No       | `https://api.superthread.com/v1` | API endpoint (only change for testing)                                                                                                                                                                                         |
-| `SUPERTHREAD_ENABLED_TOOLS` | No       | (all enabled)                    | Comma-separated list of tool domains to enable. **If not set or empty, ALL tools are enabled.** Available domains: `users`, `cards`, `boards`, `projects`, `spaces`, `sprints`, `pages`, `comments`, `notes`, `tags`, `search` |
+| Variable                       | Required | Default                          | Description                                                                                                                                                                                                                    |
+| ------------------------------ | -------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `SUPERTHREAD_API_KEY`          | ✅ Yes    | -                                | Personal Access Token from Superthread account                                                                                                                                                                                 |
+| `SUPERTHREAD_API_BASE_URL`     | No       | `https://api.superthread.com/v1` | API endpoint (only change for testing)                                                                                                                                                                                         |
+| `SUPERTHREAD_ENABLED_TOOLS`    | No       | (all enabled)                    | Comma-separated list of tool domains to enable. **If not set or empty, ALL tools are enabled.** Available domains: `users`, `cards`, `boards`, `projects`, `spaces`, `sprints`, `pages`, `comments`, `notes`, `tags`, `search` |
+| `SUPERTHREAD_LISTS_ADD_TO_TOP` | No       | (none)                           | Comma-separated list of list name patterns for smart positioning. Cards moved/created in matching lists are positioned at top (position 0). Supports wildcards (`*`). Example: `"Done,Complet*,*finished,*archive*"`           |
 
 ### Selective Tool Enabling
 
@@ -102,6 +141,34 @@ To reduce tool clutter in your AI client, you can explicitly specify which domai
 - **Not set or empty** = All domains enabled (full functionality)
 - **Set to specific domains** = Only those domains enabled, all others disabled
 - This is backward compatible - existing configs without this setting will continue to work with all tools enabled
+
+### Smart Card Positioning
+
+By default, newly created or moved cards are added to the bottom of a list.
+While this works well for most lists (like "Backlog" or "To Do"), it's
+problematic for completion lists like "Done" or "Archived" where you typically
+want to see the most recently completed items at the top. Without smart
+positioning, recent completions get buried at the bottom, making it harder to
+track what was just finished.
+
+Configure lists where cards should automatically be positioned at the top using
+`SUPERTHREAD_LISTS_ADD_TO_TOP`:
+
+```json
+{
+  "env": {
+    "SUPERTHREAD_API_KEY": "your-api-key-here",
+    "SUPERTHREAD_LISTS_ADD_TO_TOP": "Done,Completed,Finished"
+  }
+}
+```
+
+**Features:**
+- **Wildcard support:** Use `*` for pattern matching (e.g., `"Done,Complet*,*finished,*archive*"`)
+- **Case-insensitive:** Matches "done", "Done", "DONE" equally
+- **Comma escaping:** Use backslash for list names with commas (e.g., `"Tasks\\, Urgent"`)
+- **LLM override:** Explicit position parameter in tools always takes precedence
+- **Graceful fallback:** If board/sprint fetch fails, cards use default positioning
 
 
 ## Available Tools

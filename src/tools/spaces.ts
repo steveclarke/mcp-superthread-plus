@@ -13,7 +13,10 @@ import { createToolHandler } from "./helpers.js"
  * @param server - The McpServer instance to register tools with
  */
 export function registerSpaceTools(server: McpServer) {
-  // space_get_all - List all spaces in workspace
+  // ============================================================================
+  // TOOL: space_get_all
+  // List all spaces (organizational containers) in workspace
+  // ============================================================================
   server.registerTool(
     "space_get_all",
     {
@@ -29,7 +32,10 @@ export function registerSpaceTools(server: McpServer) {
     })
   )
 
-  // space_get - Get single space details
+  // ============================================================================
+  // TOOL: space_get
+  // Get detailed information about a specific space
+  // ============================================================================
   server.registerTool(
     "space_get",
     {
@@ -46,7 +52,10 @@ export function registerSpaceTools(server: McpServer) {
     })
   )
 
-  // space_create - Create new space
+  // ============================================================================
+  // TOOL: space_create
+  // Create a new space (organizational container)
+  // ============================================================================
   server.registerTool(
     "space_create",
     {
@@ -77,7 +86,10 @@ export function registerSpaceTools(server: McpServer) {
     })
   )
 
-  // space_update - Update space properties
+  // ============================================================================
+  // TOOL: space_update
+  // Update an existing space's properties
+  // ============================================================================
   server.registerTool(
     "space_update",
     {
@@ -111,7 +123,10 @@ export function registerSpaceTools(server: McpServer) {
     })
   )
 
-  // space_add_member - Add member to space
+  // ============================================================================
+  // TOOL: space_add_member
+  // Add a member to a space
+  // ============================================================================
   server.registerTool(
     "space_add_member",
     {
@@ -132,7 +147,10 @@ export function registerSpaceTools(server: McpServer) {
     })
   )
 
-  // space_remove_member - Remove member from space
+  // ============================================================================
+  // TOOL: space_remove_member
+  // Remove a member from a space
+  // ============================================================================
   server.registerTool(
     "space_remove_member",
     {
@@ -149,7 +167,10 @@ export function registerSpaceTools(server: McpServer) {
     })
   )
 
-  // space_delete - Delete space permanently
+  // ============================================================================
+  // TOOL: space_delete
+  // Permanently delete a space (cannot be undone)
+  // ============================================================================
   server.registerTool(
     "space_delete",
     {

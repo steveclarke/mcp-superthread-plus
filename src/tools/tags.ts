@@ -14,7 +14,10 @@ import { createToolHandler, buildParams } from "./helpers.js"
  * @param server - The McpServer instance to register tools with
  */
 export function registerTagTools(server: McpServer) {
-  // tag_create - Create a new tag
+  // ============================================================================
+  // TOOL: tag_create
+  // Create a new tag with name and color
+  // ============================================================================
   server.registerTool(
     "tag_create",
     {
@@ -42,7 +45,10 @@ export function registerTagTools(server: McpServer) {
     })
   )
 
-  // tag_update - Update an existing tag
+  // ============================================================================
+  // TOOL: tag_update
+  // Update an existing tag's properties (name/color)
+  // ============================================================================
   server.registerTool(
     "tag_update",
     {
@@ -66,7 +72,10 @@ export function registerTagTools(server: McpServer) {
     })
   )
 
-  // tag_delete - Delete a tag
+  // ============================================================================
+  // TOOL: tag_delete
+  // Permanently delete a tag (removes from all cards)
+  // ============================================================================
   server.registerTool(
     "tag_delete",
     {

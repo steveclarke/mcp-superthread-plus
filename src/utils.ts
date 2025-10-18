@@ -5,10 +5,12 @@
 
 import validator from "validator"
 import type { SuperthreadClient } from "./api/client.js"
+import { config } from "./config.js"
 
 /**
  * Parse a delimited string into an array of strings.
  * Automatically trims whitespace and filters out empty strings.
+ * Supports backslash-escaping of delimiters (only for string delimiters, not regex).
  *
  * @param value - String to parse (can be undefined)
  * @param delimiter - Delimiter to split on (string or regex)
@@ -19,6 +21,7 @@ import type { SuperthreadClient } from "./api/client.js"
  * parseDelimitedString('foo:bar:baz', ':') // ['foo', 'bar', 'baz']
  * parseDelimitedString('Foo, Bar, Baz', ',', s => s.toLowerCase()) // ['foo', 'bar', 'baz']
  * parseDelimitedString('opt1 opt2  opt3', /\s+/) // ['opt1', 'opt2', 'opt3']
+ * parseDelimitedString('Done,Tasks\\, Urgent', ',') // ['Done', 'Tasks, Urgent']
  */
 export function parseDelimitedString(
   value: string | undefined,
@@ -29,11 +32,38 @@ export function parseDelimitedString(
     return []
   }
 
+  // If delimiter is a string, handle backslash escaping
+  if (typeof delimiter === "string") {
+    // Replace escaped delimiters with a placeholder
+    const placeholder = "\x00" // Null byte as placeholder (unlikely in user input)
+    const escaped = value.replace(new RegExp(`\\\\${escapeRegex(delimiter)}`, "g"), placeholder)
+
+    // Split on unescaped delimiters
+    return escaped
+      .split(delimiter)
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0)
+      .map((item) => item.replace(new RegExp(placeholder, "g"), delimiter)) // Restore escaped delimiters
+      .map((item) => (transform ? transform(item) : item))
+  }
+
+  // For regex delimiters, use original logic (no escaping support)
   return value
     .split(delimiter)
     .map((item) => item.trim())
     .filter((item) => item.length > 0)
     .map((item) => (transform ? transform(item) : item))
+}
+
+/**
+ * Escape special regex characters in a string.
+ * Used internally by parseDelimitedString for escaping delimiters.
+ *
+ * @param str - String to escape
+ * @returns String with regex special characters escaped
+ */
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
 }
 
 /**
@@ -206,4 +236,170 @@ export async function formatMentions(
   processedContent = processedContent.replace(/___ESCAPED_MENTION_(\{\{@[^}]+\}\})___/g, "$1")
 
   return processedContent
+}
+
+/**
+ * Check if a value matches a pattern with wildcard support.
+ * Supports `*` as a wildcard that matches any characters.
+ * All regex special characters are escaped to prevent injection.
+ *
+ * @param value - Value to test
+ * @param pattern - Pattern to match (supports * wildcard)
+ * @returns True if value matches pattern (case-insensitive)
+ *
+ * @example
+ * matchesPattern('Done', 'Done') // true
+ * matchesPattern('Completed', 'Complet*') // true
+ * matchesPattern('done', 'Done') // true (case-insensitive)
+ * matchesPattern('In Progress', 'Done') // false
+ */
+export function matchesPattern(value: string, pattern: string): boolean {
+  // Escape all regex special characters except *
+  const regexPattern = pattern
+    .replace(/[.+?^${}()|[\]\\]/g, "\\$&") // Escape special chars
+    .replace(/\*/g, ".*") // Convert * to regex .*
+
+  // Test with case-insensitive matching
+  return new RegExp(`^${regexPattern}$`, "i").test(value)
+}
+
+/**
+ * Determine if a card should be positioned at the top of a list based on
+ * configured patterns. Used for smart card positioning feature.
+ *
+ * @param listTitle - Title of the list the card is being added to
+ * @param explicitPosition - Explicit position provided by user/LLM (takes precedence)
+ * @returns Position value: explicit position if provided, 0 if matches pattern, undefined otherwise
+ *
+ * @example
+ * shouldPositionAtTop('Done', undefined) // 0 (if 'Done' in config)
+ * shouldPositionAtTop('To Do', undefined) // undefined
+ * shouldPositionAtTop('Done', 5) // 5 (explicit position wins)
+ */
+export function shouldPositionAtTop(
+  listTitle: string | undefined,
+  explicitPosition?: number
+): number | undefined {
+  // If explicit position provided, always use it (LLM/user override)
+  if (explicitPosition !== undefined) {
+    return explicitPosition
+  }
+
+  // If no list title or no patterns configured, return undefined (default behavior)
+  if (!listTitle || config.listsAddToTop.length === 0) {
+    return undefined
+  }
+
+  // Check if list title matches any configured pattern
+  for (const pattern of config.listsAddToTop) {
+    if (matchesPattern(listTitle, pattern)) {
+      return 0 // Position at top
+    }
+  }
+
+  // No match - use default behavior (API will position at bottom)
+  return undefined
+}
+
+/**
+ * Fetch the title of a list given its ID and board/sprint/card context.
+ *
+ * This function handles three scenarios for looking up a list's title:
+ *
+ * SCENARIO 1: Direct Board Lookup (card_create with board_id)
+ * - When creating a card on a board, we know the board_id
+ * - Fetch the board and find the list by ID in board.lists[]
+ * - Example: LLM says "create card on board X in list Y"
+ *
+ * SCENARIO 2: Direct Sprint Lookup (card_create with sprint_id)
+ * - When creating a card in a sprint, we know the sprint_id and project_id
+ * - Fetch the sprint and find the list by ID in sprint.lists[]
+ * - Example: LLM says "create card in sprint X in list Y"
+ *
+ * SCENARIO 3: Infer from Card (card_update without board/sprint context)
+ * - When moving a card to a different list, LLM might only provide list_id
+ * - We don't know which board/sprint contains that list
+ * - Solution: Fetch the card first to discover its board_id or sprint_id,
+ *   then fetch that board/sprint to get the list title
+ * - Example: LLM says "move card 123 to list 456" (no board mentioned)
+ *
+ * @param client - SuperthreadClient instance
+ * @param workspaceId - Workspace ID
+ * @param listId - List ID to get title for
+ * @param context - Context with board_id, sprint_id, project_id, or card_id
+ * @returns List title if found, undefined otherwise (including on error)
+ */
+export async function getListTitle(
+  client: SuperthreadClient,
+  workspaceId: string,
+  listId: string,
+  context: {
+    board_id?: string
+    sprint_id?: string
+    project_id?: string
+    card_id?: string
+  }
+): Promise<string | undefined> {
+  try {
+    // SCENARIO 1: Direct board lookup
+    // When we know the board_id, fetch the board and find the list by ID
+    if (context.board_id) {
+      const boardData = (await client.boards.get(workspaceId, context.board_id)) as {
+        board: { lists: Array<{ id: string; title: string }> }
+      }
+      const list = boardData.board.lists.find((l) => l.id === listId)
+      return list?.title
+    }
+
+    // SCENARIO 2: Direct sprint lookup
+    // When we know the sprint_id, fetch the sprint and find the list by ID
+    if (context.sprint_id && context.project_id) {
+      const sprintData = (await client.sprints.get(
+        workspaceId,
+        context.sprint_id,
+        context.project_id
+      )) as { sprint: { lists: Array<{ id: string; title: string }> } }
+      const list = sprintData.sprint.lists.find((l) => l.id === listId)
+      return list?.title
+    }
+
+    // SCENARIO 3: Infer board/sprint from card
+    // When we only have list_id (common in card_update), we need to:
+    // 1. Fetch the card to discover which board/sprint it's on
+    // 2. Fetch that board/sprint to get the list title
+    // This is necessary because the API doesn't provide a direct "get list by ID" endpoint
+    if (context.card_id) {
+      const cardData = (await client.cards.get(workspaceId, context.card_id)) as {
+        card: { board_id?: string; sprint_id?: string; project_id?: string }
+      }
+
+      // If card is on a board, fetch the board and find the list
+      if (cardData.card.board_id) {
+        const boardData = (await client.boards.get(workspaceId, cardData.card.board_id)) as {
+          board: { lists: Array<{ id: string; title: string }> }
+        }
+        const list = boardData.board.lists.find((l) => l.id === listId)
+        return list?.title
+      }
+
+      // If card is in a sprint, fetch the sprint and find the list
+      if (cardData.card.sprint_id && cardData.card.project_id) {
+        const sprintData = (await client.sprints.get(
+          workspaceId,
+          cardData.card.sprint_id,
+          cardData.card.project_id
+        )) as { sprint: { lists: Array<{ id: string; title: string }> } }
+        const list = sprintData.sprint.lists.find((l) => l.id === listId)
+        return list?.title
+      }
+    }
+  } catch (error) {
+    // Return undefined on any error - smart positioning will be skipped
+    // This is intentional: we never want positioning issues to block card operations
+    if (process.env.DEBUG) {
+      console.warn("[getListTitle] Failed to fetch list title:", error)
+    }
+  }
+
+  return undefined
 }

@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- Smart card positioning with `SUPERTHREAD_LISTS_ADD_TO_TOP` configuration
+  - Automatically position cards at top of configured lists (e.g., "Done", "Completed")
+  - Supports wildcard patterns (e.g., "Done,Complet*,*finished,*archive*")
+  - Works for both `card_create` and `card_update` operations
+  - Explicit position parameter always takes precedence (LLM can override)
+
 ## [0.2.2] - 2025-01-19
 
 ### Added

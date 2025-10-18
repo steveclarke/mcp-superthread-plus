@@ -19,7 +19,10 @@ import { createToolHandler, buildParams } from "./helpers.js"
  * @param server - The McpServer instance to register tools with
  */
 export function registerCommentTools(server: McpServer) {
-  // comment_create - Create a new comment
+  // ============================================================================
+  // TOOL: comment_create
+  // Create a new comment on a card or page
+  // ============================================================================
   server.registerTool(
     "comment_create",
     {
@@ -68,7 +71,10 @@ export function registerCommentTools(server: McpServer) {
     )
   )
 
-  // comment_update - Update an existing comment
+  // ============================================================================
+  // TOOL: comment_update
+  // Edit an existing comment's content or status
+  // ============================================================================
   server.registerTool(
     "comment_update",
     {
@@ -123,7 +129,10 @@ export function registerCommentTools(server: McpServer) {
     )
   )
 
-  // comment_reply - Create a reply to a comment
+  // ============================================================================
+  // TOOL: comment_reply
+  // Reply to an existing comment (create thread)
+  // ============================================================================
   server.registerTool(
     "comment_reply",
     {
@@ -169,7 +178,10 @@ export function registerCommentTools(server: McpServer) {
     )
   )
 
-  // comment_get - Get a single comment
+  // ============================================================================
+  // TOOL: comment_get
+  // Get detailed information about a specific comment
+  // ============================================================================
   server.registerTool(
     "comment_get",
     {
@@ -186,7 +198,10 @@ export function registerCommentTools(server: McpServer) {
     })
   )
 
-  // comment_delete - Delete a comment
+  // ============================================================================
+  // TOOL: comment_delete
+  // Permanently delete a comment
+  // ============================================================================
   server.registerTool(
     "comment_delete",
     {
@@ -203,7 +218,10 @@ export function registerCommentTools(server: McpServer) {
     })
   )
 
-  // comment_get_replies - Get comment replies
+  // ============================================================================
+  // TOOL: comment_get_replies
+  // Get all replies to a comment
+  // ============================================================================
   server.registerTool(
     "comment_get_replies",
     {
@@ -220,7 +238,10 @@ export function registerCommentTools(server: McpServer) {
     })
   )
 
-  // comment_update_reply - Update a reply
+  // ============================================================================
+  // TOOL: comment_update_reply
+  // Edit a reply to a comment
+  // ============================================================================
   server.registerTool(
     "comment_update_reply",
     {
@@ -278,7 +299,10 @@ export function registerCommentTools(server: McpServer) {
     )
   )
 
-  // comment_delete_reply - Delete a reply
+  // ============================================================================
+  // TOOL: comment_delete_reply
+  // Permanently delete a reply to a comment
+  // ============================================================================
   server.registerTool(
     "comment_delete_reply",
     {

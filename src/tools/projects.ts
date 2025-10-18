@@ -15,7 +15,10 @@ import { createToolHandler, buildParams } from "./helpers.js"
  */
 export function registerProjectTools(server: McpServer) {
   console.error("Registering project tools...")
-  // project_get_all - List all projects in workspace
+  // ============================================================================
+  // TOOL: project_get_all
+  // List all roadmap projects (epics) in a workspace
+  // ============================================================================
   server.registerTool(
     "project_get_all",
     {
@@ -31,7 +34,10 @@ export function registerProjectTools(server: McpServer) {
     })
   )
 
-  // project_get - Get single project details
+  // ============================================================================
+  // TOOL: project_get
+  // Get detailed information about a specific project
+  // ============================================================================
   server.registerTool(
     "project_get",
     {
@@ -48,7 +54,10 @@ export function registerProjectTools(server: McpServer) {
     })
   )
 
-  // project_create - Create a new project
+  // ============================================================================
+  // TOOL: project_create
+  // Create a new roadmap project (epic)
+  // ============================================================================
   server.registerTool(
     "project_create",
     {
@@ -98,7 +107,10 @@ export function registerProjectTools(server: McpServer) {
     )
   )
 
-  // project_update - Update a project
+  // ============================================================================
+  // TOOL: project_update
+  // Update an existing project's properties
+  // ============================================================================
   server.registerTool(
     "project_update",
     {
@@ -154,7 +166,10 @@ export function registerProjectTools(server: McpServer) {
     )
   )
 
-  // project_delete - Delete a project
+  // ============================================================================
+  // TOOL: project_delete
+  // Permanently delete a project (cannot be undone)
+  // ============================================================================
   server.registerTool(
     "project_delete",
     {
@@ -171,7 +186,10 @@ export function registerProjectTools(server: McpServer) {
     })
   )
 
-  // project_add_related - Link a card to a project
+  // ============================================================================
+  // TOOL: project_add_related
+  // Link a card to a roadmap project (epic)
+  // ============================================================================
   server.registerTool(
     "project_add_related",
     {
@@ -191,7 +209,10 @@ export function registerProjectTools(server: McpServer) {
     )
   )
 
-  // project_remove_related - Remove a linked card from a project
+  // ============================================================================
+  // TOOL: project_remove_related
+  // Remove a card link from a project
+  // ============================================================================
   server.registerTool(
     "project_remove_related",
     {

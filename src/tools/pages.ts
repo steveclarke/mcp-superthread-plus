@@ -14,7 +14,10 @@ import { createToolHandler, buildParams } from "./helpers.js"
  * @param server - The McpServer instance to register tools with
  */
 export function registerPageTools(server: McpServer): void {
-  // page_create - Create new page
+  // ============================================================================
+  // TOOL: page_create
+  // Create a new documentation page
+  // ============================================================================
   server.registerTool(
     "page_create",
     {
@@ -73,7 +76,10 @@ export function registerPageTools(server: McpServer): void {
     })
   )
 
-  // page_update - Update page properties
+  // ============================================================================
+  // TOOL: page_update
+  // Update an existing page's properties
+  // ============================================================================
   server.registerTool(
     "page_update",
     {
@@ -149,7 +155,10 @@ export function registerPageTools(server: McpServer): void {
     })
   )
 
-  // page_get - Get a specific page
+  // ============================================================================
+  // TOOL: page_get
+  // Get detailed information about a specific page
+  // ============================================================================
   server.registerTool(
     "page_get",
     {
@@ -166,7 +175,10 @@ export function registerPageTools(server: McpServer): void {
     })
   )
 
-  // page_get_all - Get all pages in a workspace
+  // ============================================================================
+  // TOOL: page_get_all
+  // List all pages in a workspace
+  // ============================================================================
   server.registerTool(
     "page_get_all",
     {
@@ -201,7 +213,10 @@ export function registerPageTools(server: McpServer): void {
     })
   )
 
-  // page_duplicate - Duplicate a page
+  // ============================================================================
+  // TOOL: page_duplicate
+  // Clone an existing page with its content
+  // ============================================================================
   server.registerTool(
     "page_duplicate",
     {
@@ -229,7 +244,10 @@ export function registerPageTools(server: McpServer): void {
     })
   )
 
-  // page_archive - Archive a page
+  // ============================================================================
+  // TOOL: page_archive
+  // Archive a page (soft delete)
+  // ============================================================================
   server.registerTool(
     "page_archive",
     {
@@ -246,7 +264,10 @@ export function registerPageTools(server: McpServer): void {
     })
   )
 
-  // page_delete - Delete a page
+  // ============================================================================
+  // TOOL: page_delete
+  // Permanently delete a page (cannot be undone)
+  // ============================================================================
   server.registerTool(
     "page_delete",
     {
