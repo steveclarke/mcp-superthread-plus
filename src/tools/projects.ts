@@ -195,7 +195,7 @@ export function registerProjectTools(server: McpServer) {
     {
       title: "Add Related Card to Project",
       description:
-        "Link a card to a roadmap project (epic). Use this to associate cards with high-level initiatives.",
+        "Link a card to a roadmap project (epic). Use this to associate cards with high-level initiatives.\n\nWHEN TO USE:\n- Link top-level cards to Roadmap Projects (epics)\n- This establishes the top-level epic relationship\n- All child cards will inherit this epic automatically\n\nDO NOT USE FOR:\n- Parent-child relationships (use parent_card_id in card_create instead)\n- Hierarchy relationships (use parent_card_id in card_create instead)\n- Child cards (they inherit epic from their parent automatically)",
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         project_id: z.string().describe("Project ID (epic) to link card to"),

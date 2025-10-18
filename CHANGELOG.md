@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.3.1] - 2025-10-18
+
+### Improved
+- Card and project tool descriptions now clarify linking patterns for LLM comprehension
+  - Added IMPORTANT LINKING RULES section to `card_create` tool description
+  - Added HIERARCHY CREATION guidance with clear examples
+  - Enhanced field descriptions for `parent_card_id` (hierarchy relationships) and `epic_id` (roadmap project links)
+  - Updated `card_update` with LINKING GUIDANCE section
+  - Enhanced `project_add_related` with WHEN TO USE and DO NOT USE FOR sections
+  - Emphasizes that only top-level cards should use `epic_id` parameter
+  - Documents automatic epic inheritance from parent to child cards
+
 ## [0.3.0] - 2025-01-19
 
 ### Added
@@ -69,6 +81,7 @@ All notable changes to this project will be documented in this file.
 - Card content updates not supported via REST API
 - Some endpoints are undocumented and may change
 
+[0.3.1]: https://github.com/steveclarke/mcp-superthread-plus/releases/tag/v0.3.1
 [0.3.0]: https://github.com/steveclarke/mcp-superthread-plus/releases/tag/v0.3.0
 [0.2.2]: https://github.com/steveclarke/mcp-superthread-plus/releases/tag/v0.2.2
 [0.2.1]: https://github.com/steveclarke/mcp-superthread-plus/releases/tag/v0.2.1

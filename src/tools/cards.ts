@@ -31,7 +31,7 @@ export function registerCardTools(server: McpServer) {
     {
       title: "Create Card",
       description:
-        "Create a new card in a list on a board or sprint. Required fields: title, list_id, and either board_id or sprint_id.",
+        "Create a new card in a list on a board or sprint. Required fields: title, list_id, and either board_id or sprint_id.\n\nIMPORTANT LINKING RULES:\n- Use 'parent_card_id' to create parent-child relationships in your card hierarchy\n- Use 'epic_id' ONLY to link top-level cards to Roadmap Projects (epics)\n- Epic inheritance flows automatically from parent to child\n\nHIERARCHY CREATION:\n- Create top-level cards: Set parent_card_id=null (or omit), epic_id=Roadmap Project ID\n- Create child cards: Set parent_card_id=Parent Card ID, epic_id=null (or omit, will inherit from parent)\n- Epic inheritance flows automatically from parent to child",
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         title: z.string().describe("Card title"),
@@ -45,8 +45,18 @@ export function registerCardTools(server: McpServer) {
         position: z.number().optional().describe("Card position in list (0 = top)"),
         priority: z.number().optional().describe("Priority level"),
         estimate: z.number().optional().describe("Time estimate"),
-        parent_card_id: z.string().optional().describe("Parent card ID for creating subtasks"),
-        epic_id: z.string().optional().describe("Epic/Project ID"),
+        parent_card_id: z
+          .string()
+          .optional()
+          .describe(
+            "Parent card ID for creating parent-child relationships in the hierarchy. Top-level cards: omit or set to null. Child cards: set to parent card ID. Epic inheritance flows from parent to child."
+          ),
+        epic_id: z
+          .string()
+          .optional()
+          .describe(
+            "Epic/Roadmap Project ID. ONLY use for linking top-level cards to Roadmap Projects. Most cards inherit epic from their parent automatically. Only set this when creating top-level cards. Leave null (or omit) for child cards - they inherit from parent."
+          ),
         owner_id: z.string().optional().describe("Card owner user ID"),
       },
     },
@@ -105,7 +115,7 @@ export function registerCardTools(server: McpServer) {
     {
       title: "Update Card",
       description:
-        "Update a card's attributes. Only specified fields will be updated, others remain unchanged. Note: If archived=true/false, only archiving is processed and other changes are ignored. Content cannot be updated via this endpoint.",
+        "Update a card's attributes. Only specified fields will be updated, others remain unchanged. Note: If archived=true/false, only archiving is processed and other changes are ignored. Content cannot be updated via this endpoint.\n\nLINKING GUIDANCE:\n- 'parent_card_id': Changes the card's parent in the hierarchy (not available in update, must use card creation)\n- 'epic_id': Links to a Roadmap Project (epic). Most cards inherit epic from parent automatically - only use this for top-level cards or to explicitly change the epic relationship.",
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         card_id: z.string().describe("Card ID to update"),
@@ -113,7 +123,12 @@ export function registerCardTools(server: McpServer) {
         board_id: z.string().optional().describe("Move card to different board"),
         list_id: z.string().optional().describe("Move card to different list"),
         project_id: z.string().optional().describe("Change project/space association"),
-        epic_id: z.string().optional().describe("Change epic/roadmap project association"),
+        epic_id: z
+          .string()
+          .optional()
+          .describe(
+            "Change epic/roadmap project association. Use with caution - most cards should inherit epic from their parent. Only use this to explicitly change the epic relationship for top-level cards."
+          ),
         sprint_id: z.string().optional().describe("Change sprint association"),
         owner_id: z.string().optional().describe("Change card owner"),
         start_date: z.number().optional().describe("Update start date (Unix timestamp in seconds)"),
