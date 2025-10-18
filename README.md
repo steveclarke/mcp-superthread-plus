@@ -221,7 +221,7 @@ To reduce tool clutter in your AI client, you can explicitly specify which domai
 | `comment_update_reply` | Edit a reply                     |
 | `comment_delete_reply` | Delete a reply                   |
 
-**Note:** Comment tools support @mentions - you can ask the AI to mention team members by name in comments.
+**Note:** Comment tools support @mentions and HTML formatting. You can ask the AI to mention team members by name in comments and use HTML tags for rich formatting (headers, bold, italic, lists, links, etc.).
 
 #### Search
 
