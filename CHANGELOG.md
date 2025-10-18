@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [0.2.2] - 2025-01-19
+
+### Fixed
+- Comment formatting issue where Markdown syntax wasn't rendering properly
+  - Updated comment tool descriptions to clarify that HTML content is expected
+  - Added HTML formatting documentation with supported tags
+
 ## [0.2.1] - 2025-10-17
 
 ### Added

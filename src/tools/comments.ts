@@ -25,14 +25,14 @@ export function registerCommentTools(server: McpServer) {
     {
       title: "Create Comment",
       description:
-        "Adds a new comment to a specified card or page. Supports @mentions - use {{@Username}} syntax to tag workspace members (names must match exactly). To output literal {{@Name}} text without mentioning, escape it with backslash: \\{{@Name}}. The content field is required, with optional fields for context, page_id, or card_id.",
+        'Adds a new comment to a specified card or page. Content supports HTML formatting including: text formatting (<strong>, <em>, <s>, <u>, <code>), block elements (<p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>), lists (<ul><li>, <ol><li>), and links (<a href="">). Plain text also works. Supports @mentions - use {{@Username}} syntax to tag workspace members (names must match exactly). To output literal {{@Name}} text without mentioning, escape it with backslash: \\{{@Name}}. The content field is required, with optional fields for context, page_id, or card_id.',
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         content: z
           .string()
           .max(102400)
           .describe(
-            "Comment text (required, maximum 102400 characters). To mention users, use {{@Username}} syntax (e.g., {{@Steve Clarke}}). Use \\{{@Name}} to output literal template text."
+            'Comment text (required, maximum 102400 characters). Supports HTML formatting: <strong>, <em>, <s>, <u>, <code>, <p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>, <ul><li>, <ol><li>, <a href="">. Plain text also works. To mention users, use {{@Username}} syntax (e.g., {{@Steve Clarke}}). Use \\{{@Name}} to output literal template text.'
           ),
         card_id: z.string().optional().describe("Card ID to attach comment to"),
         page_id: z.string().optional().describe("Page ID to attach comment to"),
@@ -74,7 +74,7 @@ export function registerCommentTools(server: McpServer) {
     {
       title: "Edit Comment",
       description:
-        "Modifies the fields of an existing comment. Supports @mentions - use {{@Username}} syntax to tag workspace members (names must match exactly). To output literal {{@Name}} text without mentioning, escape it with backslash: \\{{@Name}}. Only the original author can modify comments. The request body should specify the fields to update, such as content, status, or context. Omitted fields will remain unchanged. The status field accepts the following values: resolved, open, orphaned.",
+        'Modifies the fields of an existing comment. Content supports HTML formatting including: text formatting (<strong>, <em>, <s>, <u>, <code>), block elements (<p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>), lists (<ul><li>, <ol><li>), and links (<a href="">). Plain text also works. Supports @mentions - use {{@Username}} syntax to tag workspace members (names must match exactly). To output literal {{@Name}} text without mentioning, escape it with backslash: \\{{@Name}}. Only the original author can modify comments. The request body should specify the fields to update, such as content, status, or context. Omitted fields will remain unchanged. The status field accepts the following values: resolved, open, orphaned.',
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         comment_id: z.string().describe("Comment ID to update"),
@@ -83,7 +83,7 @@ export function registerCommentTools(server: McpServer) {
           .max(102400)
           .optional()
           .describe(
-            "Updated comment text (maximum 102400 characters). To mention users, use {{@Username}} syntax (e.g., {{@Steve Clarke}}). Use \\{{@Name}} to output literal template text."
+            'Updated comment text (maximum 102400 characters). Supports HTML formatting: <strong>, <em>, <s>, <u>, <code>, <p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>, <ul><li>, <ol><li>, <a href="">. Plain text also works. To mention users, use {{@Username}} syntax (e.g., {{@Steve Clarke}}). Use \\{{@Name}} to output literal template text.'
           ),
         status: z.enum(["resolved", "open", "orphaned"]).optional().describe("Comment status"),
         context: z.string().optional().describe("Updated highlighted text context"),
@@ -129,7 +129,7 @@ export function registerCommentTools(server: McpServer) {
     {
       title: "Reply to Comment",
       description:
-        "Creates a new child comment (reply) under the parent comment specified by comment_id. Supports @mentions - use {{@Username}} syntax to tag workspace members (names must match exactly). To output literal {{@Name}} text without mentioning, escape it with backslash: \\{{@Name}}. The request body must include the content field and can optionally include additional metadata such as schema. The child comment can also be referred to as a reply or a thread.",
+        'Creates a new child comment (reply) under the parent comment specified by comment_id. Content supports HTML formatting including: text formatting (<strong>, <em>, <s>, <u>, <code>), block elements (<p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>), lists (<ul><li>, <ol><li>), and links (<a href="">). Plain text also works. Supports @mentions - use {{@Username}} syntax to tag workspace members (names must match exactly). To output literal {{@Name}} text without mentioning, escape it with backslash: \\{{@Name}}. The request body must include the content field and can optionally include additional metadata such as schema. The child comment can also be referred to as a reply or a thread.',
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         comment_id: z.string().describe("Parent comment ID to reply to"),
@@ -137,7 +137,7 @@ export function registerCommentTools(server: McpServer) {
           .string()
           .max(102400)
           .describe(
-            "Reply text (required, maximum 102400 characters). To mention users, use {{@Username}} syntax (e.g., {{@Steve Clarke}}). Use \\{{@Name}} to output literal template text."
+            'Reply text (required, maximum 102400 characters). Supports HTML formatting: <strong>, <em>, <s>, <u>, <code>, <p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>, <ul><li>, <ol><li>, <a href="">. Plain text also works. To mention users, use {{@Username}} syntax (e.g., {{@Steve Clarke}}). Use \\{{@Name}} to output literal template text.'
           ),
         schema: z.number().optional().describe("Schema version"),
       },
@@ -226,7 +226,7 @@ export function registerCommentTools(server: McpServer) {
     {
       title: "Edit Reply",
       description:
-        "Modifies a specific child comment (reply). Supports @mentions - use {{@Username}} syntax to tag workspace members (names must match exactly). To output literal {{@Name}} text without mentioning, escape it with backslash: \\{{@Name}}. Only the original author can modify their reply. The request body should specify the fields to update, such as content, status, or context.",
+        'Modifies a specific child comment (reply). Content supports HTML formatting including: text formatting (<strong>, <em>, <s>, <u>, <code>), block elements (<p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>), lists (<ul><li>, <ol><li>), and links (<a href="">). Plain text also works. Supports @mentions - use {{@Username}} syntax to tag workspace members (names must match exactly). To output literal {{@Name}} text without mentioning, escape it with backslash: \\{{@Name}}. Only the original author can modify their reply. The request body should specify the fields to update, such as content, status, or context.',
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         comment_id: z.string().describe("Parent comment ID"),
@@ -236,7 +236,7 @@ export function registerCommentTools(server: McpServer) {
           .max(102400)
           .optional()
           .describe(
-            "Updated comment text (maximum 102400 characters). To mention users, use {{@Username}} syntax (e.g., {{@Steve Clarke}}). Use \\{{@Name}} to output literal template text."
+            'Updated comment text (maximum 102400 characters). Supports HTML formatting: <strong>, <em>, <s>, <u>, <code>, <p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>, <ul><li>, <ol><li>, <a href="">. Plain text also works. To mention users, use {{@Username}} syntax (e.g., {{@Steve Clarke}}). Use \\{{@Name}} to output literal template text.'
           ),
         status: z.enum(["resolved", "open", "orphaned"]).optional().describe("Comment status"),
         context: z.string().optional().describe("Updated highlighted text context"),
