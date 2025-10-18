@@ -13,6 +13,7 @@ import type {
   AddTagsToCardParams,
 } from "../api/cards.js"
 import { createToolHandler, buildParams } from "./helpers.js"
+import { formatMentions } from "../utils.js"
 
 /**
  * Registers card management tools with the MCP server.
@@ -413,12 +414,17 @@ export function registerCardTools(server: McpServer) {
     "card_add_checklist_item",
     {
       title: "Add Item to Checklist",
-      description: "Add an item to a card's checklist. Item title can include HTML formatting.",
+      description:
+        "Add an item to a card's checklist. Item title can include HTML formatting and supports @mentions using {{@Username}} syntax.",
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         card_id: z.string().describe("Card ID containing the checklist"),
         checklist_id: z.string().describe("Checklist ID to add item to"),
-        title: z.string().describe("Item title (can include HTML like '<p>text</p>')"),
+        title: z
+          .string()
+          .describe(
+            "Item title (can include HTML like '<p>text</p>' and @mentions using {{@Username}} syntax)"
+          ),
       },
     },
     createToolHandler(
@@ -431,11 +437,14 @@ export function registerCardTools(server: McpServer) {
           title: string
         }
       ) => {
+        // Process @mentions in title
+        const processedTitle = await formatMentions(args.title, args.workspace_id, client)
+
         return client.cards.addChecklistItem(
           args.workspace_id,
           args.card_id,
           args.checklist_id,
-          args.title
+          processedTitle
         )
       }
     )
@@ -446,14 +455,20 @@ export function registerCardTools(server: McpServer) {
     "card_update_checklist_item",
     {
       title: "Update Checklist Item",
-      description: "Update a checklist item's checked status or title.",
+      description:
+        "Update a checklist item's checked status or title. Title supports HTML formatting and @mentions using {{@Username}} syntax.",
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         card_id: z.string().describe("Card ID containing the checklist"),
         checklist_id: z.string().describe("Checklist ID containing the item"),
         item_id: z.string().describe("Item ID to update"),
         checked: z.boolean().optional().describe("Check/uncheck the item"),
-        title: z.string().optional().describe("Update item title (can include HTML)"),
+        title: z
+          .string()
+          .optional()
+          .describe(
+            "Update item title (can include HTML and @mentions using {{@Username}} syntax)"
+          ),
       },
     },
     createToolHandler(
@@ -468,9 +483,14 @@ export function registerCardTools(server: McpServer) {
           title?: string
         }
       ) => {
+        // Process @mentions in title if provided
+        const processedTitle = args.title
+          ? await formatMentions(args.title, args.workspace_id, client)
+          : undefined
+
         const updates = buildParams<{ checked?: boolean; title?: string }>({
           checked: args.checked,
-          title: args.title,
+          title: processedTitle,
         })
 
         return client.cards.updateChecklistItem(

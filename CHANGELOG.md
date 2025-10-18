@@ -6,6 +6,12 @@ All notable changes to this project will be documented in this file.
 
 ## [0.2.2] - 2025-01-19
 
+### Added
+- Checklist items now support @mentions using `{{@Username}}` syntax
+  - Applied existing `formatMentions` utility to checklist item titles
+  - Works for both `card_add_checklist_item` and `card_update_checklist_item` tools
+  - User mentions are converted to proper HTML `<user-mention>` tags with user IDs
+
 ### Fixed
 - Comment formatting issue where Markdown syntax wasn't rendering properly
   - Updated comment tool descriptions to clarify that HTML content is expected
