@@ -202,8 +202,8 @@ Configure lists where cards should automatically be positioned at the top using
 | `card_create_checklists`      | Create checklists on cards in batch                        |
 | `card_update_checklists`      | Update checklist titles in batch                           |
 | `card_delete_checklists`      | Delete checklists from cards in batch                      |
-| `card_add_checklist_items`    | Add items to checklist in batch                            |
-| `card_update_checklist_item`  | Update checklist item (check/uncheck, edit text)           |
+| `card_add_checklist_items`    | Add items to checklist in batch (supports `checked` param) |
+| `card_update_checklist_items` | Update checklist items in batch (check/uncheck, edit text) |
 | `card_delete_checklist_items` | Delete checklist items in batch                            |
 
 #### Tag Management
@@ -338,11 +338,11 @@ AI: *calls card_creates with 5 cards in single batch operation*
 ### Manage Cards with Checklists
 
 ```
-User: Add a checklist to card 123 for deployment steps
-AI: *creates checklist, then adds 5 items in single batch call*
+User: Add a checklist to card 123 for deployment steps, mark the first two as done
+AI: *creates checklist, then adds 5 items with checked status in single batch call*
 ✓ Created deployment checklist with items:
-  - [ ] Run tests
-  - [ ] Update changelog
+  - [x] Run tests
+  - [x] Update changelog
   - [ ] Build production bundle
   - [ ] Deploy to staging
   - [ ] Deploy to production

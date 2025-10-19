@@ -796,6 +796,7 @@ export function registerCardTools(server: McpServer) {
                 .describe(
                   "Item title (can include HTML like '<p>text</p>' and @mentions using {{@Username}} syntax)"
                 ),
+              checked: z.boolean().optional().describe("Create item as checked (default: false)"),
             })
           )
           .describe("Array of checklist items to add (use single-element array for one item)"),
@@ -808,7 +809,7 @@ export function registerCardTools(server: McpServer) {
           workspace_id: string
           card_id: string
           checklist_id: string
-          items: Array<{ title: string }>
+          items: Array<{ title: string; checked?: boolean }>
         }
       ) => {
         // Process items sequentially
@@ -822,7 +823,8 @@ export function registerCardTools(server: McpServer) {
             args.workspace_id,
             args.card_id,
             args.checklist_id,
-            processedTitle
+            processedTitle,
+            item.checked
           )
           results.push(result)
         }
@@ -885,6 +887,75 @@ export function registerCardTools(server: McpServer) {
           args.item_id,
           updates
         )
+      }
+    )
+  )
+
+  // ============================================================================
+  // TOOL: card_update_checklist_items
+  // Update multiple checklist items (batch operation)
+  // ============================================================================
+  server.registerTool(
+    "card_update_checklist_items",
+    {
+      title: "Update Checklist Items",
+      description:
+        "Update one or more checklist items' checked status or titles in a single operation. Each item is fully self-contained with all parameters. Always use an array, even for a single item. Title supports HTML formatting and @mentions using {{@Username}} syntax.",
+      inputSchema: {
+        workspace_id: z.string().describe("Workspace ID"),
+        card_id: z.string().describe("Card ID containing the checklist"),
+        checklist_id: z.string().describe("Checklist ID containing the items"),
+        items: z
+          .array(
+            z.object({
+              item_id: z.string().describe("Item ID to update"),
+              checked: z.boolean().optional().describe("Check/uncheck the item"),
+              title: z
+                .string()
+                .optional()
+                .describe(
+                  "Update item title (can include HTML and @mentions using {{@Username}} syntax)"
+                ),
+            })
+          )
+          .describe("Array of checklist items to update (use single-element array for one item)"),
+      },
+    },
+    createToolHandler(
+      async (
+        client,
+        args: {
+          workspace_id: string
+          card_id: string
+          checklist_id: string
+          items: Array<{ item_id: string; checked?: boolean; title?: string }>
+        }
+      ) => {
+        // Process items sequentially
+        const results = []
+        for (const item of args.items) {
+          // Process @mentions in title if provided
+          const processedTitle = item.title
+            ? await formatMentions(item.title, args.workspace_id, client)
+            : undefined
+
+          const updates = buildParams<{ checked?: boolean; title?: string }>({
+            checked: item.checked,
+            title: processedTitle,
+          })
+
+          // Call API for this item
+          const result = await client.cards.updateChecklistItem(
+            args.workspace_id,
+            args.card_id,
+            args.checklist_id,
+            item.item_id,
+            updates
+          )
+          results.push(result)
+        }
+
+        return { items: results }
       }
     )
   )
