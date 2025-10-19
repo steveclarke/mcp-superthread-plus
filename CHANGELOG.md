@@ -4,6 +4,45 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- **BREAKING CHANGE:** Converted all card tools to batch operations with array-based parameters
+  - Replaced singular tools with plural batch versions (e.g., `card_create` → `card_creates`)
+  - All tools now require array parameters, even for single operations
+  - LLMs always use arrays for consistency (e.g., `cards: [{ workspace_id, card_id, title, ... }]`)
+  - Enables efficient bulk operations (create/update/delete multiple cards in one call)
+  - Fully self-contained objects: each card/checklist/item includes all necessary parameters
+  - Sequential processing ensures proper parent-child dependencies
+  - Preserved smart positioning logic for all card creation/update operations
+
+### Added
+- Batch card operations (all new plural tools):
+  - `card_creates` - Create multiple cards with full hierarchy support
+  - `card_updates` - Update multiple cards (list moves, archiving, priority changes, etc.)
+  - `card_gets` - Retrieve multiple cards in one call
+  - `card_deletes` - Delete multiple cards
+  - `card_duplicates` - Duplicate multiple cards
+  - `card_add_relateds` - Create multiple card relationships (blocks, blocked_by, related, duplicates)
+  - `card_remove_relateds` - Remove multiple card relationships
+  - `card_add_members` - Bulk member assignments to cards
+  - `card_remove_members` - Bulk member removals from cards
+  - `card_create_checklists` - Create multiple checklists on cards
+  - `card_update_checklists` - Update multiple checklist titles
+  - `card_delete_checklists` - Delete multiple checklists
+  - `card_add_checklist_items` - Add multiple items to checklists
+  - `card_delete_checklist_items` - Delete multiple checklist items
+
+### Removed
+- Singular card tools (replaced with batch versions):
+  - `card_create`, `card_update`, `card_get`, `card_delete`, `card_duplicate`
+  - `card_add_related`, `card_remove_related`
+  - `card_add_member`, `card_remove_member`
+  - `card_create_checklist`, `card_delete_checklist`, `card_update_checklist`
+  - `card_add_checklist_item`, `card_delete_checklist_item`
+
+### Performance Impact
+- Reduces MCP tool calls by up to 80% for bulk operations
+- Example: Creating 10 cards with checklists now takes 2 calls instead of 20+
+
 ## [0.3.1] - 2025-10-18
 
 ### Improved

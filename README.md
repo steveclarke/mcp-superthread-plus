@@ -182,27 +182,29 @@ Configure lists where cards should automatically be positioned at the top using
 
 #### Card Management
 
-| Tool                         | Description                                                   |
-| ---------------------------- | ------------------------------------------------------------- |
-| `card_create`                | Create new card/task                                          |
-| `card_update`                | Update card properties (title, status, priority, dates, etc.) |
-| `card_get`                   | Get card details                                              |
-| `card_duplicate`             | Clone an existing card                                        |
-| `card_get_assigned`          | Get cards assigned to a specific user                         |
-| `card_delete`                | Delete card permanently                                       |
-| `card_add_related`           | Link cards with relationships (blocks, related, duplicates)   |
-| `card_remove_related`        | Remove card relationship                                      |
-| `card_get_tags`              | List all available tags in workspace                          |
-| `card_add_tags`              | Add existing tags to a card (tags must already exist)         |
-| `card_remove_tag`            | Remove tag from card                                          |
-| `card_add_member`            | Assign member to card                                         |
-| `card_remove_member`         | Remove member from card                                       |
-| `card_create_checklist`      | Create checklist on card                                      |
-| `card_add_checklist_item`    | Add item to checklist                                         |
-| `card_update_checklist_item` | Update checklist item (check/uncheck, edit text)              |
-| `card_delete_checklist_item` | Delete checklist item                                         |
-| `card_update_checklist`      | Update checklist title                                        |
-| `card_delete_checklist`      | Delete entire checklist from card                             |
+**Note:** All card tools use batch operations with array parameters. Always pass arrays, even for single operations.
+
+| Tool                          | Description                                                |
+| ----------------------------- | ---------------------------------------------------------- |
+| `card_creates`                | Create one or more cards (batch operation)                 |
+| `card_updates`                | Update one or more cards (batch operation)                 |
+| `card_gets`                   | Get details for one or more cards (batch operation)        |
+| `card_deletes`                | Delete one or more cards permanently (batch operation)     |
+| `card_duplicates`             | Clone one or more existing cards (batch operation)         |
+| `card_get_assigned`           | Get cards assigned to a specific user                      |
+| `card_add_relateds`           | Create card relationships in batch (blocks, related, etc.) |
+| `card_remove_relateds`        | Remove card relationships in batch                         |
+| `card_get_tags`               | List all available tags in workspace                       |
+| `card_add_tags`               | Add existing tags to a card (supports array via `ids`)     |
+| `card_remove_tag`             | Remove tag from card                                       |
+| `card_add_members`            | Assign members to cards in batch                           |
+| `card_remove_members`         | Remove members from cards in batch                         |
+| `card_create_checklists`      | Create checklists on cards in batch                        |
+| `card_update_checklists`      | Update checklist titles in batch                           |
+| `card_delete_checklists`      | Delete checklists from cards in batch                      |
+| `card_add_checklist_items`    | Add items to checklist in batch                            |
+| `card_update_checklist_item`  | Update checklist item (check/uncheck, edit text)           |
+| `card_delete_checklist_items` | Delete checklist items in batch                            |
 
 #### Tag Management
 
@@ -324,7 +326,8 @@ AI: I'll create the structure:
 
 ```
 User: Create tasks for implementing user authentication
-AI: Created 5 tasks:
+AI: *calls card_creates with 5 cards in single batch operation*
+✓ Created 5 tasks in one call:
 - Set up auth provider (High priority, 8 points)
 - Design login UI (Medium, 5 points)
 - Implement JWT tokens (High, 8 points)
@@ -336,8 +339,8 @@ AI: Created 5 tasks:
 
 ```
 User: Add a checklist to card 123 for deployment steps
-AI: *creates checklist with items*
-✓ Created deployment checklist:
+AI: *creates checklist, then adds 5 items in single batch call*
+✓ Created deployment checklist with items:
   - [ ] Run tests
   - [ ] Update changelog
   - [ ] Build production bundle
