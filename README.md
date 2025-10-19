@@ -196,7 +196,7 @@ Configure lists where cards should automatically be positioned at the top using
 | `card_remove_relateds`        | Remove card relationships in batch                         |
 | `card_get_tags`               | List all available tags in workspace                       |
 | `card_add_tags`               | Add existing tags to a card (supports array via `ids`)     |
-| `card_remove_tag`             | Remove tag from card                                       |
+| `card_remove_tags`            | Remove tags from cards in batch                            |
 | `card_add_members`            | Assign members to cards in batch                           |
 | `card_remove_members`         | Remove members from cards in batch                         |
 | `card_create_checklists`      | Create checklists on cards in batch                        |
@@ -271,24 +271,28 @@ Configure lists where cards should automatically be positioned at the top using
 
 #### Page Management
 
-| Tool             | Description                        |
-| ---------------- | ---------------------------------- |
-| `page_create`    | Create new documentation page      |
-| `page_update`    | Update page properties and content |
-| `page_get`       | Get page details                   |
-| `page_get_all`   | List all pages in workspace        |
-| `page_duplicate` | Clone an existing page             |
-| `page_archive`   | Archive page (soft delete)         |
-| `page_delete`    | Delete page permanently            |
+**Note:** All page write operations use batch operations with array parameters. Always pass arrays, even for single operations. Available batch tools: `page_creates`, `page_updates`, `page_archives`, `page_deletes`.
+
+| Tool             | Description                                 |
+| ---------------- | ------------------------------------------- |
+| `page_creates`   | Create one or more pages (batch operation)  |
+| `page_updates`   | Update one or more pages (batch operation)  |
+| `page_get`       | Get page details                            |
+| `page_get_all`   | List all pages in workspace                 |
+| `page_duplicate` | Clone an existing page                      |
+| `page_archives`  | Archive one or more pages (batch operation) |
+| `page_deletes`   | Delete one or more pages (batch operation)  |
 
 #### Note Management
 
-| Tool           | Description             |
-| -------------- | ----------------------- |
-| `note_create`  | Create meeting note     |
-| `note_get`     | Get note details        |
-| `note_get_all` | List all notes          |
-| `note_delete`  | Delete note permanently |
+**Note:** All note write operations use batch operations with array parameters. Always pass arrays, even for single operations. Available batch tools: `note_creates`, `note_deletes`.
+
+| Tool           | Description                                |
+| -------------- | ------------------------------------------ |
+| `note_creates` | Create one or more notes (batch operation) |
+| `note_get`     | Get note details                           |
+| `note_get_all` | List all notes                             |
+| `note_deletes` | Delete one or more notes (batch operation) |
 
 #### Comments & Collaboration
 

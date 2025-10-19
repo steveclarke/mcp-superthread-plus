@@ -5,12 +5,12 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Changed
-- **BREAKING CHANGE:** Converted all card, tag, space, board, comment, and project tools to batch operations with array-based parameters
-  - Replaced singular tools with plural batch versions (e.g., `card_create` → `card_creates`, `project_create` → `project_creates`)
+- **BREAKING CHANGE:** Converted all write operations to batch operations with array-based parameters
+  - Replaced singular tools with plural batch versions (e.g., `card_create` → `card_creates`, `page_create` → `page_creates`)
   - All tools now require array parameters, even for single operations
   - LLMs always use arrays for consistency (e.g., `cards: [{ workspace_id, card_id, title, ... }]`)
   - Enables efficient bulk operations (create/update/delete multiple items in one call)
-  - Fully self-contained objects: each card/tag/space/board/list/comment/project includes all necessary parameters
+  - Fully self-contained objects: each card/tag/space/board/list/comment/project/page/note includes all necessary parameters
   - Sequential processing ensures proper parent-child dependencies
   - Preserved smart positioning logic for all card creation/update operations
 
@@ -61,6 +61,16 @@ All notable changes to this project will be documented in this file.
   - `project_deletes` - Delete multiple projects
   - `project_add_relateds` - Link multiple cards to projects
   - `project_remove_relateds` - Remove multiple card-project links
+- Batch page operations (all new plural tools):
+  - `page_creates` - Create multiple pages
+  - `page_updates` - Update multiple pages
+  - `page_archives` - Archive multiple pages
+  - `page_deletes` - Delete multiple pages
+- Batch note operations (all new plural tools):
+  - `note_creates` - Create multiple meeting notes
+  - `note_deletes` - Delete multiple notes
+- Enhanced card tag management:
+  - `card_remove_tags` - Remove tags from cards in batch (replaces `card_remove_tag`)
 - Checklist item `checked` parameter support
   - Items can now be created as already checked via `card_add_checklist_items`
   - Eliminates need for separate update calls when creating pre-checked items
@@ -82,6 +92,12 @@ All notable changes to this project will be documented in this file.
   - `comment_create`, `comment_update`, `comment_delete`, `comment_reply`, `comment_update_reply`, `comment_delete_reply`
 - Singular project tools (replaced with batch versions):
   - `project_create`, `project_update`, `project_delete`, `project_add_related`, `project_remove_related`
+- Singular page tools (replaced with batch versions):
+  - `page_create`, `page_update`, `page_archive`, `page_delete`
+- Singular note tools (replaced with batch versions):
+  - `note_create`, `note_delete`
+- Singular card tag tool (replaced with batch version):
+  - `card_remove_tag`
 
 ### Performance Impact
 - Reduces MCP tool calls by up to 80% for bulk operations

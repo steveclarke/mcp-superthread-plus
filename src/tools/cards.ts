@@ -607,23 +607,50 @@ export function registerCardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: card_remove_tag
-  // Remove a specific tag from a card
+  // TOOL: card_remove_tags
+  // Remove tags from cards in a single operation
   // ============================================================================
   server.registerTool(
-    "card_remove_tag",
+    "card_remove_tags",
     {
-      title: "Remove Tag from Card",
-      description: "Remove a specific tag from a card.",
+      title: "Remove Tags from Cards",
+      description:
+        "Remove one or more tags from cards in a single operation. Each operation is fully self-contained with all parameters. Always use an array, even for a single removal. Useful for bulk tag removal or removing multiple tags from one card.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        card_id: z.string().describe("Card ID to remove tag from"),
-        tag_id: z.string().describe("Tag ID to remove"),
+        operations: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              card_id: z.string().describe("Card ID to remove tag from"),
+              tag_id: z.string().describe("Tag ID to remove"),
+            })
+          )
+          .describe("Array of tag removals (use single-element array for one removal)"),
       },
     },
     createToolHandler(
-      async (client, args: { workspace_id: string; card_id: string; tag_id: string }) => {
-        return client.cards.removeTag(args.workspace_id, args.card_id, args.tag_id)
+      async (
+        client,
+        args: {
+          operations: Array<{
+            workspace_id: string
+            card_id: string
+            tag_id: string
+          }>
+        }
+      ) => {
+        // Process operations sequentially
+        const results = []
+        for (const operation of args.operations) {
+          const result = await client.cards.removeTag(
+            operation.workspace_id,
+            operation.card_id,
+            operation.tag_id
+          )
+          results.push(result)
+        }
+
+        return { removed: results }
       }
     )
   )
