@@ -220,12 +220,12 @@ Configure lists where cards should automatically be positioned at the top using
 
 #### Project Management (Roadmap)
 
-**Note:** All project tools use batch operations with array parameters. Always pass arrays, even for single operations. Available batch tools: `project_creates`, `project_updates`, `project_deletes`, `project_add_relateds`, `project_remove_relateds`.
+**Note:** All project tools use batch operations with array parameters. Always pass arrays, even for single operations. Available batch tools: `project_gets`, `project_creates`, `project_updates`, `project_deletes`, `project_add_relateds`, `project_remove_relateds`.
 
 | Tool                      | Description                                   |
 | ------------------------- | --------------------------------------------- |
 | `project_get_all`         | List all roadmap projects (epics)             |
-| `project_get`             | Get project details                           |
+| `project_gets`            | Get one or more projects (batch operation)    |
 | `project_creates`         | Create one or more projects (batch operation) |
 | `project_updates`         | Update one or more projects (batch operation) |
 | `project_deletes`         | Delete one or more projects (batch operation) |
@@ -234,12 +234,12 @@ Configure lists where cards should automatically be positioned at the top using
 
 #### Board Management
 
-**Note:** All board tools use batch operations with array parameters. Always pass arrays, even for single operations.
+**Note:** All board tools use batch operations with array parameters. Always pass arrays, even for single operations. Available batch tools: `board_gets`, `board_creates`, `board_updates`, `board_deletes`, `board_create_lists`, `board_update_lists`, `board_delete_lists`.
 
 | Tool                 | Description                                 |
 | -------------------- | ------------------------------------------- |
 | `board_get_all`      | List all boards in a space                  |
-| `board_get`          | Get board details with lists and cards      |
+| `board_gets`         | Get one or more boards (batch operation)    |
 | `board_creates`      | Create one or more boards (batch operation) |
 | `board_updates`      | Update one or more boards (batch operation) |
 | `board_duplicate`    | Clone an existing board                     |
@@ -250,19 +250,21 @@ Configure lists where cards should automatically be positioned at the top using
 
 #### Sprint Management
 
-| Tool             | Description                           |
-| ---------------- | ------------------------------------- |
-| `sprint_get_all` | List all sprints for a space          |
-| `sprint_get`     | Get sprint details including list IDs |
+**Note:** Sprint get operations use batch operations with array parameters. Always pass arrays, even for single operations. Available batch tool: `sprint_gets`.
+
+| Tool             | Description                               |
+| ---------------- | ----------------------------------------- |
+| `sprint_get_all` | List all sprints for a space              |
+| `sprint_gets`    | Get one or more sprints (batch operation) |
 
 #### Space Management
 
-**Note:** All space tools use batch operations with array parameters. Always pass arrays, even for single operations.
+**Note:** All space tools use batch operations with array parameters. Always pass arrays, even for single operations. Available batch tools: `space_gets`, `space_creates`, `space_updates`, `space_deletes`, `space_add_members`, `space_remove_members`.
 
 | Tool                   | Description                                  |
 | ---------------------- | -------------------------------------------- |
 | `space_get_all`        | List all spaces (organizational containers)  |
-| `space_get`            | Get space details                            |
+| `space_gets`           | Get one or more spaces (batch operation)     |
 | `space_creates`        | Create one or more spaces (batch operation)  |
 | `space_updates`        | Update one or more spaces (batch operation)  |
 | `space_deletes`        | Delete one or more spaces (batch operation)  |
@@ -271,13 +273,13 @@ Configure lists where cards should automatically be positioned at the top using
 
 #### Page Management
 
-**Note:** All page write operations use batch operations with array parameters. Always pass arrays, even for single operations. Available batch tools: `page_creates`, `page_updates`, `page_archives`, `page_deletes`.
+**Note:** All page operations use batch operations with array parameters. Always pass arrays, even for single operations. Available batch tools: `page_gets`, `page_creates`, `page_updates`, `page_archives`, `page_deletes`.
 
 | Tool             | Description                                 |
 | ---------------- | ------------------------------------------- |
+| `page_gets`      | Get one or more pages (batch operation)     |
 | `page_creates`   | Create one or more pages (batch operation)  |
 | `page_updates`   | Update one or more pages (batch operation)  |
-| `page_get`       | Get page details                            |
 | `page_get_all`   | List all pages in workspace                 |
 | `page_duplicate` | Clone an existing page                      |
 | `page_archives`  | Archive one or more pages (batch operation) |
@@ -285,28 +287,28 @@ Configure lists where cards should automatically be positioned at the top using
 
 #### Note Management
 
-**Note:** All note write operations use batch operations with array parameters. Always pass arrays, even for single operations. Available batch tools: `note_creates`, `note_deletes`.
+**Note:** All note operations use batch operations with array parameters. Always pass arrays, even for single operations. Available batch tools: `note_gets`, `note_creates`, `note_deletes`.
 
 | Tool           | Description                                |
 | -------------- | ------------------------------------------ |
+| `note_gets`    | Get one or more notes (batch operation)    |
 | `note_creates` | Create one or more notes (batch operation) |
-| `note_get`     | Get note details                           |
 | `note_get_all` | List all notes                             |
 | `note_deletes` | Delete one or more notes (batch operation) |
 
 #### Comments & Collaboration
 
-**Note:** All comment tools use batch operations with array parameters. Always pass arrays, even for single operations.
+**Note:** All comment tools use batch operations with array parameters. Always pass arrays, even for single operations. Available batch tools: `comment_gets`, `comment_creates`, `comment_updates`, `comment_deletes`, `comment_replies`, `comment_update_replies`, `comment_delete_replies`.
 
 | Tool                     | Description                                     |
 | ------------------------ | ----------------------------------------------- |
+| `comment_gets`           | Get one or more comments (batch operation)      |
 | `comment_creates`        | Create one or more comments (batch operation)   |
 | `comment_updates`        | Update one or more comments (batch operation)   |
 | `comment_deletes`        | Delete one or more comments (batch operation)   |
 | `comment_replies`        | Reply to one or more comments (batch operation) |
 | `comment_update_replies` | Update one or more replies (batch operation)    |
 | `comment_delete_replies` | Delete one or more replies (batch operation)    |
-| `comment_get`            | Get comment details with replies                |
 | `comment_get_replies`    | Get all replies to a comment                    |
 
 **Note:** Comment tools support @mentions and HTML formatting. You can ask the AI to mention team members by name in comments and use HTML tags for rich formatting (headers, bold, italic, lists, links, etc.).

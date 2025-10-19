@@ -35,23 +35,38 @@ export function registerProjectTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: project_get
-  // Get detailed information about a specific project
+  // TOOL: project_gets
+  // Get detailed information about one or more projects in a single operation
   // ============================================================================
   server.registerTool(
-    "project_get",
+    "project_gets",
     {
-      title: "Get Project",
+      title: "Get Projects",
       description:
-        "Get detailed information about a specific roadmap project (epic) including lists, cards, and progress.",
+        "Get detailed information about one or more roadmap projects (epics) in a single operation. Each project is fully self-contained with all parameters. Always use an array, even for a single project. Returns lists, cards, and progress for each project.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        project_id: z.string().describe("Project ID (epic) to retrieve"),
+        projects: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              project_id: z.string().describe("Project ID (epic) to retrieve"),
+            })
+          )
+          .describe("Array of projects to retrieve (use single-element array for one project)"),
       },
     },
-    createToolHandler(async (client, args) => {
-      return client.projects.get(args.workspace_id, args.project_id)
-    })
+    createToolHandler(
+      async (client, args: { projects: Array<{ workspace_id: string; project_id: string }> }) => {
+        // Process projects sequentially
+        const results = []
+        for (const project of args.projects) {
+          const result = await client.projects.get(project.workspace_id, project.project_id)
+          results.push(result)
+        }
+
+        return { projects: results }
+      }
+    )
   )
 
   // ============================================================================

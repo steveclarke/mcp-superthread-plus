@@ -186,23 +186,38 @@ export function registerBoardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: board_get
-  // Get detailed information about a specific board
+  // TOOL: board_gets
+  // Get detailed information about one or more boards in a single operation
   // ============================================================================
   server.registerTool(
-    "board_get",
+    "board_gets",
     {
-      title: "Get Board",
+      title: "Get Boards",
       description:
-        "Get detailed information about a specific board including all lists, cards, and their current status.",
+        "Get detailed information about one or more boards in a single operation. Each board is fully self-contained with all parameters. Always use an array, even for a single board. Returns all lists, cards, and their current status for each board.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        board_id: z.string().describe("Board ID to retrieve"),
+        boards: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              board_id: z.string().describe("Board ID to retrieve"),
+            })
+          )
+          .describe("Array of boards to retrieve (use single-element array for one board)"),
       },
     },
-    createToolHandler(async (client, args) => {
-      return client.boards.get(args.workspace_id, args.board_id)
-    })
+    createToolHandler(
+      async (client, args: { boards: Array<{ workspace_id: string; board_id: string }> }) => {
+        // Process boards sequentially
+        const results = []
+        for (const board of args.boards) {
+          const result = await client.boards.get(board.workspace_id, board.board_id)
+          results.push(result)
+        }
+
+        return { boards: results }
+      }
+    )
   )
 
   // ============================================================================

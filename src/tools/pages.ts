@@ -261,23 +261,38 @@ export function registerPageTools(server: McpServer): void {
   )
 
   // ============================================================================
-  // TOOL: page_get
-  // Get detailed information about a specific page
+  // TOOL: page_gets
+  // Get detailed information about one or more pages in a single operation
   // ============================================================================
   server.registerTool(
-    "page_get",
+    "page_gets",
     {
-      title: "Get Page",
+      title: "Get Pages",
       description:
-        "Fetches detailed information about a specified page identified by the page_id within a workspace.",
+        "Fetches detailed information about one or more pages in a single operation. Each page is fully self-contained with all parameters. Always use an array, even for a single page. Returns full page content and metadata for each page.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        page_id: z.string().describe("Page ID to retrieve"),
+        pages: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              page_id: z.string().describe("Page ID to retrieve"),
+            })
+          )
+          .describe("Array of pages to retrieve (use single-element array for one page)"),
       },
     },
-    createToolHandler(async (client, args) => {
-      return client.pages.get(args.workspace_id, args.page_id)
-    })
+    createToolHandler(
+      async (client, args: { pages: Array<{ workspace_id: string; page_id: string }> }) => {
+        // Process pages sequentially
+        const results = []
+        for (const page of args.pages) {
+          const result = await client.pages.get(page.workspace_id, page.page_id)
+          results.push(result)
+        }
+
+        return { pages: results }
+      }
+    )
   )
 
   // ============================================================================

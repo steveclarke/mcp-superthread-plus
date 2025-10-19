@@ -159,22 +159,38 @@ export function registerNoteTools(server: McpServer): void {
   )
 
   // ============================================================================
-  // TOOL: note_get
-  // Get detailed information about a specific note
+  // TOOL: note_gets
+  // Get detailed information about one or more notes in a single operation
   // ============================================================================
   server.registerTool(
-    "note_get",
+    "note_gets",
     {
-      title: "Get Note",
-      description: "Retrieves a specific note within the specified workspace.",
+      title: "Get Notes",
+      description:
+        "Retrieves one or more notes in a single operation. Each note is fully self-contained with all parameters. Always use an array, even for a single note. Returns full note content including transcripts and metadata for each note.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        note_id: z.string().describe("Note ID to retrieve"),
+        notes: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              note_id: z.string().describe("Note ID to retrieve"),
+            })
+          )
+          .describe("Array of notes to retrieve (use single-element array for one note)"),
       },
     },
-    createToolHandler(async (client, args) => {
-      return client.notes.get(args.workspace_id, args.note_id)
-    })
+    createToolHandler(
+      async (client, args: { notes: Array<{ workspace_id: string; note_id: string }> }) => {
+        // Process notes sequentially
+        const results = []
+        for (const note of args.notes) {
+          const result = await client.notes.get(note.workspace_id, note.note_id)
+          results.push(result)
+        }
+
+        return { notes: results }
+      }
+    )
   )
 
   // ============================================================================

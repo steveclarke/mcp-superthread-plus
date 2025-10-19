@@ -33,23 +33,38 @@ export function registerSpaceTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: space_get
-  // Get detailed information about a specific space
+  // TOOL: space_gets
+  // Get detailed information about one or more spaces in a single operation
   // ============================================================================
   server.registerTool(
-    "space_get",
+    "space_gets",
     {
-      title: "Get Space",
+      title: "Get Spaces",
       description:
-        "Get detailed information about a specific space including boards, pages, members, and settings.",
+        "Get detailed information about one or more spaces in a single operation. Each space is fully self-contained with all parameters. Always use an array, even for a single space. Returns boards, pages, members, and settings for each space.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        space_id: z.string().describe("Space ID to retrieve"),
+        spaces: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              space_id: z.string().describe("Space ID to retrieve"),
+            })
+          )
+          .describe("Array of spaces to retrieve (use single-element array for one space)"),
       },
     },
-    createToolHandler(async (client, args) => {
-      return client.spaces.get(args.workspace_id, args.space_id)
-    })
+    createToolHandler(
+      async (client, args: { spaces: Array<{ workspace_id: string; space_id: string }> }) => {
+        // Process spaces sequentially
+        const results = []
+        for (const space of args.spaces) {
+          const result = await client.spaces.get(space.workspace_id, space.space_id)
+          results.push(result)
+        }
+
+        return { spaces: results }
+      }
+    )
   )
 
   // ============================================================================

@@ -34,23 +34,51 @@ export function registerSprintTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: sprint_get
-  // Get detailed information about a specific sprint
+  // TOOL: sprint_gets
+  // Get detailed information about one or more sprints in a single operation
   // ============================================================================
   server.registerTool(
-    "sprint_get",
+    "sprint_gets",
     {
-      title: "Get Sprint",
+      title: "Get Sprints",
       description:
-        "Get detailed sprint information including available lists. Use this to discover list names and IDs before creating cards. Note: card_create can work directly with sprint_id without calling this first - use this tool only when you need to see what lists are available.",
+        "Get detailed sprint information for one or more sprints in a single operation. Each sprint is fully self-contained with all parameters. Always use an array, even for a single sprint. Returns available lists for each sprint. Use this to discover list names and IDs before creating cards.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        sprint_id: z.string().describe("Sprint ID to retrieve"),
-        space_id: z.string().describe("Space ID (project_id) - required for sprint lookup"),
+        sprints: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              sprint_id: z.string().describe("Sprint ID to retrieve"),
+              space_id: z.string().describe("Space ID (project_id) - required for sprint lookup"),
+            })
+          )
+          .describe("Array of sprints to retrieve (use single-element array for one sprint)"),
       },
     },
-    createToolHandler(async (client, args) => {
-      return client.sprints.get(args.workspace_id, args.sprint_id, args.space_id)
-    })
+    createToolHandler(
+      async (
+        client,
+        args: {
+          sprints: Array<{
+            workspace_id: string
+            sprint_id: string
+            space_id: string
+          }>
+        }
+      ) => {
+        // Process sprints sequentially
+        const results = []
+        for (const sprint of args.sprints) {
+          const result = await client.sprints.get(
+            sprint.workspace_id,
+            sprint.sprint_id,
+            sprint.space_id
+          )
+          results.push(result)
+        }
+
+        return { sprints: results }
+      }
+    )
   )
 }

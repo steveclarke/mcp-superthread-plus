@@ -234,23 +234,38 @@ export function registerCommentTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: comment_get
-  // Get detailed information about a specific comment
+  // TOOL: comment_gets
+  // Get detailed information about one or more comments in a single operation
   // ============================================================================
   server.registerTool(
-    "comment_get",
+    "comment_gets",
     {
-      title: "Get Comment",
+      title: "Get Comments",
       description:
-        "Fetches the details of a single comment identified by comment_id. Includes metadata like author, reactions, timestamps, and child comments (replies).",
+        "Fetches the details of one or more comments in a single operation. Each comment is fully self-contained with all parameters. Always use an array, even for a single comment. Returns metadata like author, reactions, timestamps, and child comments (replies) for each comment.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        comment_id: z.string().describe("Comment ID to retrieve"),
+        comments: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              comment_id: z.string().describe("Comment ID to retrieve"),
+            })
+          )
+          .describe("Array of comments to retrieve (use single-element array for one comment)"),
       },
     },
-    createToolHandler(async (client, args) => {
-      return client.comments.get(args.workspace_id, args.comment_id)
-    })
+    createToolHandler(
+      async (client, args: { comments: Array<{ workspace_id: string; comment_id: string }> }) => {
+        // Process comments sequentially
+        const results = []
+        for (const comment of args.comments) {
+          const result = await client.comments.get(comment.workspace_id, comment.comment_id)
+          results.push(result)
+        }
+
+        return { comments: results }
+      }
+    )
   )
 
   // ============================================================================

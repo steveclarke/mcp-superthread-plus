@@ -71,6 +71,14 @@ All notable changes to this project will be documented in this file.
   - `note_deletes` - Delete multiple notes
 - Enhanced card tag management:
   - `card_remove_tags` - Remove tags from cards in batch (replaces `card_remove_tag`)
+- Batch read/get operations (all new plural tools):
+  - `project_gets` - Get multiple projects in one call
+  - `board_gets` - Get multiple boards in one call
+  - `sprint_gets` - Get multiple sprints in one call
+  - `space_gets` - Get multiple spaces in one call
+  - `page_gets` - Get multiple pages in one call
+  - `note_gets` - Get multiple notes in one call
+  - `comment_gets` - Get multiple comments in one call
 - Checklist item `checked` parameter support
   - Items can now be created as already checked via `card_add_checklist_items`
   - Eliminates need for separate update calls when creating pre-checked items
@@ -98,6 +106,8 @@ All notable changes to this project will be documented in this file.
   - `note_create`, `note_delete`
 - Singular card tag tool (replaced with batch version):
   - `card_remove_tag`
+- Singular read/get tools (replaced with batch versions):
+  - `project_get`, `board_get`, `sprint_get`, `space_get`, `page_get`, `note_get`, `comment_get`
 
 ### Performance Impact
 - Reduces MCP tool calls by up to 80% for bulk operations
