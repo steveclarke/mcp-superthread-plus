@@ -34,156 +34,311 @@ export function registerSpaceTools(server: McpServer) {
 
   // ============================================================================
   // TOOL: space_get
-  // Get detailed information about a specific space
+  // Get detailed information about one or more spaces in a single operation
   // ============================================================================
   server.registerTool(
     "space_get",
     {
-      title: "Get Space",
+      title: "Get Spaces",
       description:
-        "Get detailed information about a specific space including boards, pages, members, and settings.",
+        "Get detailed information about one or more spaces in a single operation. Each space is fully self-contained with all parameters. Always use an array, even for a single space. Returns boards, pages, members, and settings for each space.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        space_id: z.string().describe("Space ID to retrieve"),
+        spaces: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              space_id: z.string().describe("Space ID to retrieve"),
+            })
+          )
+          .describe("Array of spaces to retrieve (use single-element array for one space)"),
       },
     },
-    createToolHandler(async (client, args) => {
-      return client.spaces.get(args.workspace_id, args.space_id)
-    })
+    createToolHandler(
+      async (client, args: { spaces: Array<{ workspace_id: string; space_id: string }> }) => {
+        // Process spaces sequentially
+        const results = []
+        for (const space of args.spaces) {
+          const result = await client.spaces.get(space.workspace_id, space.space_id)
+          results.push(result)
+        }
+
+        return { spaces: results }
+      }
+    )
   )
 
   // ============================================================================
   // TOOL: space_create
-  // Create a new space (organizational container)
+  // Create one or more spaces (batch operation)
   // ============================================================================
   server.registerTool(
     "space_create",
     {
-      title: "Create Space",
+      title: "Create Spaces",
       description:
-        "Create a new space (organizational container) in a workspace. Spaces are used to organize boards, pages, and other content.",
+        "Create one or more spaces (organizational containers) in a single operation. Each space is fully self-contained with all parameters. Always use an array, even for a single space. Spaces are used to organize boards, pages, and other content.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID to create space in"),
-        title: z.string().describe("Space title"),
-        description: z.string().optional().describe("Space description"),
-        icon: z
-          .object({
-            type: z.string().describe("Icon type (e.g., 'icon', 'emoji')"),
-            src: z.string().optional().describe("Icon source for icon type"),
-            emoji: z.string().optional().describe("Emoji for emoji type"),
-            color: z.string().optional().describe("Icon color"),
-          })
-          .optional()
-          .describe("Space icon"),
+        spaces: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID to create space in"),
+              title: z.string().describe("Space title"),
+              description: z.string().optional().describe("Space description"),
+              icon: z
+                .object({
+                  type: z.string().describe("Icon type (e.g., 'icon', 'emoji')"),
+                  src: z.string().optional().describe("Icon source for icon type"),
+                  emoji: z.string().optional().describe("Emoji for emoji type"),
+                  color: z.string().optional().describe("Icon color"),
+                })
+                .optional()
+                .describe("Space icon"),
+            })
+          )
+          .describe("Array of spaces to create (use single-element array for one space)"),
       },
     },
-    createToolHandler(async (client, args) => {
-      return client.spaces.create(args.workspace_id, {
-        title: args.title,
-        description: args.description,
-        icon: args.icon,
-      })
-    })
+    createToolHandler(
+      async (
+        client,
+        args: {
+          spaces: Array<{
+            workspace_id: string
+            title: string
+            description?: string
+            icon?: {
+              type: string
+              src?: string
+              emoji?: string
+              color?: string
+            }
+          }>
+        }
+      ) => {
+        // Process spaces sequentially
+        const results = []
+        for (const space of args.spaces) {
+          const result = await client.spaces.create(space.workspace_id, {
+            title: space.title,
+            description: space.description,
+            icon: space.icon,
+          })
+          results.push(result)
+        }
+
+        return { spaces: results }
+      }
+    )
   )
 
   // ============================================================================
   // TOOL: space_update
-  // Update an existing space's properties
+  // Update one or more spaces (batch operation)
   // ============================================================================
   server.registerTool(
     "space_update",
     {
-      title: "Update Space",
+      title: "Update Spaces",
       description:
-        "Update properties of an existing space. Can modify title, description, icon, or archive status.",
+        "Update properties of one or more existing spaces in a single operation. Each space is fully self-contained with all parameters. Always use an array, even for a single space. Can modify title, description, icon, or archive status.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        space_id: z.string().describe("Space ID to update"),
-        title: z.string().optional().describe("New space title"),
-        description: z.string().optional().describe("New space description"),
-        icon: z
-          .object({
-            type: z.string().optional().describe("Icon type"),
-            src: z.string().optional().describe("Icon source"),
-            emoji: z.string().optional().describe("Emoji"),
-            color: z.string().optional().describe("Icon color"),
-          })
-          .optional()
-          .describe("New space icon"),
-        archived: z.boolean().optional().describe("Archive or unarchive the space"),
+        spaces: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              space_id: z.string().describe("Space ID to update"),
+              title: z.string().optional().describe("New space title"),
+              description: z.string().optional().describe("New space description"),
+              icon: z
+                .object({
+                  type: z.string().optional().describe("Icon type"),
+                  src: z.string().optional().describe("Icon source"),
+                  emoji: z.string().optional().describe("Emoji"),
+                  color: z.string().optional().describe("Icon color"),
+                })
+                .optional()
+                .describe("New space icon"),
+              archived: z.boolean().optional().describe("Archive or unarchive the space"),
+            })
+          )
+          .describe("Array of spaces to update (use single-element array for one space)"),
       },
     },
-    createToolHandler(async (client, args) => {
-      return client.spaces.update(args.workspace_id, args.space_id, {
-        title: args.title,
-        description: args.description,
-        icon: args.icon,
-        archived: args.archived,
-      })
-    })
+    createToolHandler(
+      async (
+        client,
+        args: {
+          spaces: Array<{
+            workspace_id: string
+            space_id: string
+            title?: string
+            description?: string
+            icon?: {
+              type?: string
+              src?: string
+              emoji?: string
+              color?: string
+            }
+            archived?: boolean
+          }>
+        }
+      ) => {
+        // Process spaces sequentially
+        const results = []
+        for (const space of args.spaces) {
+          const result = await client.spaces.update(space.workspace_id, space.space_id, {
+            title: space.title,
+            description: space.description,
+            icon: space.icon,
+            archived: space.archived,
+          })
+          results.push(result)
+        }
+
+        return { spaces: results }
+      }
+    )
   )
 
   // ============================================================================
   // TOOL: space_add_member
-  // Add a member to a space
+  // Add members to spaces (batch operation)
   // ============================================================================
   server.registerTool(
     "space_add_member",
     {
-      title: "Add Member to Space",
-      description: "Add a member to a space. Members can access and collaborate on space content.",
+      title: "Add Members to Spaces",
+      description:
+        "Add one or more members to spaces in a single operation. Each operation is fully self-contained with all parameters. Always use an array, even for a single member addition. Members can access and collaborate on space content.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        space_id: z.string().describe("Space ID to add member to"),
-        user_id: z.string().describe("User ID to add as member"),
-        role: z.string().optional().describe("Member role (e.g., 'member', 'admin')"),
+        operations: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              space_id: z.string().describe("Space ID to add member to"),
+              user_id: z.string().describe("User ID to add as member"),
+              role: z.string().optional().describe("Member role (e.g., 'member', 'admin')"),
+            })
+          )
+          .describe("Array of member additions (use single-element array for one operation)"),
       },
     },
-    createToolHandler(async (client, args) => {
-      return client.spaces.addMember(args.workspace_id, args.space_id, {
-        user_id: args.user_id,
-        role: args.role,
-      })
-    })
+    createToolHandler(
+      async (
+        client,
+        args: {
+          operations: Array<{
+            workspace_id: string
+            space_id: string
+            user_id: string
+            role?: string
+          }>
+        }
+      ) => {
+        // Process operations sequentially
+        const results = []
+        for (const op of args.operations) {
+          const result = await client.spaces.addMember(op.workspace_id, op.space_id, {
+            user_id: op.user_id,
+            role: op.role,
+          })
+          results.push(result)
+        }
+
+        return { members: results }
+      }
+    )
   )
 
   // ============================================================================
   // TOOL: space_remove_member
-  // Remove a member from a space
+  // Remove members from spaces (batch operation)
   // ============================================================================
   server.registerTool(
     "space_remove_member",
     {
-      title: "Remove Member from Space",
-      description: "Remove a member from a space. This revokes their access to the space content.",
+      title: "Remove Members from Spaces",
+      description:
+        "Remove one or more members from spaces in a single operation. Each operation is fully self-contained with all parameters. Always use an array, even for a single member removal. This revokes their access to the space content.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        space_id: z.string().describe("Space ID to remove member from"),
-        member_id: z.string().describe("Member ID to remove"),
+        operations: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              space_id: z.string().describe("Space ID to remove member from"),
+              member_id: z.string().describe("Member ID to remove"),
+            })
+          )
+          .describe("Array of member removals (use single-element array for one operation)"),
       },
     },
-    createToolHandler(async (client, args) => {
-      return client.spaces.removeMember(args.workspace_id, args.space_id, args.member_id)
-    })
+    createToolHandler(
+      async (
+        client,
+        args: {
+          operations: Array<{
+            workspace_id: string
+            space_id: string
+            member_id: string
+          }>
+        }
+      ) => {
+        // Process operations sequentially
+        const results = []
+        for (const op of args.operations) {
+          const result = await client.spaces.removeMember(
+            op.workspace_id,
+            op.space_id,
+            op.member_id
+          )
+          results.push(result)
+        }
+
+        return { removed: results }
+      }
+    )
   )
 
   // ============================================================================
   // TOOL: space_delete
-  // Permanently delete a space (cannot be undone)
+  // Permanently delete one or more spaces (batch operation)
   // ============================================================================
   server.registerTool(
     "space_delete",
     {
-      title: "Delete Space",
+      title: "Delete Spaces",
       description:
-        "Permanently delete a space. This action cannot be undone. All content within the space will be deleted.",
+        "Permanently delete one or more spaces in a single operation. Each space is fully self-contained with all parameters. Always use an array, even for a single space. This action cannot be undone. All content within the spaces will be deleted.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        space_id: z.string().describe("Space ID to delete"),
+        spaces: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              space_id: z.string().describe("Space ID to delete"),
+            })
+          )
+          .describe("Array of spaces to delete (use single-element array for one space)"),
       },
     },
-    createToolHandler(async (client, args) => {
-      return client.spaces.delete(args.workspace_id, args.space_id)
-    })
+    createToolHandler(
+      async (
+        client,
+        args: {
+          spaces: Array<{
+            workspace_id: string
+            space_id: string
+          }>
+        }
+      ) => {
+        // Process spaces sequentially
+        const results = []
+        for (const space of args.spaces) {
+          const result = await client.spaces.delete(space.workspace_id, space.space_id)
+          results.push(result)
+        }
+
+        return { deleted: results }
+      }
+    )
   )
 }

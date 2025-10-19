@@ -532,13 +532,15 @@ export class CardResource {
    * @param cardId - Card ID containing the checklist
    * @param checklistId - Checklist ID to add item to
    * @param title - Item title (can include HTML like "<p>text</p>")
+   * @param checked - Optional: Create item as checked (default: false)
    * @returns API response (passed through to LLM)
    */
   async addChecklistItem(
     workspaceId: string,
     cardId: string,
     checklistId: string,
-    title: string
+    title: string,
+    checked?: boolean
   ): Promise<unknown> {
     const path = urlcat("/:workspace/cards/:card/checklists/:checklist/items", {
       workspace: safeId("workspaceId", workspaceId),
@@ -550,6 +552,7 @@ export class CardResource {
       body: JSON.stringify({
         title,
         checklist_id: checklistId, // Required in body per API observation
+        ...(checked !== undefined && { checked }),
       }),
     })
   }

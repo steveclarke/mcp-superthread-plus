@@ -24,173 +24,284 @@ import { config } from "../config.js"
 export function registerCardTools(server: McpServer) {
   // ============================================================================
   // TOOL: card_create
-  // Create a new card in a list on a board or sprint
+  // Create one or more cards (batch operation)
   // ============================================================================
   server.registerTool(
     "card_create",
     {
-      title: "Create Card",
+      title: "Create Cards",
       description:
-        "Create a new card in a list on a board or sprint. Required fields: title, list_id, and either board_id or sprint_id.\n\nIMPORTANT LINKING RULES:\n- Use 'parent_card_id' to create parent-child relationships in your card hierarchy\n- Use 'epic_id' ONLY to link top-level cards to Roadmap Projects (epics)\n- Epic inheritance flows automatically from parent to child\n\nHIERARCHY CREATION:\n- Create top-level cards: Set parent_card_id=null (or omit), epic_id=Roadmap Project ID\n- Create child cards: Set parent_card_id=Parent Card ID, epic_id=null (or omit, will inherit from parent)\n- Epic inheritance flows automatically from parent to child",
+        "Create one or more cards in a single operation. Each card is fully self-contained with all parameters. Always use an array, even for a single card.\n\nIMPORTANT LINKING RULES:\n- Use 'parent_card_id' to create parent-child relationships in your card hierarchy\n- Use 'epic_id' ONLY to link top-level cards to Roadmap Projects (epics)\n- Epic inheritance flows automatically from parent to child\n\nHIERARCHY CREATION:\n- Create top-level cards: Set parent_card_id=null (or omit), epic_id=Roadmap Project ID\n- Create child cards: Set parent_card_id=Parent Card ID, epic_id=null (or omit, will inherit from parent)\n- Epic inheritance flows automatically from parent to child\n\nCARDS ARE PROCESSED SEQUENTIALLY: This is critical for parent-child relationships. Parent cards must be created before their children can reference them.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        title: z.string().describe("Card title"),
-        list_id: z.string().describe("List ID where the card will be placed"),
-        board_id: z.string().optional().describe("Board ID (required if sprint_id not provided)"),
-        sprint_id: z.string().optional().describe("Sprint ID (required if board_id not provided)"),
-        content: z.string().optional().describe("Card content (HTML supported, max 102400 chars)"),
-        project_id: z.string().optional().describe("Project/Space ID"),
-        start_date: z.number().optional().describe("Start date as Unix timestamp in seconds"),
-        due_date: z.number().optional().describe("Due date as Unix timestamp in seconds"),
-        position: z.number().optional().describe("Card position in list (0 = top)"),
-        priority: z.number().optional().describe("Priority level"),
-        estimate: z.number().optional().describe("Time estimate"),
-        parent_card_id: z
-          .string()
-          .optional()
-          .describe(
-            "Parent card ID for creating parent-child relationships in the hierarchy. Top-level cards: omit or set to null. Child cards: set to parent card ID. Epic inheritance flows from parent to child."
-          ),
-        epic_id: z
-          .string()
-          .optional()
-          .describe(
-            "Epic/Roadmap Project ID. ONLY use for linking top-level cards to Roadmap Projects. Most cards inherit epic from their parent automatically. Only set this when creating top-level cards. Leave null (or omit) for child cards - they inherit from parent."
-          ),
-        owner_id: z.string().optional().describe("Card owner user ID"),
+        cards: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              title: z.string().describe("Card title"),
+              list_id: z.string().describe("List ID where the card will be placed"),
+              board_id: z
+                .string()
+                .optional()
+                .describe("Board ID (required if sprint_id not provided)"),
+              sprint_id: z
+                .string()
+                .optional()
+                .describe("Sprint ID (required if board_id not provided)"),
+              content: z
+                .string()
+                .optional()
+                .describe("Card content (HTML supported, max 102400 chars)"),
+              project_id: z.string().optional().describe("Project/Space ID"),
+              start_date: z.number().optional().describe("Start date as Unix timestamp in seconds"),
+              due_date: z.number().optional().describe("Due date as Unix timestamp in seconds"),
+              position: z.number().optional().describe("Card position in list (0 = top)"),
+              priority: z.number().optional().describe("Priority level"),
+              estimate: z.number().optional().describe("Time estimate"),
+              parent_card_id: z
+                .string()
+                .optional()
+                .describe(
+                  "Parent card ID for creating parent-child relationships in the hierarchy. Top-level cards: omit or set to null. Child cards: set to parent card ID. Epic inheritance flows from parent to child."
+                ),
+              epic_id: z
+                .string()
+                .optional()
+                .describe(
+                  "Epic/Roadmap Project ID. ONLY use for linking top-level cards to Roadmap Projects. Most cards inherit epic from their parent automatically. Only set this when creating top-level cards. Leave null (or omit) for child cards - they inherit from parent."
+                ),
+              owner_id: z.string().optional().describe("Card owner user ID"),
+            })
+          )
+          .describe("Array of cards to create (use single-element array for one card)"),
       },
     },
-    createToolHandler(async (client, args) => {
-      // SMART POSITIONING IMPLEMENTATION:
-      // SuperThread API does NOT support 'position' during card creation, only during update.
-      // Therefore we: 1) Create card (goes to bottom), 2) Immediately update with position.
-      // This creates a small race condition window (unavoidable due to API limitation).
-      // Performance: Skips list title fetch when feature is not configured.
+    createToolHandler(
+      async (
+        client,
+        args: {
+          cards: Array<{
+            workspace_id: string
+            title: string
+            list_id: string
+            board_id?: string
+            sprint_id?: string
+            content?: string
+            project_id?: string
+            start_date?: number
+            due_date?: number
+            position?: number
+            priority?: number
+            estimate?: number
+            parent_card_id?: string
+            epic_id?: string
+            owner_id?: string
+          }>
+        }
+      ) => {
+        // Process cards sequentially (critical for parent-child relationships)
+        const results = []
+        for (const cardData of args.cards) {
+          // SMART POSITIONING IMPLEMENTATION:
+          // SuperThread API does NOT support 'position' during card creation, only during update.
+          // Therefore we: 1) Create card (goes to bottom), 2) Immediately update with position.
+          // This creates a small race condition window (unavoidable due to API limitation).
+          // Performance: Skips list title fetch when feature is not configured.
 
-      let listTitle: string | undefined
-      if (config.listsAddToTop.length > 0) {
-        listTitle = await getListTitle(client, args.workspace_id, args.list_id, {
-          board_id: args.board_id,
-          sprint_id: args.sprint_id,
-          project_id: args.project_id,
-        })
+          let listTitle: string | undefined
+          if (config.listsAddToTop.length > 0) {
+            listTitle = await getListTitle(client, cardData.workspace_id, cardData.list_id, {
+              board_id: cardData.board_id,
+              sprint_id: cardData.sprint_id,
+              project_id: cardData.project_id,
+            })
+          }
+
+          const position = shouldPositionAtTop(listTitle, cardData.position)
+
+          const params = buildParams<CreateCardParams>({
+            title: cardData.title,
+            list_id: cardData.list_id,
+            board_id: cardData.board_id,
+            sprint_id: cardData.sprint_id,
+            content: cardData.content,
+            project_id: cardData.project_id,
+            start_date: cardData.start_date,
+            due_date: cardData.due_date,
+            priority: cardData.priority,
+            estimate: cardData.estimate,
+            parent_card_id: cardData.parent_card_id,
+            epic_id: cardData.epic_id,
+            owner_id: cardData.owner_id,
+          })
+
+          const result = (await client.cards.create(
+            cardData.workspace_id,
+            params as CreateCardParams
+          )) as {
+            card: { id: string }
+          }
+
+          if (position !== undefined) {
+            await client.cards.update(cardData.workspace_id, result.card.id, { position })
+          }
+
+          results.push(result)
+        }
+
+        return { cards: results }
       }
-
-      const position = shouldPositionAtTop(listTitle, args.position)
-
-      const params = buildParams<CreateCardParams>({
-        title: args.title,
-        list_id: args.list_id,
-        board_id: args.board_id,
-        sprint_id: args.sprint_id,
-        content: args.content,
-        project_id: args.project_id,
-        start_date: args.start_date,
-        due_date: args.due_date,
-        priority: args.priority,
-        estimate: args.estimate,
-        parent_card_id: args.parent_card_id,
-        epic_id: args.epic_id,
-        owner_id: args.owner_id,
-      })
-
-      const result = (await client.cards.create(args.workspace_id, params as CreateCardParams)) as {
-        card: { id: string }
-      }
-
-      if (position !== undefined) {
-        await client.cards.update(args.workspace_id, result.card.id, { position })
-      }
-
-      return result
-    })
+    )
   )
 
   // ============================================================================
   // TOOL: card_update
-  // Update an existing card's attributes
+  // Update multiple cards' attributes (batch operation)
   // ============================================================================
   server.registerTool(
     "card_update",
     {
-      title: "Update Card",
+      title: "Update Cards",
       description:
-        "Update a card's attributes. Only specified fields will be updated, others remain unchanged. Note: If archived=true/false, only archiving is processed and other changes are ignored. Content cannot be updated via this endpoint.\n\nLINKING GUIDANCE:\n- 'parent_card_id': Changes the card's parent in the hierarchy (not available in update, must use card creation)\n- 'epic_id': Links to a Roadmap Project (epic). Most cards inherit epic from parent automatically - only use this for top-level cards or to explicitly change the epic relationship.",
+        "Update one or more cards' attributes in a single operation. Each card is fully self-contained with all parameters. Always use an array, even for a single card. Only specified fields will be updated, others remain unchanged. Note: If archived=true/false, only archiving is processed and other changes are ignored. Content cannot be updated via this endpoint.\n\nLINKING GUIDANCE:\n- 'parent_card_id': Changes the card's parent in the hierarchy (not available in update, must use card creation)\n- 'epic_id': Links to a Roadmap Project (epic). Most cards inherit epic from parent automatically - only use this for top-level cards or to explicitly change the epic relationship.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        card_id: z.string().describe("Card ID to update"),
-        title: z.string().optional().describe("New card title"),
-        board_id: z.string().optional().describe("Move card to different board"),
-        list_id: z.string().optional().describe("Move card to different list"),
-        project_id: z.string().optional().describe("Change project/space association"),
-        epic_id: z
-          .string()
-          .optional()
-          .describe(
-            "Change epic/roadmap project association. Use with caution - most cards should inherit epic from their parent. Only use this to explicitly change the epic relationship for top-level cards."
-          ),
-        sprint_id: z.string().optional().describe("Change sprint association"),
-        owner_id: z.string().optional().describe("Change card owner"),
-        start_date: z.number().optional().describe("Update start date (Unix timestamp in seconds)"),
-        due_date: z.number().optional().describe("Update due date (Unix timestamp in seconds)"),
-        position: z.number().optional().describe("Change card position in list"),
-        priority: z.number().optional().describe("Update priority level"),
-        estimate: z.number().optional().describe("Update time estimate"),
-        archived: z.boolean().optional().describe("Archive (true) or unarchive (false) the card"),
+        cards: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              card_id: z.string().describe("Card ID to update"),
+              title: z.string().optional().describe("New card title"),
+              board_id: z.string().optional().describe("Move card to different board"),
+              list_id: z.string().optional().describe("Move card to different list"),
+              project_id: z.string().optional().describe("Change project/space association"),
+              epic_id: z
+                .string()
+                .optional()
+                .describe(
+                  "Change epic/roadmap project association. Use with caution - most cards should inherit epic from their parent. Only use this to explicitly change the epic relationship for top-level cards."
+                ),
+              sprint_id: z.string().optional().describe("Change sprint association"),
+              owner_id: z.string().optional().describe("Change card owner"),
+              start_date: z
+                .number()
+                .optional()
+                .describe("Update start date (Unix timestamp in seconds)"),
+              due_date: z
+                .number()
+                .optional()
+                .describe("Update due date (Unix timestamp in seconds)"),
+              position: z.number().optional().describe("Change card position in list"),
+              priority: z.number().optional().describe("Update priority level"),
+              estimate: z.number().optional().describe("Update time estimate"),
+              archived: z
+                .boolean()
+                .optional()
+                .describe("Archive (true) or unarchive (false) the card"),
+            })
+          )
+          .describe("Array of cards to update (use single-element array for one card)"),
       },
     },
-    createToolHandler(async (client, args) => {
-      // Skip fetch if smart positioning is not configured (performance optimization)
-      let listTitle: string | undefined
-      if (args.list_id && config.listsAddToTop.length > 0) {
-        listTitle = await getListTitle(client, args.workspace_id, args.list_id, {
-          board_id: args.board_id,
-          sprint_id: args.sprint_id,
-          project_id: args.project_id,
-          card_id: args.card_id,
-        })
+    createToolHandler(
+      async (
+        client,
+        args: {
+          cards: Array<{
+            workspace_id: string
+            card_id: string
+            title?: string
+            board_id?: string
+            list_id?: string
+            project_id?: string
+            epic_id?: string
+            sprint_id?: string
+            owner_id?: string
+            start_date?: number
+            due_date?: number
+            position?: number
+            priority?: number
+            estimate?: number
+            archived?: boolean
+          }>
+        }
+      ) => {
+        // Process updates sequentially
+        const results = []
+        for (const cardData of args.cards) {
+          // Skip fetch if smart positioning is not configured (performance optimization)
+          let listTitle: string | undefined
+          if (cardData.list_id && config.listsAddToTop.length > 0) {
+            listTitle = await getListTitle(client, cardData.workspace_id, cardData.list_id, {
+              board_id: cardData.board_id,
+              sprint_id: cardData.sprint_id,
+              project_id: cardData.project_id,
+              card_id: cardData.card_id,
+            })
+          }
+
+          const position = shouldPositionAtTop(listTitle, cardData.position)
+
+          const params = buildParams<UpdateCardParams>({
+            title: cardData.title,
+            board_id: cardData.board_id,
+            list_id: cardData.list_id,
+            project_id: cardData.project_id,
+            epic_id: cardData.epic_id,
+            sprint_id: cardData.sprint_id,
+            owner_id: cardData.owner_id,
+            start_date: cardData.start_date,
+            due_date: cardData.due_date,
+            position,
+            priority: cardData.priority,
+            estimate: cardData.estimate,
+            archived: cardData.archived,
+          })
+
+          const result = await client.cards.update(
+            cardData.workspace_id,
+            cardData.card_id,
+            params as UpdateCardParams
+          )
+          results.push(result)
+        }
+
+        return { cards: results }
       }
-
-      const position = shouldPositionAtTop(listTitle, args.position)
-
-      const params = buildParams<UpdateCardParams>({
-        title: args.title,
-        board_id: args.board_id,
-        list_id: args.list_id,
-        project_id: args.project_id,
-        epic_id: args.epic_id,
-        sprint_id: args.sprint_id,
-        owner_id: args.owner_id,
-        start_date: args.start_date,
-        due_date: args.due_date,
-        position,
-        priority: args.priority,
-        estimate: args.estimate,
-        archived: args.archived,
-      })
-
-      return client.cards.update(args.workspace_id, args.card_id, params as UpdateCardParams)
-    })
+    )
   )
 
   // ============================================================================
   // TOOL: card_get
-  // Get detailed information about a specific card
+  // Get detailed information about multiple cards (batch operation)
   // ============================================================================
   server.registerTool(
     "card_get",
     {
-      title: "Get Card",
+      title: "Get Cards",
       description:
-        "Get detailed information about a specific card including its content, status, checklists, tags, linked cards, and all metadata.",
+        "Get detailed information about one or more cards in a single operation. Each card is fully self-contained with workspace_id and card_id. Always use an array, even for a single card.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        card_id: z.string().describe("Card ID to retrieve"),
+        cards: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              card_id: z.string().describe("Card ID to retrieve"),
+            })
+          )
+          .describe("Array of cards to retrieve (use single-element array for one card)"),
       },
     },
-    createToolHandler(async (client, args) => {
-      return client.cards.get(args.workspace_id, args.card_id)
-    })
+    createToolHandler(
+      async (client, args: { cards: Array<{ workspace_id: string; card_id: string }> }) => {
+        // Retrieve cards sequentially
+        const results = []
+        for (const cardData of args.cards) {
+          const result = await client.cards.get(cardData.workspace_id, cardData.card_id)
+          results.push(result)
+        }
+
+        return { cards: results }
+      }
+    )
   )
 
   // ============================================================================
@@ -260,92 +371,178 @@ export function registerCardTools(server: McpServer) {
 
   // ============================================================================
   // TOOL: card_add_related
-  // Link two cards with a relationship (blocks, blocked_by, related, duplicates)
+  // Create multiple card relationships (batch operation)
   // ============================================================================
   server.registerTool(
     "card_add_related",
     {
-      title: "Add Related Card",
+      title: "Add Related Cards",
       description:
-        'Link two cards with a relationship. Types: "blocks", "blocked_by", "related", "duplicates".',
+        'Create one or more card relationships in a single operation. Types: "blocks", "blocked_by", "related", "duplicates". Always use an array, even for a single relation.',
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        card_id: z.string().describe("Source card ID"),
-        related_card_id: z.string().describe("Related card ID to link"),
-        relation_type: z
-          .enum(["blocks", "blocked_by", "related", "duplicates"])
-          .describe("Type of relationship between cards"),
+        relations: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              card_id: z.string().describe("Source card ID"),
+              related_card_id: z.string().describe("Related card ID to link"),
+              relation_type: z
+                .enum(["blocks", "blocked_by", "related", "duplicates"])
+                .describe("Type of relationship between cards"),
+            })
+          )
+          .describe(
+            "Array of card relationships to create (use single-element array for one relation)"
+          ),
       },
     },
-    createToolHandler(async (client, args) => {
-      const params: AddRelatedCardParams = {
-        card_id: args.related_card_id,
-        linked_card_type: args.relation_type,
-      }
+    createToolHandler(
+      async (
+        client,
+        args: {
+          relations: Array<{
+            workspace_id: string
+            card_id: string
+            related_card_id: string
+            relation_type: "blocks" | "blocked_by" | "related" | "duplicates"
+          }>
+        }
+      ) => {
+        // Create relationships sequentially
+        const results = []
+        for (const rel of args.relations) {
+          const params: AddRelatedCardParams = {
+            card_id: rel.related_card_id,
+            linked_card_type: rel.relation_type,
+          }
+          const result = await client.cards.addRelated(rel.workspace_id, rel.card_id, params)
+          results.push(result)
+        }
 
-      return client.cards.addRelated(args.workspace_id, args.card_id, params)
-    })
+        return { relations: results }
+      }
+    )
   )
 
   // ============================================================================
   // TOOL: card_remove_related
-  // Remove a relationship between linked cards
+  // Remove multiple card relationships (batch operation)
   // ============================================================================
   server.registerTool(
     "card_remove_related",
     {
-      title: "Remove Related Card",
+      title: "Remove Related Cards",
       description:
-        "Remove a relationship between two linked cards. This removes the link but does not delete either card.",
+        "Remove one or more card relationships in a single operation. This removes the links but does not delete any cards. Always use an array, even for a single relation.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        card_id: z.string().describe("Source card ID"),
-        linked_card_id: z.string().describe("Linked card ID to remove"),
+        relations: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              card_id: z.string().describe("Source card ID"),
+              linked_card_id: z.string().describe("Linked card ID to remove"),
+            })
+          )
+          .describe(
+            "Array of card relationships to remove (use single-element array for one relation)"
+          ),
       },
     },
-    createToolHandler(async (client, args) => {
-      return client.cards.removeRelated(args.workspace_id, args.card_id, args.linked_card_id)
-    })
+    createToolHandler(
+      async (
+        client,
+        args: {
+          relations: Array<{
+            workspace_id: string
+            card_id: string
+            linked_card_id: string
+          }>
+        }
+      ) => {
+        // Remove relationships sequentially
+        const results = []
+        for (const rel of args.relations) {
+          const result = await client.cards.removeRelated(
+            rel.workspace_id,
+            rel.card_id,
+            rel.linked_card_id
+          )
+          results.push(result)
+        }
+
+        return { removed: results }
+      }
+    )
   )
 
   // ============================================================================
   // TOOL: card_duplicate
-  // Clone an existing card with all its properties
+  // Clone multiple existing cards (batch operation)
   // ============================================================================
   server.registerTool(
     "card_duplicate",
     {
-      title: "Duplicate Card",
+      title: "Duplicate Cards",
       description:
-        "Clone an existing card with all its properties, checklists, and metadata. The new card will be created in the same list as the original.",
+        "Clone one or more existing cards with all their properties, checklists, and metadata in a single operation. New cards will be created in the same lists as the originals. Always use an array, even for a single card.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        card_id: z.string().describe("Card ID to duplicate"),
+        cards: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              card_id: z.string().describe("Card ID to duplicate"),
+            })
+          )
+          .describe("Array of cards to duplicate (use single-element array for one card)"),
       },
     },
-    createToolHandler(async (client, args) => {
-      return client.cards.duplicate(args.workspace_id, args.card_id)
-    })
+    createToolHandler(
+      async (client, args: { cards: Array<{ workspace_id: string; card_id: string }> }) => {
+        // Duplicate cards sequentially
+        const results = []
+        for (const cardData of args.cards) {
+          const result = await client.cards.duplicate(cardData.workspace_id, cardData.card_id)
+          results.push(result)
+        }
+
+        return { cards: results }
+      }
+    )
   )
 
   // ============================================================================
   // TOOL: card_delete
-  // Permanently delete a card (cannot be undone)
+  // Permanently delete multiple cards (batch operation)
   // ============================================================================
   server.registerTool(
     "card_delete",
     {
-      title: "Delete Card",
+      title: "Delete Cards",
       description:
-        "Permanently delete a card. This action cannot be undone. Consider archiving instead for soft deletion.",
+        "Permanently delete one or more cards in a single operation. This action cannot be undone. Consider archiving instead for soft deletion. Always use an array, even for a single card.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        card_id: z.string().describe("Card ID to delete"),
+        cards: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              card_id: z.string().describe("Card ID to delete"),
+            })
+          )
+          .describe("Array of cards to delete (use single-element array for one card)"),
       },
     },
-    createToolHandler(async (client, args) => {
-      return client.cards.delete(args.workspace_id, args.card_id)
-    })
+    createToolHandler(
+      async (client, args: { cards: Array<{ workspace_id: string; card_id: string }> }) => {
+        // Delete cards sequentially
+        const results = []
+        for (const cardData of args.cards) {
+          const result = await client.cards.delete(cardData.workspace_id, cardData.card_id)
+          results.push(result)
+        }
+
+        return { deleted: results }
+      }
+    )
   )
 
   // ============================================================================
@@ -411,120 +608,225 @@ export function registerCardTools(server: McpServer) {
 
   // ============================================================================
   // TOOL: card_remove_tag
-  // Remove a specific tag from a card
+  // Remove tags from cards in a single operation
   // ============================================================================
   server.registerTool(
     "card_remove_tag",
     {
-      title: "Remove Tag from Card",
-      description: "Remove a specific tag from a card.",
+      title: "Remove Tags from Cards",
+      description:
+        "Remove one or more tags from cards in a single operation. Each operation is fully self-contained with all parameters. Always use an array, even for a single removal. Useful for bulk tag removal or removing multiple tags from one card.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        card_id: z.string().describe("Card ID to remove tag from"),
-        tag_id: z.string().describe("Tag ID to remove"),
+        operations: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              card_id: z.string().describe("Card ID to remove tag from"),
+              tag_id: z.string().describe("Tag ID to remove"),
+            })
+          )
+          .describe("Array of tag removals (use single-element array for one removal)"),
       },
     },
     createToolHandler(
-      async (client, args: { workspace_id: string; card_id: string; tag_id: string }) => {
-        return client.cards.removeTag(args.workspace_id, args.card_id, args.tag_id)
+      async (
+        client,
+        args: {
+          operations: Array<{
+            workspace_id: string
+            card_id: string
+            tag_id: string
+          }>
+        }
+      ) => {
+        // Process operations sequentially
+        const results = []
+        for (const operation of args.operations) {
+          const result = await client.cards.removeTag(
+            operation.workspace_id,
+            operation.card_id,
+            operation.tag_id
+          )
+          results.push(result)
+        }
+
+        return { removed: results }
       }
     )
   )
 
   // ============================================================================
   // TOOL: card_add_member
-  // Assign a member to a card
+  // Assign members to cards (batch operation)
   // ============================================================================
   server.registerTool(
     "card_add_member",
     {
-      title: "Add Member to Card",
-      description: "Add a member to a card.",
+      title: "Add Members to Cards",
+      description:
+        "Add one or more members to cards in a single operation. Each operation is fully self-contained. Always use an array, even for a single member addition.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        card_id: z.string().describe("Card ID to add member to"),
-        user_id: z.string().describe("User ID to add as member"),
-        role: z.string().optional().describe("Member role (defaults to 'member')"),
+        operations: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              card_id: z.string().describe("Card ID to add member to"),
+              user_id: z.string().describe("User ID to add as member"),
+              role: z.string().optional().describe("Member role (defaults to 'member')"),
+            })
+          )
+          .describe("Array of member additions (use single-element array for one operation)"),
       },
     },
     createToolHandler(
       async (
         client,
-        args: { workspace_id: string; card_id: string; user_id: string; role?: string }
+        args: {
+          operations: Array<{
+            workspace_id: string
+            card_id: string
+            user_id: string
+            role?: string
+          }>
+        }
       ) => {
-        return client.cards.addMember(
-          args.workspace_id,
-          args.card_id,
-          args.user_id,
-          args.role || "member"
-        )
+        // Add members sequentially
+        const results = []
+        for (const op of args.operations) {
+          const result = await client.cards.addMember(
+            op.workspace_id,
+            op.card_id,
+            op.user_id,
+            op.role || "member"
+          )
+          results.push(result)
+        }
+
+        return { added: results }
       }
     )
   )
 
   // ============================================================================
   // TOOL: card_remove_member
-  // Remove a member assignment from a card
+  // Remove member assignments from cards (batch operation)
   // ============================================================================
   server.registerTool(
     "card_remove_member",
     {
-      title: "Remove Member from Card",
-      description: "Remove a member from a card.",
+      title: "Remove Members from Cards",
+      description:
+        "Remove one or more members from cards in a single operation. Each operation is fully self-contained. Always use an array, even for a single member removal.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        card_id: z.string().describe("Card ID to remove member from"),
-        user_id: z.string().describe("User ID to remove"),
+        operations: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              card_id: z.string().describe("Card ID to remove member from"),
+              user_id: z.string().describe("User ID to remove"),
+            })
+          )
+          .describe("Array of member removals (use single-element array for one operation)"),
       },
     },
     createToolHandler(
-      async (client, args: { workspace_id: string; card_id: string; user_id: string }) => {
-        return client.cards.removeMember(args.workspace_id, args.card_id, args.user_id)
+      async (
+        client,
+        args: {
+          operations: Array<{
+            workspace_id: string
+            card_id: string
+            user_id: string
+          }>
+        }
+      ) => {
+        // Remove members sequentially
+        const results = []
+        for (const op of args.operations) {
+          const result = await client.cards.removeMember(op.workspace_id, op.card_id, op.user_id)
+          results.push(result)
+        }
+
+        return { removed: results }
       }
     )
   )
 
   // ============================================================================
   // TOOL: card_create_checklist
-  // Create a new checklist on a card
+  // Create checklists on cards (batch operation)
   // ============================================================================
   server.registerTool(
     "card_create_checklist",
     {
-      title: "Create Checklist on Card",
-      description: "Create a new checklist on a card.",
+      title: "Create Checklists on Cards",
+      description:
+        "Create one or more checklists on cards in a single operation. Each checklist is fully self-contained. Always use an array, even for a single checklist.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        card_id: z.string().describe("Card ID to add checklist to"),
-        title: z.string().describe("Checklist title"),
+        checklists: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              card_id: z.string().describe("Card ID to add checklist to"),
+              title: z.string().describe("Checklist title"),
+            })
+          )
+          .describe("Array of checklists to create (use single-element array for one checklist)"),
       },
     },
     createToolHandler(
-      async (client, args: { workspace_id: string; card_id: string; title: string }) => {
-        return client.cards.createChecklist(args.workspace_id, args.card_id, args.title)
+      async (
+        client,
+        args: {
+          checklists: Array<{
+            workspace_id: string
+            card_id: string
+            title: string
+          }>
+        }
+      ) => {
+        // Create checklists sequentially
+        const results = []
+        for (const checklist of args.checklists) {
+          const result = await client.cards.createChecklist(
+            checklist.workspace_id,
+            checklist.card_id,
+            checklist.title
+          )
+          results.push(result)
+        }
+
+        return { checklists: results }
       }
     )
   )
 
   // ============================================================================
   // TOOL: card_add_checklist_item
-  // Add an item to an existing checklist
+  // Add items to an existing checklist (batch operation)
   // ============================================================================
   server.registerTool(
     "card_add_checklist_item",
     {
-      title: "Add Item to Checklist",
+      title: "Add Items to Checklist",
       description:
-        "Add an item to a card's checklist. Item title can include HTML formatting and supports @mentions using {{@Username}} syntax.",
+        "Add one or more items to a card's checklist. Item titles can include HTML formatting and support @mentions using {{@Username}} syntax. Always use an array, even for a single item.",
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         card_id: z.string().describe("Card ID containing the checklist"),
-        checklist_id: z.string().describe("Checklist ID to add item to"),
-        title: z
-          .string()
-          .describe(
-            "Item title (can include HTML like '<p>text</p>' and @mentions using {{@Username}} syntax)"
-          ),
+        checklist_id: z.string().describe("Checklist ID to add items to"),
+        items: z
+          .array(
+            z.object({
+              title: z
+                .string()
+                .describe(
+                  "Item title (can include HTML like '<p>text</p>' and @mentions using {{@Username}} syntax)"
+                ),
+              checked: z.boolean().optional().describe("Create item as checked (default: false)"),
+            })
+          )
+          .describe("Array of checklist items to add (use single-element array for one item)"),
       },
     },
     createToolHandler(
@@ -534,44 +836,59 @@ export function registerCardTools(server: McpServer) {
           workspace_id: string
           card_id: string
           checklist_id: string
-          title: string
+          items: Array<{ title: string; checked?: boolean }>
         }
       ) => {
-        // Process @mentions in title
-        const processedTitle = await formatMentions(args.title, args.workspace_id, client)
+        // Process items sequentially
+        const results = []
+        for (const item of args.items) {
+          // Process @mentions for this item
+          const processedTitle = await formatMentions(item.title, args.workspace_id, client)
 
-        return client.cards.addChecklistItem(
-          args.workspace_id,
-          args.card_id,
-          args.checklist_id,
-          processedTitle
-        )
+          // Call API for this item
+          const result = await client.cards.addChecklistItem(
+            args.workspace_id,
+            args.card_id,
+            args.checklist_id,
+            processedTitle,
+            item.checked
+          )
+          results.push(result)
+        }
+
+        return { items: results }
       }
     )
   )
 
   // ============================================================================
   // TOOL: card_update_checklist_item
-  // Update checklist item (check/uncheck, edit text)
+  // Update multiple checklist items (batch operation)
   // ============================================================================
   server.registerTool(
     "card_update_checklist_item",
     {
-      title: "Update Checklist Item",
+      title: "Update Checklist Items",
       description:
-        "Update a checklist item's checked status or title. Title supports HTML formatting and @mentions using {{@Username}} syntax.",
+        "Update one or more checklist items' checked status or titles in a single operation. Each item is fully self-contained with all parameters. Always use an array, even for a single item. Title supports HTML formatting and @mentions using {{@Username}} syntax.",
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         card_id: z.string().describe("Card ID containing the checklist"),
-        checklist_id: z.string().describe("Checklist ID containing the item"),
-        item_id: z.string().describe("Item ID to update"),
-        checked: z.boolean().optional().describe("Check/uncheck the item"),
-        title: z
-          .string()
-          .optional()
-          .describe(
-            "Update item title (can include HTML and @mentions using {{@Username}} syntax)"
-          ),
+        checklist_id: z.string().describe("Checklist ID containing the items"),
+        items: z
+          .array(
+            z.object({
+              item_id: z.string().describe("Item ID to update"),
+              checked: z.boolean().optional().describe("Check/uncheck the item"),
+              title: z
+                .string()
+                .optional()
+                .describe(
+                  "Update item title (can include HTML and @mentions using {{@Username}} syntax)"
+                ),
+            })
+          )
+          .describe("Array of checklist items to update (use single-element array for one item)"),
       },
     },
     createToolHandler(
@@ -581,46 +898,53 @@ export function registerCardTools(server: McpServer) {
           workspace_id: string
           card_id: string
           checklist_id: string
-          item_id: string
-          checked?: boolean
-          title?: string
+          items: Array<{ item_id: string; checked?: boolean; title?: string }>
         }
       ) => {
-        // Process @mentions in title if provided
-        const processedTitle = args.title
-          ? await formatMentions(args.title, args.workspace_id, client)
-          : undefined
+        // Process items sequentially
+        const results = []
+        for (const item of args.items) {
+          // Process @mentions in title if provided
+          const processedTitle = item.title
+            ? await formatMentions(item.title, args.workspace_id, client)
+            : undefined
 
-        const updates = buildParams<{ checked?: boolean; title?: string }>({
-          checked: args.checked,
-          title: processedTitle,
-        })
+          const updates = buildParams<{ checked?: boolean; title?: string }>({
+            checked: item.checked,
+            title: processedTitle,
+          })
 
-        return client.cards.updateChecklistItem(
-          args.workspace_id,
-          args.card_id,
-          args.checklist_id,
-          args.item_id,
-          updates
-        )
+          // Call API for this item
+          const result = await client.cards.updateChecklistItem(
+            args.workspace_id,
+            args.card_id,
+            args.checklist_id,
+            item.item_id,
+            updates
+          )
+          results.push(result)
+        }
+
+        return { items: results }
       }
     )
   )
 
   // ============================================================================
   // TOOL: card_delete_checklist_item
-  // Delete a checklist item permanently
+  // Delete checklist items permanently (batch operation)
   // ============================================================================
   server.registerTool(
     "card_delete_checklist_item",
     {
-      title: "Delete Checklist Item",
-      description: "Permanently delete a checklist item.",
+      title: "Delete Checklist Items",
+      description:
+        "Permanently delete one or more checklist items. Always use an array, even for a single item.",
       inputSchema: {
         workspace_id: z.string().describe("Workspace ID"),
         card_id: z.string().describe("Card ID containing the checklist"),
-        checklist_id: z.string().describe("Checklist ID containing the item"),
-        item_id: z.string().describe("Item ID to delete"),
+        checklist_id: z.string().describe("Checklist ID containing the items"),
+        item_ids: z.array(z.string()).describe("Array of item IDs to delete"),
       },
     },
     createToolHandler(
@@ -630,73 +954,123 @@ export function registerCardTools(server: McpServer) {
           workspace_id: string
           card_id: string
           checklist_id: string
-          item_id: string
+          item_ids: string[]
         }
       ) => {
-        return client.cards.deleteChecklistItem(
-          args.workspace_id,
-          args.card_id,
-          args.checklist_id,
-          args.item_id
-        )
+        // Process deletions sequentially
+        const results = []
+        for (const itemId of args.item_ids) {
+          const result = await client.cards.deleteChecklistItem(
+            args.workspace_id,
+            args.card_id,
+            args.checklist_id,
+            itemId
+          )
+          results.push(result)
+        }
+
+        return { deleted: results }
       }
     )
   )
 
   // ============================================================================
   // TOOL: card_update_checklist
-  // Update a checklist's title
+  // Update checklist titles (batch operation)
   // ============================================================================
   server.registerTool(
     "card_update_checklist",
     {
-      title: "Update Checklist",
-      description: "Update a checklist's title.",
+      title: "Update Checklists",
+      description:
+        "Update one or more checklist titles in a single operation. Each checklist is fully self-contained. Always use an array, even for a single checklist.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        card_id: z.string().describe("Card ID containing the checklist"),
-        checklist_id: z.string().describe("Checklist ID to update"),
-        title: z.string().describe("New checklist title"),
+        checklists: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              card_id: z.string().describe("Card ID containing the checklist"),
+              checklist_id: z.string().describe("Checklist ID to update"),
+              title: z.string().describe("New checklist title"),
+            })
+          )
+          .describe("Array of checklists to update (use single-element array for one checklist)"),
       },
     },
     createToolHandler(
       async (
         client,
         args: {
-          workspace_id: string
-          card_id: string
-          checklist_id: string
-          title: string
+          checklists: Array<{
+            workspace_id: string
+            card_id: string
+            checklist_id: string
+            title: string
+          }>
         }
       ) => {
-        return client.cards.updateChecklist(
-          args.workspace_id,
-          args.card_id,
-          args.checklist_id,
-          args.title
-        )
+        // Update checklists sequentially
+        const results = []
+        for (const checklist of args.checklists) {
+          const result = await client.cards.updateChecklist(
+            checklist.workspace_id,
+            checklist.card_id,
+            checklist.checklist_id,
+            checklist.title
+          )
+          results.push(result)
+        }
+
+        return { checklists: results }
       }
     )
   )
 
   // ============================================================================
   // TOOL: card_delete_checklist
-  // Delete an entire checklist from a card
+  // Delete checklists from cards (batch operation)
   // ============================================================================
   server.registerTool(
     "card_delete_checklist",
     {
-      title: "Delete Checklist",
-      description: "Permanently delete an entire checklist from a card.",
+      title: "Delete Checklists",
+      description:
+        "Permanently delete one or more checklists from cards in a single operation. Always use an array, even for a single checklist.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        card_id: z.string().describe("Card ID containing the checklist"),
-        checklist_id: z.string().describe("Checklist ID to delete"),
+        checklists: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              card_id: z.string().describe("Card ID containing the checklist"),
+              checklist_id: z.string().describe("Checklist ID to delete"),
+            })
+          )
+          .describe("Array of checklists to delete (use single-element array for one checklist)"),
       },
     },
     createToolHandler(
-      async (client, args: { workspace_id: string; card_id: string; checklist_id: string }) => {
-        return client.cards.deleteChecklist(args.workspace_id, args.card_id, args.checklist_id)
+      async (
+        client,
+        args: {
+          checklists: Array<{
+            workspace_id: string
+            card_id: string
+            checklist_id: string
+          }>
+        }
+      ) => {
+        // Delete checklists sequentially
+        const results = []
+        for (const checklist of args.checklists) {
+          const result = await client.cards.deleteChecklist(
+            checklist.workspace_id,
+            checklist.card_id,
+            checklist.checklist_id
+          )
+          results.push(result)
+        }
+
+        return { deleted: results }
       }
     )
   )

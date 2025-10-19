@@ -182,111 +182,134 @@ Configure lists where cards should automatically be positioned at the top using
 
 #### Card Management
 
-| Tool                         | Description                                                   |
-| ---------------------------- | ------------------------------------------------------------- |
-| `card_create`                | Create new card/task                                          |
-| `card_update`                | Update card properties (title, status, priority, dates, etc.) |
-| `card_get`                   | Get card details                                              |
-| `card_duplicate`             | Clone an existing card                                        |
-| `card_get_assigned`          | Get cards assigned to a specific user                         |
-| `card_delete`                | Delete card permanently                                       |
-| `card_add_related`           | Link cards with relationships (blocks, related, duplicates)   |
-| `card_remove_related`        | Remove card relationship                                      |
-| `card_get_tags`              | List all available tags in workspace                          |
-| `card_add_tags`              | Add existing tags to a card (tags must already exist)         |
-| `card_remove_tag`            | Remove tag from card                                          |
-| `card_add_member`            | Assign member to card                                         |
-| `card_remove_member`         | Remove member from card                                       |
-| `card_create_checklist`      | Create checklist on card                                      |
-| `card_add_checklist_item`    | Add item to checklist                                         |
-| `card_update_checklist_item` | Update checklist item (check/uncheck, edit text)              |
-| `card_delete_checklist_item` | Delete checklist item                                         |
-| `card_update_checklist`      | Update checklist title                                        |
-| `card_delete_checklist`      | Delete entire checklist from card                             |
+**Note:** All card tools use batch operations with array parameters. Always pass arrays, even for single operations.
+
+| Tool                         | Description                                                |
+| ---------------------------- | ---------------------------------------------------------- |
+| `card_create`                | Create one or more cards (batch operation)                 |
+| `card_update`                | Update one or more cards (batch operation)                 |
+| `card_get`                   | Get details for one or more cards (batch operation)        |
+| `card_delete`                | Delete one or more cards permanently (batch operation)     |
+| `card_duplicate`             | Clone one or more existing cards (batch operation)         |
+| `card_get_assigned`          | Get cards assigned to a specific user                      |
+| `card_add_related`           | Create card relationships in batch (blocks, related, etc.) |
+| `card_remove_related`        | Remove card relationships in batch                         |
+| `card_get_tags`              | List all available tags in workspace                       |
+| `card_add_tags`              | Add existing tags to a card (supports array via `ids`)     |
+| `card_remove_tag`            | Remove tags from cards in batch                            |
+| `card_add_member`            | Assign members to cards in batch                           |
+| `card_remove_member`         | Remove members from cards in batch                         |
+| `card_create_checklist`      | Create checklists on cards in batch                        |
+| `card_update_checklist`      | Update checklist titles in batch                           |
+| `card_delete_checklist`      | Delete checklists from cards in batch                      |
+| `card_add_checklist_item`    | Add items to checklist in batch (supports `checked` param) |
+| `card_update_checklist_item` | Update checklist items in batch (check/uncheck, edit text) |
+| `card_delete_checklist_item` | Delete checklist items in batch                            |
 
 #### Tag Management
 
-| Tool         | Description                                     |
-| ------------ | ----------------------------------------------- |
-| `tag_create` | Create new tag with name and color              |
-| `tag_update` | Update tag properties (name, color)             |
-| `tag_delete` | Delete tag permanently (removes from all cards) |
+**Note:** All tag tools use batch operations with array parameters. Always pass arrays, even for single operations.
+
+| Tool         | Description                                           |
+| ------------ | ----------------------------------------------------- |
+| `tag_create` | Create one or more tags (batch operation)             |
+| `tag_update` | Update one or more tags (batch operation)             |
+| `tag_delete` | Delete one or more tags permanently (batch operation) |
 
 **Note:** Tag management tools use undocumented API endpoints discovered via browser network inspection.
 
 #### Project Management (Roadmap)
 
-| Tool                     | Description                       |
-| ------------------------ | --------------------------------- |
-| `project_get_all`        | List all roadmap projects (epics) |
-| `project_get`            | Get project details               |
-| `project_create`         | Create new roadmap project        |
-| `project_update`         | Update project properties         |
-| `project_delete`         | Delete project permanently        |
-| `project_add_related`    | Link card to roadmap project      |
-| `project_remove_related` | Remove card from roadmap project  |
+**Note:** All project tools use batch operations with array parameters. Always pass arrays, even for single operations. Available batch tools: `project_get`, `project_create`, `project_update`, `project_delete`, `project_add_related`, `project_remove_related`.
+
+| Tool                     | Description                                   |
+| ------------------------ | --------------------------------------------- |
+| `project_get_all`        | List all roadmap projects (epics)             |
+| `project_get`            | Get one or more projects (batch operation)    |
+| `project_create`         | Create one or more projects (batch operation) |
+| `project_update`         | Update one or more projects (batch operation) |
+| `project_delete`         | Delete one or more projects (batch operation) |
+| `project_add_related`    | Link cards to projects (batch operation)      |
+| `project_remove_related` | Remove card-project links (batch operation)   |
 
 #### Board Management
 
-| Tool                | Description                            |
-| ------------------- | -------------------------------------- |
-| `board_get_all`     | List all boards in a space             |
-| `board_get`         | Get board details with lists and cards |
-| `board_create`      | Create new board                       |
-| `board_update`      | Update board properties                |
-| `board_duplicate`   | Clone an existing board                |
-| `board_delete`      | Delete board permanently               |
-| `board_create_list` | Create status column/list on board     |
-| `board_update_list` | Update list/column properties          |
-| `board_delete_list` | Delete list/column permanently         |
+**Note:** All board tools use batch operations with array parameters. Always pass arrays, even for single operations. Available batch tools: `board_get`, `board_create`, `board_update`, `board_delete`, `board_create_list`, `board_update_list`, `board_delete_list`.
+
+| Tool                | Description                                 |
+| ------------------- | ------------------------------------------- |
+| `board_get_all`     | List all boards in a space                  |
+| `board_get`         | Get one or more boards (batch operation)    |
+| `board_create`      | Create one or more boards (batch operation) |
+| `board_update`      | Update one or more boards (batch operation) |
+| `board_duplicate`   | Clone an existing board                     |
+| `board_delete`      | Delete one or more boards (batch operation) |
+| `board_create_list` | Create one or more lists (batch operation)  |
+| `board_update_list` | Update one or more lists (batch operation)  |
+| `board_delete_list` | Delete one or more lists (batch operation)  |
 
 #### Sprint Management
 
-| Tool             | Description                           |
-| ---------------- | ------------------------------------- |
-| `sprint_get_all` | List all sprints for a space          |
-| `sprint_get`     | Get sprint details including list IDs |
+**Note:** Sprint get operations use batch operations with array parameters. Always pass arrays, even for single operations. Available batch tool: `sprint_get`.
+
+| Tool             | Description                               |
+| ---------------- | ----------------------------------------- |
+| `sprint_get_all` | List all sprints for a space              |
+| `sprint_get`     | Get one or more sprints (batch operation) |
 
 #### Space Management
 
-| Tool            | Description                                 |
-| --------------- | ------------------------------------------- |
-| `space_get_all` | List all spaces (organizational containers) |
-| `space_get`     | Get space details                           |
+**Note:** All space tools use batch operations with array parameters. Always pass arrays, even for single operations. Available batch tools: `space_get`, `space_create`, `space_update`, `space_delete`, `space_add_member`, `space_remove_member`.
+
+| Tool                  | Description                                  |
+| --------------------- | -------------------------------------------- |
+| `space_get_all`       | List all spaces (organizational containers)  |
+| `space_get`           | Get one or more spaces (batch operation)     |
+| `space_create`        | Create one or more spaces (batch operation)  |
+| `space_update`        | Update one or more spaces (batch operation)  |
+| `space_delete`        | Delete one or more spaces (batch operation)  |
+| `space_add_member`    | Add members to spaces (batch operation)      |
+| `space_remove_member` | Remove members from spaces (batch operation) |
 
 #### Page Management
 
-| Tool             | Description                        |
-| ---------------- | ---------------------------------- |
-| `page_create`    | Create new documentation page      |
-| `page_update`    | Update page properties and content |
-| `page_get`       | Get page details                   |
-| `page_get_all`   | List all pages in workspace        |
-| `page_duplicate` | Clone an existing page             |
-| `page_archive`   | Archive page (soft delete)         |
-| `page_delete`    | Delete page permanently            |
+**Note:** All page operations use batch operations with array parameters. Always pass arrays, even for single operations. Available batch tools: `page_get`, `page_create`, `page_update`, `page_archive`, `page_delete`.
+
+| Tool             | Description                                 |
+| ---------------- | ------------------------------------------- |
+| `page_get`       | Get one or more pages (batch operation)     |
+| `page_create`    | Create one or more pages (batch operation)  |
+| `page_update`    | Update one or more pages (batch operation)  |
+| `page_get_all`   | List all pages in workspace                 |
+| `page_duplicate` | Clone an existing page                      |
+| `page_archive`   | Archive one or more pages (batch operation) |
+| `page_delete`    | Delete one or more pages (batch operation)  |
 
 #### Note Management
 
-| Tool           | Description             |
-| -------------- | ----------------------- |
-| `note_create`  | Create meeting note     |
-| `note_get`     | Get note details        |
-| `note_get_all` | List all notes          |
-| `note_delete`  | Delete note permanently |
+**Note:** All note operations use batch operations with array parameters. Always pass arrays, even for single operations. Available batch tools: `note_get`, `note_create`, `note_delete`.
+
+| Tool           | Description                                |
+| -------------- | ------------------------------------------ |
+| `note_get`     | Get one or more notes (batch operation)    |
+| `note_create`  | Create one or more notes (batch operation) |
+| `note_get_all` | List all notes                             |
+| `note_delete`  | Delete one or more notes (batch operation) |
 
 #### Comments & Collaboration
 
-| Tool                   | Description                      |
-| ---------------------- | -------------------------------- |
-| `comment_create`       | Create comment on card or page   |
-| `comment_update`       | Edit existing comment            |
-| `comment_get`          | Get comment details with replies |
-| `comment_delete`       | Delete comment permanently       |
-| `comment_reply`        | Reply to comment (create thread) |
-| `comment_get_replies`  | Get all replies to a comment     |
-| `comment_update_reply` | Edit a reply                     |
-| `comment_delete_reply` | Delete a reply                   |
+**Note:** All comment tools use batch operations with array parameters. Always pass arrays, even for single operations. Available batch tools: `comment_get`, `comment_create`, `comment_update`, `comment_delete`, `comment_reply`, `comment_update_reply`, `comment_delete_reply`.
+
+| Tool                   | Description                                     |
+| ---------------------- | ----------------------------------------------- |
+| `comment_get`          | Get one or more comments (batch operation)      |
+| `comment_create`       | Create one or more comments (batch operation)   |
+| `comment_update`       | Update one or more comments (batch operation)   |
+| `comment_delete`       | Delete one or more comments (batch operation)   |
+| `comment_reply`        | Reply to one or more comments (batch operation) |
+| `comment_update_reply` | Update one or more replies (batch operation)    |
+| `comment_delete_reply` | Delete one or more replies (batch operation)    |
+| `comment_get_replies`  | Get all replies to a comment                    |
 
 **Note:** Comment tools support @mentions and HTML formatting. You can ask the AI to mention team members by name in comments and use HTML tags for rich formatting (headers, bold, italic, lists, links, etc.).
 
@@ -324,7 +347,8 @@ AI: I'll create the structure:
 
 ```
 User: Create tasks for implementing user authentication
-AI: Created 5 tasks:
+AI: *calls card_create with 5 cards in single batch operation*
+✓ Created 5 tasks in one call:
 - Set up auth provider (High priority, 8 points)
 - Design login UI (Medium, 5 points)
 - Implement JWT tokens (High, 8 points)
@@ -335,11 +359,11 @@ AI: Created 5 tasks:
 ### Manage Cards with Checklists
 
 ```
-User: Add a checklist to card 123 for deployment steps
-AI: *creates checklist with items*
-✓ Created deployment checklist:
-  - [ ] Run tests
-  - [ ] Update changelog
+User: Add a checklist to card 123 for deployment steps, mark the first two as done
+AI: *creates checklist, then adds 5 items with checked status in single batch call*
+✓ Created deployment checklist with items:
+  - [x] Run tests
+  - [x] Update changelog
   - [ ] Build production bundle
   - [ ] Deploy to staging
   - [ ] Deploy to production
