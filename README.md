@@ -208,11 +208,13 @@ Configure lists where cards should automatically be positioned at the top using
 
 #### Tag Management
 
-| Tool         | Description                                     |
-| ------------ | ----------------------------------------------- |
-| `tag_create` | Create new tag with name and color              |
-| `tag_update` | Update tag properties (name, color)             |
-| `tag_delete` | Delete tag permanently (removes from all cards) |
+**Note:** All tag tools use batch operations with array parameters. Always pass arrays, even for single operations.
+
+| Tool          | Description                                           |
+| ------------- | ----------------------------------------------------- |
+| `tag_creates` | Create one or more tags (batch operation)             |
+| `tag_updates` | Update one or more tags (batch operation)             |
+| `tag_deletes` | Delete one or more tags permanently (batch operation) |
 
 **Note:** Tag management tools use undocumented API endpoints discovered via browser network inspection.
 

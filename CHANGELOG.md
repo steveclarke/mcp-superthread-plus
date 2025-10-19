@@ -5,12 +5,12 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Changed
-- **BREAKING CHANGE:** Converted all card tools to batch operations with array-based parameters
-  - Replaced singular tools with plural batch versions (e.g., `card_create` → `card_creates`)
+- **BREAKING CHANGE:** Converted all card and tag tools to batch operations with array-based parameters
+  - Replaced singular tools with plural batch versions (e.g., `card_create` → `card_creates`, `tag_create` → `tag_creates`)
   - All tools now require array parameters, even for single operations
   - LLMs always use arrays for consistency (e.g., `cards: [{ workspace_id, card_id, title, ... }]`)
-  - Enables efficient bulk operations (create/update/delete multiple cards in one call)
-  - Fully self-contained objects: each card/checklist/item includes all necessary parameters
+  - Enables efficient bulk operations (create/update/delete multiple items in one call)
+  - Fully self-contained objects: each card/tag/checklist/item includes all necessary parameters
   - Sequential processing ensures proper parent-child dependencies
   - Preserved smart positioning logic for all card creation/update operations
 
@@ -28,8 +28,16 @@ All notable changes to this project will be documented in this file.
   - `card_create_checklists` - Create multiple checklists on cards
   - `card_update_checklists` - Update multiple checklist titles
   - `card_delete_checklists` - Delete multiple checklists
-  - `card_add_checklist_items` - Add multiple items to checklists
+  - `card_add_checklist_items` - Add multiple items to checklists (now supports `checked` parameter)
+  - `card_update_checklist_items` - Update multiple checklist items (check/uncheck, edit text)
   - `card_delete_checklist_items` - Delete multiple checklist items
+- Batch tag operations (all new plural tools):
+  - `tag_creates` - Create multiple tags in one call
+  - `tag_updates` - Update multiple tags (name/color changes)
+  - `tag_deletes` - Delete multiple tags permanently
+- Checklist item `checked` parameter support
+  - Items can now be created as already checked via `card_add_checklist_items`
+  - Eliminates need for separate update calls when creating pre-checked items
 
 ### Removed
 - Singular card tools (replaced with batch versions):
@@ -37,7 +45,9 @@ All notable changes to this project will be documented in this file.
   - `card_add_related`, `card_remove_related`
   - `card_add_member`, `card_remove_member`
   - `card_create_checklist`, `card_delete_checklist`, `card_update_checklist`
-  - `card_add_checklist_item`, `card_delete_checklist_item`
+  - `card_add_checklist_item`, `card_update_checklist_item`, `card_delete_checklist_item`
+- Singular tag tools (replaced with batch versions):
+  - `tag_create`, `tag_update`, `tag_delete`
 
 ### Performance Impact
 - Reduces MCP tool calls by up to 80% for bulk operations

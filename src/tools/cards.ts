@@ -835,63 +835,6 @@ export function registerCardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: card_update_checklist_item
-  // Update checklist item (check/uncheck, edit text)
-  // ============================================================================
-  server.registerTool(
-    "card_update_checklist_item",
-    {
-      title: "Update Checklist Item",
-      description:
-        "Update a checklist item's checked status or title. Title supports HTML formatting and @mentions using {{@Username}} syntax.",
-      inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        card_id: z.string().describe("Card ID containing the checklist"),
-        checklist_id: z.string().describe("Checklist ID containing the item"),
-        item_id: z.string().describe("Item ID to update"),
-        checked: z.boolean().optional().describe("Check/uncheck the item"),
-        title: z
-          .string()
-          .optional()
-          .describe(
-            "Update item title (can include HTML and @mentions using {{@Username}} syntax)"
-          ),
-      },
-    },
-    createToolHandler(
-      async (
-        client,
-        args: {
-          workspace_id: string
-          card_id: string
-          checklist_id: string
-          item_id: string
-          checked?: boolean
-          title?: string
-        }
-      ) => {
-        // Process @mentions in title if provided
-        const processedTitle = args.title
-          ? await formatMentions(args.title, args.workspace_id, client)
-          : undefined
-
-        const updates = buildParams<{ checked?: boolean; title?: string }>({
-          checked: args.checked,
-          title: processedTitle,
-        })
-
-        return client.cards.updateChecklistItem(
-          args.workspace_id,
-          args.card_id,
-          args.checklist_id,
-          args.item_id,
-          updates
-        )
-      }
-    )
-  )
-
-  // ============================================================================
   // TOOL: card_update_checklist_items
   // Update multiple checklist items (batch operation)
   // ============================================================================
