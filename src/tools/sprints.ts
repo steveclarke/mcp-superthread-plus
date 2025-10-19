@@ -34,11 +34,11 @@ export function registerSprintTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: sprint_gets
+  // TOOL: sprint_get
   // Get detailed information about one or more sprints in a single operation
   // ============================================================================
   server.registerTool(
-    "sprint_gets",
+    "sprint_get",
     {
       title: "Get Sprints",
       description:

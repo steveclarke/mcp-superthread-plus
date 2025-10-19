@@ -20,11 +20,11 @@ import { createToolHandler, buildParams } from "./helpers.js"
  */
 export function registerBoardTools(server: McpServer) {
   // ============================================================================
-  // TOOL: board_creates
+  // TOOL: board_create
   // Create one or more boards (batch operation)
   // ============================================================================
   server.registerTool(
-    "board_creates",
+    "board_create",
     {
       title: "Create Boards",
       description:
@@ -82,11 +82,11 @@ export function registerBoardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: board_create_lists
+  // TOOL: board_create_list
   // Create one or more lists (batch operation)
   // ============================================================================
   server.registerTool(
-    "board_create_lists",
+    "board_create_list",
     {
       title: "Create Lists",
       description:
@@ -186,11 +186,11 @@ export function registerBoardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: board_gets
+  // TOOL: board_get
   // Get detailed information about one or more boards in a single operation
   // ============================================================================
   server.registerTool(
-    "board_gets",
+    "board_get",
     {
       title: "Get Boards",
       description:
@@ -221,11 +221,11 @@ export function registerBoardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: board_updates
+  // TOOL: board_update
   // Update one or more boards (batch operation)
   // ============================================================================
   server.registerTool(
-    "board_updates",
+    "board_update",
     {
       title: "Update Boards",
       description:
@@ -286,11 +286,11 @@ export function registerBoardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: board_update_lists
+  // TOOL: board_update_list
   // Update one or more lists (batch operation)
   // ============================================================================
   server.registerTool(
-    "board_update_lists",
+    "board_update_list",
     {
       title: "Update Lists",
       description:
@@ -385,11 +385,11 @@ export function registerBoardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: board_deletes
+  // TOOL: board_delete
   // Permanently delete one or more boards (batch operation)
   // ============================================================================
   server.registerTool(
-    "board_deletes",
+    "board_delete",
     {
       title: "Delete Boards",
       description:
@@ -428,11 +428,11 @@ export function registerBoardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: board_delete_lists
+  // TOOL: board_delete_list
   // Permanently delete one or more lists (batch operation)
   // ============================================================================
   server.registerTool(
-    "board_delete_lists",
+    "board_delete_list",
     {
       title: "Delete Lists",
       description:

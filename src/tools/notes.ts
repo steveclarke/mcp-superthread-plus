@@ -15,11 +15,11 @@ import { createToolHandler, buildParams } from "./helpers.js"
  */
 export function registerNoteTools(server: McpServer): void {
   // ============================================================================
-  // TOOL: note_creates
+  // TOOL: note_create
   // Create one or more meeting notes in a single operation
   // ============================================================================
   server.registerTool(
-    "note_creates",
+    "note_create",
     {
       title: "Create Notes",
       description:
@@ -159,11 +159,11 @@ export function registerNoteTools(server: McpServer): void {
   )
 
   // ============================================================================
-  // TOOL: note_gets
+  // TOOL: note_get
   // Get detailed information about one or more notes in a single operation
   // ============================================================================
   server.registerTool(
-    "note_gets",
+    "note_get",
     {
       title: "Get Notes",
       description:
@@ -212,11 +212,11 @@ export function registerNoteTools(server: McpServer): void {
   )
 
   // ============================================================================
-  // TOOL: note_deletes
+  // TOOL: note_delete
   // Permanently delete one or more notes in a single operation
   // ============================================================================
   server.registerTool(
-    "note_deletes",
+    "note_delete",
     {
       title: "Delete Notes",
       description:

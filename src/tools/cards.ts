@@ -23,11 +23,11 @@ import { config } from "../config.js"
  */
 export function registerCardTools(server: McpServer) {
   // ============================================================================
-  // TOOL: card_creates
+  // TOOL: card_create
   // Create one or more cards (batch operation)
   // ============================================================================
   server.registerTool(
-    "card_creates",
+    "card_create",
     {
       title: "Create Cards",
       description:
@@ -154,11 +154,11 @@ export function registerCardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: card_updates
+  // TOOL: card_update
   // Update multiple cards' attributes (batch operation)
   // ============================================================================
   server.registerTool(
-    "card_updates",
+    "card_update",
     {
       title: "Update Cards",
       description:
@@ -270,11 +270,11 @@ export function registerCardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: card_gets
+  // TOOL: card_get
   // Get detailed information about multiple cards (batch operation)
   // ============================================================================
   server.registerTool(
-    "card_gets",
+    "card_get",
     {
       title: "Get Cards",
       description:
@@ -370,11 +370,11 @@ export function registerCardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: card_add_relateds
+  // TOOL: card_add_related
   // Create multiple card relationships (batch operation)
   // ============================================================================
   server.registerTool(
-    "card_add_relateds",
+    "card_add_related",
     {
       title: "Add Related Cards",
       description:
@@ -425,11 +425,11 @@ export function registerCardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: card_remove_relateds
+  // TOOL: card_remove_related
   // Remove multiple card relationships (batch operation)
   // ============================================================================
   server.registerTool(
-    "card_remove_relateds",
+    "card_remove_related",
     {
       title: "Remove Related Cards",
       description:
@@ -476,11 +476,11 @@ export function registerCardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: card_duplicates
+  // TOOL: card_duplicate
   // Clone multiple existing cards (batch operation)
   // ============================================================================
   server.registerTool(
-    "card_duplicates",
+    "card_duplicate",
     {
       title: "Duplicate Cards",
       description:
@@ -511,11 +511,11 @@ export function registerCardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: card_deletes
+  // TOOL: card_delete
   // Permanently delete multiple cards (batch operation)
   // ============================================================================
   server.registerTool(
-    "card_deletes",
+    "card_delete",
     {
       title: "Delete Cards",
       description:
@@ -607,11 +607,11 @@ export function registerCardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: card_remove_tags
+  // TOOL: card_remove_tag
   // Remove tags from cards in a single operation
   // ============================================================================
   server.registerTool(
-    "card_remove_tags",
+    "card_remove_tag",
     {
       title: "Remove Tags from Cards",
       description:
@@ -656,11 +656,11 @@ export function registerCardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: card_add_members
+  // TOOL: card_add_member
   // Assign members to cards (batch operation)
   // ============================================================================
   server.registerTool(
-    "card_add_members",
+    "card_add_member",
     {
       title: "Add Members to Cards",
       description:
@@ -708,11 +708,11 @@ export function registerCardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: card_remove_members
+  // TOOL: card_remove_member
   // Remove member assignments from cards (batch operation)
   // ============================================================================
   server.registerTool(
-    "card_remove_members",
+    "card_remove_member",
     {
       title: "Remove Members from Cards",
       description:
@@ -753,11 +753,11 @@ export function registerCardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: card_create_checklists
+  // TOOL: card_create_checklist
   // Create checklists on cards (batch operation)
   // ============================================================================
   server.registerTool(
-    "card_create_checklists",
+    "card_create_checklist",
     {
       title: "Create Checklists on Cards",
       description:
@@ -802,11 +802,11 @@ export function registerCardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: card_add_checklist_items
+  // TOOL: card_add_checklist_item
   // Add items to an existing checklist (batch operation)
   // ============================================================================
   server.registerTool(
-    "card_add_checklist_items",
+    "card_add_checklist_item",
     {
       title: "Add Items to Checklist",
       description:
@@ -862,11 +862,11 @@ export function registerCardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: card_update_checklist_items
+  // TOOL: card_update_checklist_item
   // Update multiple checklist items (batch operation)
   // ============================================================================
   server.registerTool(
-    "card_update_checklist_items",
+    "card_update_checklist_item",
     {
       title: "Update Checklist Items",
       description:
@@ -931,11 +931,11 @@ export function registerCardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: card_delete_checklist_items
+  // TOOL: card_delete_checklist_item
   // Delete checklist items permanently (batch operation)
   // ============================================================================
   server.registerTool(
-    "card_delete_checklist_items",
+    "card_delete_checklist_item",
     {
       title: "Delete Checklist Items",
       description:
@@ -975,11 +975,11 @@ export function registerCardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: card_update_checklists
+  // TOOL: card_update_checklist
   // Update checklist titles (batch operation)
   // ============================================================================
   server.registerTool(
-    "card_update_checklists",
+    "card_update_checklist",
     {
       title: "Update Checklists",
       description:
@@ -1027,11 +1027,11 @@ export function registerCardTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: card_delete_checklists
+  // TOOL: card_delete_checklist
   // Delete checklists from cards (batch operation)
   // ============================================================================
   server.registerTool(
-    "card_delete_checklists",
+    "card_delete_checklist",
     {
       title: "Delete Checklists",
       description:

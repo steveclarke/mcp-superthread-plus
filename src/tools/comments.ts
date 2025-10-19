@@ -20,11 +20,11 @@ import { createToolHandler, buildParams } from "./helpers.js"
  */
 export function registerCommentTools(server: McpServer) {
   // ============================================================================
-  // TOOL: comment_creates
+  // TOOL: comment_create
   // Create one or more comments (batch operation)
   // ============================================================================
   server.registerTool(
-    "comment_creates",
+    "comment_create",
     {
       title: "Create Comments",
       description:
@@ -94,11 +94,11 @@ export function registerCommentTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: comment_updates
+  // TOOL: comment_update
   // Update one or more comments (batch operation)
   // ============================================================================
   server.registerTool(
-    "comment_updates",
+    "comment_update",
     {
       title: "Update Comments",
       description:
@@ -170,11 +170,11 @@ export function registerCommentTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: comment_replies
+  // TOOL: comment_reply
   // Reply to comments (batch operation)
   // ============================================================================
   server.registerTool(
-    "comment_replies",
+    "comment_reply",
     {
       title: "Reply to Comments",
       description:
@@ -234,11 +234,11 @@ export function registerCommentTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: comment_gets
+  // TOOL: comment_get
   // Get detailed information about one or more comments in a single operation
   // ============================================================================
   server.registerTool(
-    "comment_gets",
+    "comment_get",
     {
       title: "Get Comments",
       description:
@@ -269,11 +269,11 @@ export function registerCommentTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: comment_deletes
+  // TOOL: comment_delete
   // Permanently delete one or more comments (batch operation)
   // ============================================================================
   server.registerTool(
-    "comment_deletes",
+    "comment_delete",
     {
       title: "Delete Comments",
       description:
@@ -332,11 +332,11 @@ export function registerCommentTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: comment_update_replies
+  // TOOL: comment_update_reply
   // Update one or more comment replies (batch operation)
   // ============================================================================
   server.registerTool(
-    "comment_update_replies",
+    "comment_update_reply",
     {
       title: "Update Replies",
       description:
@@ -411,11 +411,11 @@ export function registerCommentTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: comment_delete_replies
+  // TOOL: comment_delete_reply
   // Permanently delete one or more replies (batch operation)
   // ============================================================================
   server.registerTool(
-    "comment_delete_replies",
+    "comment_delete_reply",
     {
       title: "Delete Replies",
       description:

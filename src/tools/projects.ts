@@ -35,11 +35,11 @@ export function registerProjectTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: project_gets
+  // TOOL: project_get
   // Get detailed information about one or more projects in a single operation
   // ============================================================================
   server.registerTool(
-    "project_gets",
+    "project_get",
     {
       title: "Get Projects",
       description:
@@ -70,11 +70,11 @@ export function registerProjectTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: project_creates
+  // TOOL: project_create
   // Create one or more roadmap projects (epics) in a single operation
   // ============================================================================
   server.registerTool(
-    "project_creates",
+    "project_create",
     {
       title: "Create Projects",
       description:
@@ -141,11 +141,11 @@ export function registerProjectTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: project_updates
+  // TOOL: project_update
   // Update one or more existing projects' properties in a single operation
   // ============================================================================
   server.registerTool(
-    "project_updates",
+    "project_update",
     {
       title: "Update Projects",
       description:
@@ -215,11 +215,11 @@ export function registerProjectTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: project_deletes
+  // TOOL: project_delete
   // Permanently delete one or more projects in a single operation
   // ============================================================================
   server.registerTool(
-    "project_deletes",
+    "project_delete",
     {
       title: "Delete Projects",
       description:
@@ -250,11 +250,11 @@ export function registerProjectTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: project_add_relateds
+  // TOOL: project_add_related
   // Link one or more cards to roadmap projects (epics) in a single operation
   // ============================================================================
   server.registerTool(
-    "project_add_relateds",
+    "project_add_related",
     {
       title: "Add Related Cards to Projects",
       description:
@@ -301,11 +301,11 @@ export function registerProjectTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: project_remove_relateds
+  // TOOL: project_remove_related
   // Remove one or more card links from projects in a single operation
   // ============================================================================
   server.registerTool(
-    "project_remove_relateds",
+    "project_remove_related",
     {
       title: "Remove Related Cards from Projects",
       description:

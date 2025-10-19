@@ -15,11 +15,11 @@ import { createToolHandler, buildParams } from "./helpers.js"
  */
 export function registerTagTools(server: McpServer) {
   // ============================================================================
-  // TOOL: tag_creates
+  // TOOL: tag_create
   // Create one or more tags (batch operation)
   // ============================================================================
   server.registerTool(
-    "tag_creates",
+    "tag_create",
     {
       title: "Create Tags",
       description:
@@ -71,11 +71,11 @@ export function registerTagTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: tag_updates
+  // TOOL: tag_update
   // Update one or more tags (batch operation)
   // ============================================================================
   server.registerTool(
-    "tag_updates",
+    "tag_update",
     {
       title: "Update Tags",
       description:
@@ -130,11 +130,11 @@ export function registerTagTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: tag_deletes
+  // TOOL: tag_delete
   // Permanently delete one or more tags (batch operation)
   // ============================================================================
   server.registerTool(
-    "tag_deletes",
+    "tag_delete",
     {
       title: "Delete Tags",
       description:

@@ -5,109 +5,111 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Changed
-- **BREAKING CHANGE:** Converted all write operations to batch operations with array-based parameters
-  - Replaced singular tools with plural batch versions (e.g., `card_create` → `card_creates`, `page_create` → `page_creates`)
-  - All tools now require array parameters, even for single operations
-  - LLMs always use arrays for consistency (e.g., `cards: [{ workspace_id, card_id, title, ... }]`)
+- **BREAKING CHANGE:** Renamed all batch tools from plural to singular for better grammar
+  - Changed tool names to singular while keeping plural array parameters (e.g., `card_creates` → `card_create`, `page_creates` → `page_create`)
+  - All tools still require array parameters, even for single operations
+  - LLMs always use arrays for consistency (e.g., `card_create({ cards: [{ workspace_id, card_id, title, ... }] })`)
+  - Follows industry best practices (Stripe, GitHub APIs use singular names for batch operations)
+  - Three layers prevent LLM confusion: singular tool name + plural parameter name (`cards:`) + array schema
   - Enables efficient bulk operations (create/update/delete multiple items in one call)
   - Fully self-contained objects: each card/tag/space/board/list/comment/project/page/note includes all necessary parameters
   - Sequential processing ensures proper parent-child dependencies
   - Preserved smart positioning logic for all card creation/update operations
 
 ### Added
-- Batch card operations (all new plural tools):
-  - `card_creates` - Create multiple cards with full hierarchy support
-  - `card_updates` - Update multiple cards (list moves, archiving, priority changes, etc.)
-  - `card_gets` - Retrieve multiple cards in one call
-  - `card_deletes` - Delete multiple cards
-  - `card_duplicates` - Duplicate multiple cards
-  - `card_add_relateds` - Create multiple card relationships (blocks, blocked_by, related, duplicates)
-  - `card_remove_relateds` - Remove multiple card relationships
-  - `card_add_members` - Bulk member assignments to cards
-  - `card_remove_members` - Bulk member removals from cards
-  - `card_create_checklists` - Create multiple checklists on cards
-  - `card_update_checklists` - Update multiple checklist titles
-  - `card_delete_checklists` - Delete multiple checklists
-  - `card_add_checklist_items` - Add multiple items to checklists (now supports `checked` parameter)
-  - `card_update_checklist_items` - Update multiple checklist items (check/uncheck, edit text)
-  - `card_delete_checklist_items` - Delete multiple checklist items
-- Batch tag operations (all new plural tools):
-  - `tag_creates` - Create multiple tags in one call
-  - `tag_updates` - Update multiple tags (name/color changes)
-  - `tag_deletes` - Delete multiple tags permanently
-- Batch space operations (all new plural tools):
-  - `space_creates` - Create multiple spaces (organizational containers)
-  - `space_updates` - Update multiple spaces
-  - `space_deletes` - Delete multiple spaces
-  - `space_add_members` - Add members to spaces in batch
-  - `space_remove_members` - Remove members from spaces in batch
-- Batch board operations (all new plural tools):
-  - `board_creates` - Create multiple boards
-  - `board_updates` - Update multiple boards
-  - `board_deletes` - Delete multiple boards
-  - `board_create_lists` - Create multiple lists (columns/statuses)
-  - `board_update_lists` - Update multiple lists
-  - `board_delete_lists` - Delete multiple lists
-- Batch comment operations (all new plural tools):
-  - `comment_creates` - Create multiple comments
-  - `comment_updates` - Update multiple comments
-  - `comment_deletes` - Delete multiple comments
-  - `comment_replies` - Create multiple replies
-  - `comment_update_replies` - Update multiple replies
-  - `comment_delete_replies` - Delete multiple replies
-- Batch project operations (all new plural tools):
-  - `project_creates` - Create multiple roadmap projects (epics)
-  - `project_updates` - Update multiple projects
-  - `project_deletes` - Delete multiple projects
-  - `project_add_relateds` - Link multiple cards to projects
-  - `project_remove_relateds` - Remove multiple card-project links
-- Batch page operations (all new plural tools):
-  - `page_creates` - Create multiple pages
-  - `page_updates` - Update multiple pages
-  - `page_archives` - Archive multiple pages
-  - `page_deletes` - Delete multiple pages
-- Batch note operations (all new plural tools):
-  - `note_creates` - Create multiple meeting notes
-  - `note_deletes` - Delete multiple notes
+- Batch card operations (singular tool names with array parameters):
+  - `card_create` - Create multiple cards with full hierarchy support
+  - `card_update` - Update multiple cards (list moves, archiving, priority changes, etc.)
+  - `card_get` - Retrieve multiple cards in one call
+  - `card_delete` - Delete multiple cards
+  - `card_duplicate` - Duplicate multiple cards
+  - `card_add_related` - Create multiple card relationships (blocks, blocked_by, related, duplicates)
+  - `card_remove_related` - Remove multiple card relationships
+  - `card_add_member` - Bulk member assignments to cards
+  - `card_remove_member` - Bulk member removals from cards
+  - `card_create_checklist` - Create multiple checklists on cards
+  - `card_update_checklist` - Update multiple checklist titles
+  - `card_delete_checklist` - Delete multiple checklists
+  - `card_add_checklist_item` - Add multiple items to checklists (now supports `checked` parameter)
+  - `card_update_checklist_item` - Update multiple checklist items (check/uncheck, edit text)
+  - `card_delete_checklist_item` - Delete multiple checklist items
+- Batch tag operations (singular tool names with array parameters):
+  - `tag_create` - Create multiple tags in one call
+  - `tag_update` - Update multiple tags (name/color changes)
+  - `tag_delete` - Delete multiple tags permanently
+- Batch space operations (singular tool names with array parameters):
+  - `space_create` - Create multiple spaces (organizational containers)
+  - `space_update` - Update multiple spaces
+  - `space_delete` - Delete multiple spaces
+  - `space_add_member` - Add members to spaces in batch
+  - `space_remove_member` - Remove members from spaces in batch
+- Batch board operations (singular tool names with array parameters):
+  - `board_create` - Create multiple boards
+  - `board_update` - Update multiple boards
+  - `board_delete` - Delete multiple boards
+  - `board_create_list` - Create multiple lists (columns/statuses)
+  - `board_update_list` - Update multiple lists
+  - `board_delete_list` - Delete multiple lists
+- Batch comment operations (singular tool names with array parameters):
+  - `comment_create` - Create multiple comments
+  - `comment_update` - Update multiple comments
+  - `comment_delete` - Delete multiple comments
+  - `comment_reply` - Create multiple replies
+  - `comment_update_reply` - Update multiple replies
+  - `comment_delete_reply` - Delete multiple replies
+- Batch project operations (singular tool names with array parameters):
+  - `project_create` - Create multiple roadmap projects (epics)
+  - `project_update` - Update multiple projects
+  - `project_delete` - Delete multiple projects
+  - `project_add_related` - Link multiple cards to projects
+  - `project_remove_related` - Remove multiple card-project links
+- Batch page operations (singular tool names with array parameters):
+  - `page_create` - Create multiple pages
+  - `page_update` - Update multiple pages
+  - `page_archive` - Archive multiple pages
+  - `page_delete` - Delete multiple pages
+- Batch note operations (singular tool names with array parameters):
+  - `note_create` - Create multiple meeting notes
+  - `note_delete` - Delete multiple notes
 - Enhanced card tag management:
-  - `card_remove_tags` - Remove tags from cards in batch (replaces `card_remove_tag`)
-- Batch read/get operations (all new plural tools):
-  - `project_gets` - Get multiple projects in one call
-  - `board_gets` - Get multiple boards in one call
-  - `sprint_gets` - Get multiple sprints in one call
-  - `space_gets` - Get multiple spaces in one call
-  - `page_gets` - Get multiple pages in one call
-  - `note_gets` - Get multiple notes in one call
-  - `comment_gets` - Get multiple comments in one call
+  - `card_remove_tag` - Remove tags from cards in batch
+- Batch read/get operations (singular tool names with array parameters):
+  - `project_get` - Get multiple projects in one call
+  - `board_get` - Get multiple boards in one call
+  - `sprint_get` - Get multiple sprints in one call
+  - `space_get` - Get multiple spaces in one call
+  - `page_get` - Get multiple pages in one call
+  - `note_get` - Get multiple notes in one call
+  - `comment_get` - Get multiple comments in one call
 - Checklist item `checked` parameter support
-  - Items can now be created as already checked via `card_add_checklist_items`
+  - Items can now be created as already checked via `card_add_checklist_item`
   - Eliminates need for separate update calls when creating pre-checked items
 
 ### Removed
-- Singular card tools (replaced with batch versions):
-  - `card_create`, `card_update`, `card_get`, `card_delete`, `card_duplicate`
-  - `card_add_related`, `card_remove_related`
-  - `card_add_member`, `card_remove_member`
-  - `card_create_checklist`, `card_delete_checklist`, `card_update_checklist`
-  - `card_add_checklist_item`, `card_update_checklist_item`, `card_delete_checklist_item`
-- Singular tag tools (replaced with batch versions):
-  - `tag_create`, `tag_update`, `tag_delete`
-- Singular space tools (replaced with batch versions):
-  - `space_create`, `space_update`, `space_delete`, `space_add_member`, `space_remove_member`
-- Singular board tools (replaced with batch versions):
-  - `board_create`, `board_update`, `board_delete`, `board_create_list`, `board_update_list`, `board_delete_list`
-- Singular comment tools (replaced with batch versions):
-  - `comment_create`, `comment_update`, `comment_delete`, `comment_reply`, `comment_update_reply`, `comment_delete_reply`
-- Singular project tools (replaced with batch versions):
-  - `project_create`, `project_update`, `project_delete`, `project_add_related`, `project_remove_related`
-- Singular page tools (replaced with batch versions):
-  - `page_create`, `page_update`, `page_archive`, `page_delete`
-- Singular note tools (replaced with batch versions):
-  - `note_create`, `note_delete`
-- Singular card tag tool (replaced with batch version):
-  - `card_remove_tag`
-- Singular read/get tools (replaced with batch versions):
-  - `project_get`, `board_get`, `sprint_get`, `space_get`, `page_get`, `note_get`, `comment_get`
+- Plural card tools (renamed to singular):
+  - `card_creates`, `card_updates`, `card_gets`, `card_deletes`, `card_duplicates`
+  - `card_add_relateds`, `card_remove_relateds`
+  - `card_add_members`, `card_remove_members`
+  - `card_create_checklists`, `card_delete_checklists`, `card_update_checklists`
+  - `card_add_checklist_items`, `card_update_checklist_items`, `card_delete_checklist_items`
+- Plural tag tools (renamed to singular):
+  - `tag_creates`, `tag_updates`, `tag_deletes`
+- Plural space tools (renamed to singular):
+  - `space_creates`, `space_updates`, `space_deletes`, `space_add_members`, `space_remove_members`
+- Plural board tools (renamed to singular):
+  - `board_creates`, `board_updates`, `board_deletes`, `board_create_lists`, `board_update_lists`, `board_delete_lists`
+- Plural comment tools (renamed to singular):
+  - `comment_creates`, `comment_updates`, `comment_deletes`, `comment_replies`, `comment_update_replies`, `comment_delete_replies`
+- Plural project tools (renamed to singular):
+  - `project_creates`, `project_updates`, `project_deletes`, `project_add_relateds`, `project_remove_relateds`
+- Plural page tools (renamed to singular):
+  - `page_creates`, `page_updates`, `page_archives`, `page_deletes`
+- Plural note tools (renamed to singular):
+  - `note_creates`, `note_deletes`
+- Plural card tag tool (renamed to singular):
+  - `card_remove_tags`
+- Plural read/get tools (renamed to singular):
+  - `project_gets`, `board_gets`, `sprint_gets`, `space_gets`, `page_gets`, `note_gets`, `comment_gets`
 
 ### Performance Impact
 - Reduces MCP tool calls by up to 80% for bulk operations

@@ -33,11 +33,11 @@ export function registerSpaceTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: space_gets
+  // TOOL: space_get
   // Get detailed information about one or more spaces in a single operation
   // ============================================================================
   server.registerTool(
-    "space_gets",
+    "space_get",
     {
       title: "Get Spaces",
       description:
@@ -68,11 +68,11 @@ export function registerSpaceTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: space_creates
+  // TOOL: space_create
   // Create one or more spaces (batch operation)
   // ============================================================================
   server.registerTool(
-    "space_creates",
+    "space_create",
     {
       title: "Create Spaces",
       description:
@@ -132,11 +132,11 @@ export function registerSpaceTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: space_updates
+  // TOOL: space_update
   // Update one or more spaces (batch operation)
   // ============================================================================
   server.registerTool(
-    "space_updates",
+    "space_update",
     {
       title: "Update Spaces",
       description:
@@ -201,11 +201,11 @@ export function registerSpaceTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: space_add_members
+  // TOOL: space_add_member
   // Add members to spaces (batch operation)
   // ============================================================================
   server.registerTool(
-    "space_add_members",
+    "space_add_member",
     {
       title: "Add Members to Spaces",
       description:
@@ -251,11 +251,11 @@ export function registerSpaceTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: space_remove_members
+  // TOOL: space_remove_member
   // Remove members from spaces (batch operation)
   // ============================================================================
   server.registerTool(
-    "space_remove_members",
+    "space_remove_member",
     {
       title: "Remove Members from Spaces",
       description:
@@ -300,11 +300,11 @@ export function registerSpaceTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: space_deletes
+  // TOOL: space_delete
   // Permanently delete one or more spaces (batch operation)
   // ============================================================================
   server.registerTool(
-    "space_deletes",
+    "space_delete",
     {
       title: "Delete Spaces",
       description:

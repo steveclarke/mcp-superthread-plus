@@ -15,11 +15,11 @@ import { createToolHandler, buildParams } from "./helpers.js"
  */
 export function registerPageTools(server: McpServer): void {
   // ============================================================================
-  // TOOL: page_creates
+  // TOOL: page_create
   // Create one or more documentation pages in a single operation
   // ============================================================================
   server.registerTool(
-    "page_creates",
+    "page_create",
     {
       title: "Create Pages",
       description:
@@ -126,11 +126,11 @@ export function registerPageTools(server: McpServer): void {
   )
 
   // ============================================================================
-  // TOOL: page_updates
+  // TOOL: page_update
   // Update one or more existing pages' properties in a single operation
   // ============================================================================
   server.registerTool(
-    "page_updates",
+    "page_update",
     {
       title: "Update Pages",
       description:
@@ -261,11 +261,11 @@ export function registerPageTools(server: McpServer): void {
   )
 
   // ============================================================================
-  // TOOL: page_gets
+  // TOOL: page_get
   // Get detailed information about one or more pages in a single operation
   // ============================================================================
   server.registerTool(
-    "page_gets",
+    "page_get",
     {
       title: "Get Pages",
       description:
@@ -365,11 +365,11 @@ export function registerPageTools(server: McpServer): void {
   )
 
   // ============================================================================
-  // TOOL: page_archives
+  // TOOL: page_archive
   // Archive one or more pages in a single operation (soft delete)
   // ============================================================================
   server.registerTool(
-    "page_archives",
+    "page_archive",
     {
       title: "Archive Pages",
       description:
@@ -400,11 +400,11 @@ export function registerPageTools(server: McpServer): void {
   )
 
   // ============================================================================
-  // TOOL: page_deletes
+  // TOOL: page_delete
   // Permanently delete one or more pages in a single operation
   // ============================================================================
   server.registerTool(
-    "page_deletes",
+    "page_delete",
     {
       title: "Delete Pages",
       description:
