@@ -5,12 +5,12 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Changed
-- **BREAKING CHANGE:** Converted all card, tag, space, and board tools to batch operations with array-based parameters
-  - Replaced singular tools with plural batch versions (e.g., `card_create` → `card_creates`, `space_create` → `space_creates`)
+- **BREAKING CHANGE:** Converted all card, tag, space, board, comment, and project tools to batch operations with array-based parameters
+  - Replaced singular tools with plural batch versions (e.g., `card_create` → `card_creates`, `project_create` → `project_creates`)
   - All tools now require array parameters, even for single operations
   - LLMs always use arrays for consistency (e.g., `cards: [{ workspace_id, card_id, title, ... }]`)
   - Enables efficient bulk operations (create/update/delete multiple items in one call)
-  - Fully self-contained objects: each card/tag/space/board/list includes all necessary parameters
+  - Fully self-contained objects: each card/tag/space/board/list/comment/project includes all necessary parameters
   - Sequential processing ensures proper parent-child dependencies
   - Preserved smart positioning logic for all card creation/update operations
 
@@ -48,6 +48,19 @@ All notable changes to this project will be documented in this file.
   - `board_create_lists` - Create multiple lists (columns/statuses)
   - `board_update_lists` - Update multiple lists
   - `board_delete_lists` - Delete multiple lists
+- Batch comment operations (all new plural tools):
+  - `comment_creates` - Create multiple comments
+  - `comment_updates` - Update multiple comments
+  - `comment_deletes` - Delete multiple comments
+  - `comment_replies` - Create multiple replies
+  - `comment_update_replies` - Update multiple replies
+  - `comment_delete_replies` - Delete multiple replies
+- Batch project operations (all new plural tools):
+  - `project_creates` - Create multiple roadmap projects (epics)
+  - `project_updates` - Update multiple projects
+  - `project_deletes` - Delete multiple projects
+  - `project_add_relateds` - Link multiple cards to projects
+  - `project_remove_relateds` - Remove multiple card-project links
 - Checklist item `checked` parameter support
   - Items can now be created as already checked via `card_add_checklist_items`
   - Eliminates need for separate update calls when creating pre-checked items
@@ -65,6 +78,10 @@ All notable changes to this project will be documented in this file.
   - `space_create`, `space_update`, `space_delete`, `space_add_member`, `space_remove_member`
 - Singular board tools (replaced with batch versions):
   - `board_create`, `board_update`, `board_delete`, `board_create_list`, `board_update_list`, `board_delete_list`
+- Singular comment tools (replaced with batch versions):
+  - `comment_create`, `comment_update`, `comment_delete`, `comment_reply`, `comment_update_reply`, `comment_delete_reply`
+- Singular project tools (replaced with batch versions):
+  - `project_create`, `project_update`, `project_delete`, `project_add_related`, `project_remove_related`
 
 ### Performance Impact
 - Reduces MCP tool calls by up to 80% for bulk operations

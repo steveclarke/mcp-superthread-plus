@@ -20,160 +20,215 @@ import { createToolHandler, buildParams } from "./helpers.js"
  */
 export function registerCommentTools(server: McpServer) {
   // ============================================================================
-  // TOOL: comment_create
-  // Create a new comment on a card or page
+  // TOOL: comment_creates
+  // Create one or more comments (batch operation)
   // ============================================================================
   server.registerTool(
-    "comment_create",
+    "comment_creates",
     {
-      title: "Create Comment",
+      title: "Create Comments",
       description:
-        'Adds a new comment to a specified card or page. Content supports HTML formatting including: text formatting (<strong>, <em>, <s>, <u>, <code>), block elements (<p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>), lists (<ul><li>, <ol><li>), and links (<a href="">). Plain text also works. Supports @mentions - use {{@Username}} syntax to tag workspace members (names must match exactly). To output literal {{@Name}} text without mentioning, escape it with backslash: \\{{@Name}}. The content field is required, with optional fields for context, page_id, or card_id.',
+        'Create one or more comments in a single operation. Each comment is fully self-contained with all parameters. Always use an array, even for a single comment. Content supports HTML formatting including: text formatting (<strong>, <em>, <s>, <u>, <code>), block elements (<p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>), lists (<ul><li>, <ol><li>), and links (<a href="">). Plain text also works. Supports @mentions - use {{@Username}} syntax to tag workspace members (names must match exactly). To output literal {{@Name}} text without mentioning, escape it with backslash: \\{{@Name}}.',
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        content: z
-          .string()
-          .max(102400)
-          .describe(
-            'Comment text (required, maximum 102400 characters). Supports HTML formatting: <strong>, <em>, <s>, <u>, <code>, <p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>, <ul><li>, <ol><li>, <a href="">. Plain text also works. To mention users, use {{@Username}} syntax (e.g., {{@Steve Clarke}}). Use \\{{@Name}} to output literal template text.'
-          ),
-        card_id: z.string().optional().describe("Card ID to attach comment to"),
-        page_id: z.string().optional().describe("Page ID to attach comment to"),
-        schema: z.number().optional().describe("Schema version (defaults to 1)"),
-        context: z.string().optional().describe("Highlighted text context"),
+        comments: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              content: z
+                .string()
+                .max(102400)
+                .describe(
+                  'Comment text (required, maximum 102400 characters). Supports HTML formatting: <strong>, <em>, <s>, <u>, <code>, <p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>, <ul><li>, <ol><li>, <a href="">. Plain text also works. To mention users, use {{@Username}} syntax (e.g., {{@Steve Clarke}}). Use \\{{@Name}} to output literal template text.'
+                ),
+              card_id: z.string().optional().describe("Card ID to attach comment to"),
+              page_id: z.string().optional().describe("Page ID to attach comment to"),
+              schema: z.number().optional().describe("Schema version (defaults to 1)"),
+              context: z.string().optional().describe("Highlighted text context"),
+            })
+          )
+          .describe("Array of comments to create (use single-element array for one comment)"),
       },
     },
     createToolHandler(
       async (
         client,
         args: {
-          workspace_id: string
-          content: string
-          card_id?: string
-          page_id?: string
-          schema?: number
-          context?: string
+          comments: Array<{
+            workspace_id: string
+            content: string
+            card_id?: string
+            page_id?: string
+            schema?: number
+            context?: string
+          }>
         }
       ) => {
-        // Process @mentions in content
-        const processedContent = await formatMentions(args.content, args.workspace_id, client)
+        // Process comments sequentially
+        const results = []
+        for (const comment of args.comments) {
+          // Process @mentions in content
+          const processedContent = await formatMentions(
+            comment.content,
+            comment.workspace_id,
+            client
+          )
 
-        const params = buildParams<CreateCommentParams>({
-          content: processedContent,
-          card_id: args.card_id,
-          page_id: args.page_id,
-          schema: args.schema,
-          context: args.context,
-        })
+          const params = buildParams<CreateCommentParams>({
+            content: processedContent,
+            card_id: comment.card_id,
+            page_id: comment.page_id,
+            schema: comment.schema,
+            context: comment.context,
+          })
 
-        return client.comments.create(args.workspace_id, params as CreateCommentParams)
+          const result = await client.comments.create(
+            comment.workspace_id,
+            params as CreateCommentParams
+          )
+          results.push(result)
+        }
+
+        return { comments: results }
       }
     )
   )
 
   // ============================================================================
-  // TOOL: comment_update
-  // Edit an existing comment's content or status
+  // TOOL: comment_updates
+  // Update one or more comments (batch operation)
   // ============================================================================
   server.registerTool(
-    "comment_update",
+    "comment_updates",
     {
-      title: "Edit Comment",
+      title: "Update Comments",
       description:
-        'Modifies the fields of an existing comment. Content supports HTML formatting including: text formatting (<strong>, <em>, <s>, <u>, <code>), block elements (<p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>), lists (<ul><li>, <ol><li>), and links (<a href="">). Plain text also works. Supports @mentions - use {{@Username}} syntax to tag workspace members (names must match exactly). To output literal {{@Name}} text without mentioning, escape it with backslash: \\{{@Name}}. Only the original author can modify comments. The request body should specify the fields to update, such as content, status, or context. Omitted fields will remain unchanged. The status field accepts the following values: resolved, open, orphaned.',
+        'Update one or more comments in a single operation. Each comment is fully self-contained with all parameters. Always use an array, even for a single comment. Content supports HTML formatting including: text formatting (<strong>, <em>, <s>, <u>, <code>), block elements (<p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>), lists (<ul><li>, <ol><li>), and links (<a href="">). Plain text also works. Supports @mentions - use {{@Username}} syntax to tag workspace members (names must match exactly). To output literal {{@Name}} text without mentioning, escape it with backslash: \\{{@Name}}. Only the original author can modify comments.',
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        comment_id: z.string().describe("Comment ID to update"),
-        content: z
-          .string()
-          .max(102400)
-          .optional()
-          .describe(
-            'Updated comment text (maximum 102400 characters). Supports HTML formatting: <strong>, <em>, <s>, <u>, <code>, <p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>, <ul><li>, <ol><li>, <a href="">. Plain text also works. To mention users, use {{@Username}} syntax (e.g., {{@Steve Clarke}}). Use \\{{@Name}} to output literal template text.'
-          ),
-        status: z.enum(["resolved", "open", "orphaned"]).optional().describe("Comment status"),
-        context: z.string().optional().describe("Updated highlighted text context"),
-        schema: z.number().optional().describe("Schema version"),
+        comments: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              comment_id: z.string().describe("Comment ID to update"),
+              content: z
+                .string()
+                .max(102400)
+                .optional()
+                .describe(
+                  'Updated comment text (maximum 102400 characters). Supports HTML formatting: <strong>, <em>, <s>, <u>, <code>, <p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>, <ul><li>, <ol><li>, <a href="">. Plain text also works. To mention users, use {{@Username}} syntax (e.g., {{@Steve Clarke}}). Use \\{{@Name}} to output literal template text.'
+                ),
+              status: z
+                .enum(["resolved", "open", "orphaned"])
+                .optional()
+                .describe("Comment status"),
+              context: z.string().optional().describe("Updated highlighted text context"),
+              schema: z.number().optional().describe("Schema version"),
+            })
+          )
+          .describe("Array of comments to update (use single-element array for one comment)"),
       },
     },
     createToolHandler(
       async (
         client,
         args: {
-          workspace_id: string
-          comment_id: string
-          content?: string
-          status?: "resolved" | "open" | "orphaned"
-          context?: string
-          schema?: number
+          comments: Array<{
+            workspace_id: string
+            comment_id: string
+            content?: string
+            status?: "resolved" | "open" | "orphaned"
+            context?: string
+            schema?: number
+          }>
         }
       ) => {
-        // Process @mentions in content if provided
-        const processedContent = args.content
-          ? await formatMentions(args.content, args.workspace_id, client)
-          : undefined
+        // Process comments sequentially
+        const results = []
+        for (const comment of args.comments) {
+          // Process @mentions in content if provided
+          const processedContent = comment.content
+            ? await formatMentions(comment.content, comment.workspace_id, client)
+            : undefined
 
-        const params = buildParams<UpdateCommentParams>({
-          content: processedContent,
-          status: args.status,
-          context: args.context,
-          schema: args.schema,
-        })
+          const params = buildParams<UpdateCommentParams>({
+            content: processedContent,
+            status: comment.status,
+            context: comment.context,
+            schema: comment.schema,
+          })
 
-        return client.comments.update(
-          args.workspace_id,
-          args.comment_id,
-          params as UpdateCommentParams
-        )
+          const result = await client.comments.update(
+            comment.workspace_id,
+            comment.comment_id,
+            params as UpdateCommentParams
+          )
+          results.push(result)
+        }
+
+        return { comments: results }
       }
     )
   )
 
   // ============================================================================
-  // TOOL: comment_reply
-  // Reply to an existing comment (create thread)
+  // TOOL: comment_replies
+  // Reply to comments (batch operation)
   // ============================================================================
   server.registerTool(
-    "comment_reply",
+    "comment_replies",
     {
-      title: "Reply to Comment",
+      title: "Reply to Comments",
       description:
-        'Creates a new child comment (reply) under the parent comment specified by comment_id. Content supports HTML formatting including: text formatting (<strong>, <em>, <s>, <u>, <code>), block elements (<p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>), lists (<ul><li>, <ol><li>), and links (<a href="">). Plain text also works. Supports @mentions - use {{@Username}} syntax to tag workspace members (names must match exactly). To output literal {{@Name}} text without mentioning, escape it with backslash: \\{{@Name}}. The request body must include the content field and can optionally include additional metadata such as schema. The child comment can also be referred to as a reply or a thread.',
+        'Create one or more replies to comments in a single operation. Each reply is fully self-contained with all parameters. Always use an array, even for a single reply. Content supports HTML formatting including: text formatting (<strong>, <em>, <s>, <u>, <code>), block elements (<p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>), lists (<ul><li>, <ol><li>), and links (<a href="">). Plain text also works. Supports @mentions - use {{@Username}} syntax to tag workspace members (names must match exactly). To output literal {{@Name}} text without mentioning, escape it with backslash: \\{{@Name}}.',
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        comment_id: z.string().describe("Parent comment ID to reply to"),
-        content: z
-          .string()
-          .max(102400)
-          .describe(
-            'Reply text (required, maximum 102400 characters). Supports HTML formatting: <strong>, <em>, <s>, <u>, <code>, <p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>, <ul><li>, <ol><li>, <a href="">. Plain text also works. To mention users, use {{@Username}} syntax (e.g., {{@Steve Clarke}}). Use \\{{@Name}} to output literal template text.'
-          ),
-        schema: z.number().optional().describe("Schema version"),
+        replies: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              comment_id: z.string().describe("Parent comment ID to reply to"),
+              content: z
+                .string()
+                .max(102400)
+                .describe(
+                  'Reply text (required, maximum 102400 characters). Supports HTML formatting: <strong>, <em>, <s>, <u>, <code>, <p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>, <ul><li>, <ol><li>, <a href="">. Plain text also works. To mention users, use {{@Username}} syntax (e.g., {{@Steve Clarke}}). Use \\{{@Name}} to output literal template text.'
+                ),
+              schema: z.number().optional().describe("Schema version"),
+            })
+          )
+          .describe("Array of replies to create (use single-element array for one reply)"),
       },
     },
     createToolHandler(
       async (
         client,
         args: {
-          workspace_id: string
-          comment_id: string
-          content: string
-          schema?: number
+          replies: Array<{
+            workspace_id: string
+            comment_id: string
+            content: string
+            schema?: number
+          }>
         }
       ) => {
-        // Process @mentions in content
-        const processedContent = await formatMentions(args.content, args.workspace_id, client)
+        // Process replies sequentially
+        const results = []
+        for (const reply of args.replies) {
+          // Process @mentions in content
+          const processedContent = await formatMentions(reply.content, reply.workspace_id, client)
 
-        const params = buildParams<ReplyToCommentParams>({
-          content: processedContent,
-          schema: args.schema,
-        })
+          const params = buildParams<ReplyToCommentParams>({
+            content: processedContent,
+            schema: reply.schema,
+          })
 
-        return client.comments.reply(
-          args.workspace_id,
-          args.comment_id,
-          params as ReplyToCommentParams
-        )
+          const result = await client.comments.reply(
+            reply.workspace_id,
+            reply.comment_id,
+            params as ReplyToCommentParams
+          )
+          results.push(result)
+        }
+
+        return { replies: results }
       }
     )
   )
@@ -199,23 +254,46 @@ export function registerCommentTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: comment_delete
-  // Permanently delete a comment
+  // TOOL: comment_deletes
+  // Permanently delete one or more comments (batch operation)
   // ============================================================================
   server.registerTool(
-    "comment_delete",
+    "comment_deletes",
     {
-      title: "Delete Comment",
+      title: "Delete Comments",
       description:
-        "Permanently removes the comment identified by comment_id. Only the original author can delete their own comment.",
+        "Permanently delete one or more comments in a single operation. Each comment is fully self-contained with all parameters. Always use an array, even for a single comment. Only the original author can delete their own comments.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        comment_id: z.string().describe("Comment ID to delete"),
+        comments: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              comment_id: z.string().describe("Comment ID to delete"),
+            })
+          )
+          .describe("Array of comments to delete (use single-element array for one comment)"),
       },
     },
-    createToolHandler(async (client, args) => {
-      return client.comments.delete(args.workspace_id, args.comment_id)
-    })
+    createToolHandler(
+      async (
+        client,
+        args: {
+          comments: Array<{
+            workspace_id: string
+            comment_id: string
+          }>
+        }
+      ) => {
+        // Process comments sequentially
+        const results = []
+        for (const comment of args.comments) {
+          const result = await client.comments.delete(comment.workspace_id, comment.comment_id)
+          results.push(result)
+        }
+
+        return { deleted: results }
+      }
+    )
   )
 
   // ============================================================================
@@ -239,84 +317,130 @@ export function registerCommentTools(server: McpServer) {
   )
 
   // ============================================================================
-  // TOOL: comment_update_reply
-  // Edit a reply to a comment
+  // TOOL: comment_update_replies
+  // Update one or more comment replies (batch operation)
   // ============================================================================
   server.registerTool(
-    "comment_update_reply",
+    "comment_update_replies",
     {
-      title: "Edit Reply",
+      title: "Update Replies",
       description:
-        'Modifies a specific child comment (reply). Content supports HTML formatting including: text formatting (<strong>, <em>, <s>, <u>, <code>), block elements (<p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>), lists (<ul><li>, <ol><li>), and links (<a href="">). Plain text also works. Supports @mentions - use {{@Username}} syntax to tag workspace members (names must match exactly). To output literal {{@Name}} text without mentioning, escape it with backslash: \\{{@Name}}. Only the original author can modify their reply. The request body should specify the fields to update, such as content, status, or context.',
+        'Update one or more comment replies in a single operation. Each reply is fully self-contained with all parameters. Always use an array, even for a single reply. Content supports HTML formatting including: text formatting (<strong>, <em>, <s>, <u>, <code>), block elements (<p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>), lists (<ul><li>, <ol><li>), and links (<a href="">). Plain text also works. Supports @mentions - use {{@Username}} syntax to tag workspace members (names must match exactly). To output literal {{@Name}} text without mentioning, escape it with backslash: \\{{@Name}}. Only the original author can modify their reply.',
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        comment_id: z.string().describe("Parent comment ID"),
-        child_comment_id: z.string().describe("Child comment ID to update"),
-        content: z
-          .string()
-          .max(102400)
-          .optional()
-          .describe(
-            'Updated comment text (maximum 102400 characters). Supports HTML formatting: <strong>, <em>, <s>, <u>, <code>, <p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>, <ul><li>, <ol><li>, <a href="">. Plain text also works. To mention users, use {{@Username}} syntax (e.g., {{@Steve Clarke}}). Use \\{{@Name}} to output literal template text.'
-          ),
-        status: z.enum(["resolved", "open", "orphaned"]).optional().describe("Comment status"),
-        context: z.string().optional().describe("Updated highlighted text context"),
-        schema: z.number().optional().describe("Schema version"),
+        replies: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              comment_id: z.string().describe("Parent comment ID"),
+              child_comment_id: z.string().describe("Child comment ID to update"),
+              content: z
+                .string()
+                .max(102400)
+                .optional()
+                .describe(
+                  'Updated comment text (maximum 102400 characters). Supports HTML formatting: <strong>, <em>, <s>, <u>, <code>, <p>, <h1>-<h6>, <blockquote>, <pre><code>, <br>, <hr>, <ul><li>, <ol><li>, <a href="">. Plain text also works. To mention users, use {{@Username}} syntax (e.g., {{@Steve Clarke}}). Use \\{{@Name}} to output literal template text.'
+                ),
+              status: z
+                .enum(["resolved", "open", "orphaned"])
+                .optional()
+                .describe("Comment status"),
+              context: z.string().optional().describe("Updated highlighted text context"),
+              schema: z.number().optional().describe("Schema version"),
+            })
+          )
+          .describe("Array of replies to update (use single-element array for one reply)"),
       },
     },
     createToolHandler(
       async (
         client,
         args: {
-          workspace_id: string
-          comment_id: string
-          child_comment_id: string
-          content?: string
-          status?: "resolved" | "open" | "orphaned"
-          context?: string
-          schema?: number
+          replies: Array<{
+            workspace_id: string
+            comment_id: string
+            child_comment_id: string
+            content?: string
+            status?: "resolved" | "open" | "orphaned"
+            context?: string
+            schema?: number
+          }>
         }
       ) => {
-        // Process @mentions in content if provided
-        const processedContent = args.content
-          ? await formatMentions(args.content, args.workspace_id, client)
-          : undefined
+        // Process replies sequentially
+        const results = []
+        for (const reply of args.replies) {
+          // Process @mentions in content if provided
+          const processedContent = reply.content
+            ? await formatMentions(reply.content, reply.workspace_id, client)
+            : undefined
 
-        const params = buildParams<UpdateCommentParams>({
-          content: processedContent,
-          status: args.status,
-          context: args.context,
-          schema: args.schema,
-        })
+          const params = buildParams<UpdateCommentParams>({
+            content: processedContent,
+            status: reply.status,
+            context: reply.context,
+            schema: reply.schema,
+          })
 
-        return client.comments.updateReply(
-          args.workspace_id,
-          args.comment_id,
-          args.child_comment_id,
-          params as UpdateCommentParams
-        )
+          const result = await client.comments.updateReply(
+            reply.workspace_id,
+            reply.comment_id,
+            reply.child_comment_id,
+            params as UpdateCommentParams
+          )
+          results.push(result)
+        }
+
+        return { replies: results }
       }
     )
   )
 
   // ============================================================================
-  // TOOL: comment_delete_reply
-  // Permanently delete a reply to a comment
+  // TOOL: comment_delete_replies
+  // Permanently delete one or more replies (batch operation)
   // ============================================================================
   server.registerTool(
-    "comment_delete_reply",
+    "comment_delete_replies",
     {
-      title: "Delete Reply",
+      title: "Delete Replies",
       description:
-        "Permanently removes a specific child comment (reply). Only the original author can delete their own reply.",
+        "Permanently delete one or more comment replies in a single operation. Each reply is fully self-contained with all parameters. Always use an array, even for a single reply. Only the original author can delete their own replies.",
       inputSchema: {
-        workspace_id: z.string().describe("Workspace ID"),
-        comment_id: z.string().describe("Parent comment ID"),
-        child_comment_id: z.string().describe("Child comment ID to delete"),
+        replies: z
+          .array(
+            z.object({
+              workspace_id: z.string().describe("Workspace ID"),
+              comment_id: z.string().describe("Parent comment ID"),
+              child_comment_id: z.string().describe("Child comment ID to delete"),
+            })
+          )
+          .describe("Array of replies to delete (use single-element array for one reply)"),
       },
     },
-    createToolHandler(async (client, args) => {
-      return client.comments.deleteReply(args.workspace_id, args.comment_id, args.child_comment_id)
-    })
+    createToolHandler(
+      async (
+        client,
+        args: {
+          replies: Array<{
+            workspace_id: string
+            comment_id: string
+            child_comment_id: string
+          }>
+        }
+      ) => {
+        // Process replies sequentially
+        const results = []
+        for (const reply of args.replies) {
+          const result = await client.comments.deleteReply(
+            reply.workspace_id,
+            reply.comment_id,
+            reply.child_comment_id
+          )
+          results.push(result)
+        }
+
+        return { deleted: results }
+      }
+    )
   )
 }

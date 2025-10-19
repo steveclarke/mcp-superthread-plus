@@ -220,31 +220,33 @@ Configure lists where cards should automatically be positioned at the top using
 
 #### Project Management (Roadmap)
 
-| Tool                     | Description                       |
-| ------------------------ | --------------------------------- |
-| `project_get_all`        | List all roadmap projects (epics) |
-| `project_get`            | Get project details               |
-| `project_create`         | Create new roadmap project        |
-| `project_update`         | Update project properties         |
-| `project_delete`         | Delete project permanently        |
-| `project_add_related`    | Link card to roadmap project      |
-| `project_remove_related` | Remove card from roadmap project  |
+**Note:** All project tools use batch operations with array parameters. Always pass arrays, even for single operations. Available batch tools: `project_creates`, `project_updates`, `project_deletes`, `project_add_relateds`, `project_remove_relateds`.
+
+| Tool                      | Description                                   |
+| ------------------------- | --------------------------------------------- |
+| `project_get_all`         | List all roadmap projects (epics)             |
+| `project_get`             | Get project details                           |
+| `project_creates`         | Create one or more projects (batch operation) |
+| `project_updates`         | Update one or more projects (batch operation) |
+| `project_deletes`         | Delete one or more projects (batch operation) |
+| `project_add_relateds`    | Link cards to projects (batch operation)      |
+| `project_remove_relateds` | Remove card-project links (batch operation)   |
 
 #### Board Management
 
 **Note:** All board tools use batch operations with array parameters. Always pass arrays, even for single operations.
 
-| Tool                 | Description                                   |
-| -------------------- | --------------------------------------------- |
-| `board_get_all`      | List all boards in a space                    |
-| `board_get`          | Get board details with lists and cards        |
-| `board_creates`      | Create one or more boards (batch operation)   |
-| `board_updates`      | Update one or more boards (batch operation)   |
-| `board_duplicate`    | Clone an existing board                       |
-| `board_deletes`      | Delete one or more boards (batch operation)   |
-| `board_create_lists` | Create one or more lists (batch operation)    |
-| `board_update_lists` | Update one or more lists (batch operation)    |
-| `board_delete_lists` | Delete one or more lists (batch operation)    |
+| Tool                 | Description                                 |
+| -------------------- | ------------------------------------------- |
+| `board_get_all`      | List all boards in a space                  |
+| `board_get`          | Get board details with lists and cards      |
+| `board_creates`      | Create one or more boards (batch operation) |
+| `board_updates`      | Update one or more boards (batch operation) |
+| `board_duplicate`    | Clone an existing board                     |
+| `board_deletes`      | Delete one or more boards (batch operation) |
+| `board_create_lists` | Create one or more lists (batch operation)  |
+| `board_update_lists` | Update one or more lists (batch operation)  |
+| `board_delete_lists` | Delete one or more lists (batch operation)  |
 
 #### Sprint Management
 
@@ -257,15 +259,15 @@ Configure lists where cards should automatically be positioned at the top using
 
 **Note:** All space tools use batch operations with array parameters. Always pass arrays, even for single operations.
 
-| Tool                  | Description                                                |
-| --------------------- | ---------------------------------------------------------- |
-| `space_get_all`       | List all spaces (organizational containers)                |
-| `space_get`           | Get space details                                          |
-| `space_creates`       | Create one or more spaces (batch operation)                |
-| `space_updates`       | Update one or more spaces (batch operation)                |
-| `space_deletes`       | Delete one or more spaces (batch operation)                |
-| `space_add_members`   | Add members to spaces (batch operation)                    |
-| `space_remove_members`| Remove members from spaces (batch operation)               |
+| Tool                   | Description                                  |
+| ---------------------- | -------------------------------------------- |
+| `space_get_all`        | List all spaces (organizational containers)  |
+| `space_get`            | Get space details                            |
+| `space_creates`        | Create one or more spaces (batch operation)  |
+| `space_updates`        | Update one or more spaces (batch operation)  |
+| `space_deletes`        | Delete one or more spaces (batch operation)  |
+| `space_add_members`    | Add members to spaces (batch operation)      |
+| `space_remove_members` | Remove members from spaces (batch operation) |
 
 #### Page Management
 
@@ -290,16 +292,18 @@ Configure lists where cards should automatically be positioned at the top using
 
 #### Comments & Collaboration
 
-| Tool                   | Description                      |
-| ---------------------- | -------------------------------- |
-| `comment_create`       | Create comment on card or page   |
-| `comment_update`       | Edit existing comment            |
-| `comment_get`          | Get comment details with replies |
-| `comment_delete`       | Delete comment permanently       |
-| `comment_reply`        | Reply to comment (create thread) |
-| `comment_get_replies`  | Get all replies to a comment     |
-| `comment_update_reply` | Edit a reply                     |
-| `comment_delete_reply` | Delete a reply                   |
+**Note:** All comment tools use batch operations with array parameters. Always pass arrays, even for single operations.
+
+| Tool                     | Description                                     |
+| ------------------------ | ----------------------------------------------- |
+| `comment_creates`        | Create one or more comments (batch operation)   |
+| `comment_updates`        | Update one or more comments (batch operation)   |
+| `comment_deletes`        | Delete one or more comments (batch operation)   |
+| `comment_replies`        | Reply to one or more comments (batch operation) |
+| `comment_update_replies` | Update one or more replies (batch operation)    |
+| `comment_delete_replies` | Delete one or more replies (batch operation)    |
+| `comment_get`            | Get comment details with replies                |
+| `comment_get_replies`    | Get all replies to a comment                    |
 
 **Note:** Comment tools support @mentions and HTML formatting. You can ask the AI to mention team members by name in comments and use HTML tags for rich formatting (headers, bold, italic, lists, links, etc.).
 
