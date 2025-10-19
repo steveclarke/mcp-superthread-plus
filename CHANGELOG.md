@@ -5,12 +5,12 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Changed
-- **BREAKING CHANGE:** Converted all card and tag tools to batch operations with array-based parameters
-  - Replaced singular tools with plural batch versions (e.g., `card_create` → `card_creates`, `tag_create` → `tag_creates`)
+- **BREAKING CHANGE:** Converted all card, tag, space, and board tools to batch operations with array-based parameters
+  - Replaced singular tools with plural batch versions (e.g., `card_create` → `card_creates`, `space_create` → `space_creates`)
   - All tools now require array parameters, even for single operations
   - LLMs always use arrays for consistency (e.g., `cards: [{ workspace_id, card_id, title, ... }]`)
   - Enables efficient bulk operations (create/update/delete multiple items in one call)
-  - Fully self-contained objects: each card/tag/checklist/item includes all necessary parameters
+  - Fully self-contained objects: each card/tag/space/board/list includes all necessary parameters
   - Sequential processing ensures proper parent-child dependencies
   - Preserved smart positioning logic for all card creation/update operations
 
@@ -35,6 +35,19 @@ All notable changes to this project will be documented in this file.
   - `tag_creates` - Create multiple tags in one call
   - `tag_updates` - Update multiple tags (name/color changes)
   - `tag_deletes` - Delete multiple tags permanently
+- Batch space operations (all new plural tools):
+  - `space_creates` - Create multiple spaces (organizational containers)
+  - `space_updates` - Update multiple spaces
+  - `space_deletes` - Delete multiple spaces
+  - `space_add_members` - Add members to spaces in batch
+  - `space_remove_members` - Remove members from spaces in batch
+- Batch board operations (all new plural tools):
+  - `board_creates` - Create multiple boards
+  - `board_updates` - Update multiple boards
+  - `board_deletes` - Delete multiple boards
+  - `board_create_lists` - Create multiple lists (columns/statuses)
+  - `board_update_lists` - Update multiple lists
+  - `board_delete_lists` - Delete multiple lists
 - Checklist item `checked` parameter support
   - Items can now be created as already checked via `card_add_checklist_items`
   - Eliminates need for separate update calls when creating pre-checked items
@@ -48,6 +61,10 @@ All notable changes to this project will be documented in this file.
   - `card_add_checklist_item`, `card_update_checklist_item`, `card_delete_checklist_item`
 - Singular tag tools (replaced with batch versions):
   - `tag_create`, `tag_update`, `tag_delete`
+- Singular space tools (replaced with batch versions):
+  - `space_create`, `space_update`, `space_delete`, `space_add_member`, `space_remove_member`
+- Singular board tools (replaced with batch versions):
+  - `board_create`, `board_update`, `board_delete`, `board_create_list`, `board_update_list`, `board_delete_list`
 
 ### Performance Impact
 - Reduces MCP tool calls by up to 80% for bulk operations

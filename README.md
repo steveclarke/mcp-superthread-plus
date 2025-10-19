@@ -232,17 +232,19 @@ Configure lists where cards should automatically be positioned at the top using
 
 #### Board Management
 
-| Tool                | Description                            |
-| ------------------- | -------------------------------------- |
-| `board_get_all`     | List all boards in a space             |
-| `board_get`         | Get board details with lists and cards |
-| `board_create`      | Create new board                       |
-| `board_update`      | Update board properties                |
-| `board_duplicate`   | Clone an existing board                |
-| `board_delete`      | Delete board permanently               |
-| `board_create_list` | Create status column/list on board     |
-| `board_update_list` | Update list/column properties          |
-| `board_delete_list` | Delete list/column permanently         |
+**Note:** All board tools use batch operations with array parameters. Always pass arrays, even for single operations.
+
+| Tool                 | Description                                   |
+| -------------------- | --------------------------------------------- |
+| `board_get_all`      | List all boards in a space                    |
+| `board_get`          | Get board details with lists and cards        |
+| `board_creates`      | Create one or more boards (batch operation)   |
+| `board_updates`      | Update one or more boards (batch operation)   |
+| `board_duplicate`    | Clone an existing board                       |
+| `board_deletes`      | Delete one or more boards (batch operation)   |
+| `board_create_lists` | Create one or more lists (batch operation)    |
+| `board_update_lists` | Update one or more lists (batch operation)    |
+| `board_delete_lists` | Delete one or more lists (batch operation)    |
 
 #### Sprint Management
 
@@ -253,10 +255,17 @@ Configure lists where cards should automatically be positioned at the top using
 
 #### Space Management
 
-| Tool            | Description                                 |
-| --------------- | ------------------------------------------- |
-| `space_get_all` | List all spaces (organizational containers) |
-| `space_get`     | Get space details                           |
+**Note:** All space tools use batch operations with array parameters. Always pass arrays, even for single operations.
+
+| Tool                  | Description                                                |
+| --------------------- | ---------------------------------------------------------- |
+| `space_get_all`       | List all spaces (organizational containers)                |
+| `space_get`           | Get space details                                          |
+| `space_creates`       | Create one or more spaces (batch operation)                |
+| `space_updates`       | Update one or more spaces (batch operation)                |
+| `space_deletes`       | Delete one or more spaces (batch operation)                |
+| `space_add_members`   | Add members to spaces (batch operation)                    |
+| `space_remove_members`| Remove members from spaces (batch operation)               |
 
 #### Page Management
 
