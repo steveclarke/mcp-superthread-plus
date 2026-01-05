@@ -63,27 +63,27 @@
     "pack:dist": "pnpm run clean && pnpm run build && mkdir -p tmp && pnpm pack --pack-destination tmp"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.20.1",
+    "@modelcontextprotocol/sdk": "^1.25.1",
     "urlcat": "^3.1.0",
-    "validator": "^13.15.15",
+    "validator": "^13.15.26",
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@types/node": "^24.8.1",
-    "@types/validator": "^13.15.3",
-    "@typescript-eslint/eslint-plugin": "^8.46.1",
-    "@typescript-eslint/parser": "^8.46.1",
+    "@types/node": "^24.10.4",
+    "@types/validator": "^13.15.10",
+    "@typescript-eslint/eslint-plugin": "^8.51.0",
+    "@typescript-eslint/parser": "^8.51.0",
     "@vitest/coverage-v8": "^3.2.4",
     "@vitest/ui": "^3.2.4",
-    "eslint": "^9.38.0",
+    "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "husky": "^9.1.7",
-    "lint-staged": "^16.2.4",
+    "lint-staged": "^16.2.7",
     "np": "^10.2.0",
-    "prettier": "^3.6.2",
+    "prettier": "^3.7.4",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
   },
-  "packageManager": "pnpm@10.18.3"
+  "packageManager": "pnpm@10.27.0"
 }
